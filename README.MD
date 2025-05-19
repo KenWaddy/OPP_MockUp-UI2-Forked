@@ -9,6 +9,9 @@
 
 This [Refine](https://github.com/refinedev/refine) project was generated with [create refine-app](https://github.com/refinedev/refine/tree/master/packages/create-refine-app).
 
+## Project Description
+A UI mockup for tenant, device, and billing management system.
+
 ## Getting Started
 
 A React Framework for building internal tools, admin panels, dashboards & B2B apps with unmatched flexibility ✨
