@@ -345,129 +345,128 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
   if (!tenant) return null;
 
   return (
-    <Grid container spacing={3}>
-      {/* Tenant Information Panel */}
-      <Grid item xs={12} md={6}>
+    <Grid container spacing={3} direction="column">
+      {/* Basic Info Panel */}
+      <Grid item xs={12}>
         <Paper 
           elevation={2} 
           sx={{ 
             p: 2, 
-            height: '100%', 
             border: '1px solid #ddd', 
             borderRadius: '4px' 
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Tenant Information
+            Basic Info
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
-          <List disablePadding>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.name} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="ID" 
                 secondary={tenant.id} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Description" 
                 secondary={tenant.description || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            
-            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-              Owner
-            </Typography>
-            <Box sx={{ pl: 2 }}>
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemText 
-                  primary="Name" 
-                  secondary={tenant.owner.name} 
-                  primaryTypographyProps={{ variant: 'subtitle2' }}
-                />
-              </ListItem>
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemText 
-                  primary="eMail" 
-                  secondary={tenant.owner.email} 
-                  primaryTypographyProps={{ variant: 'subtitle2' }}
-                />
-              </ListItem>
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemText 
-                  primary="Phone" 
-                  secondary={tenant.owner.phone || 'N/A'} 
-                  primaryTypographyProps={{ variant: 'subtitle2' }}
-                />
-              </ListItem>
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemText 
-                  primary="Address" 
-                  secondary={tenant.owner.address || 'N/A'} 
-                  primaryTypographyProps={{ variant: 'subtitle2' }}
-                />
-              </ListItem>
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemText 
-                  primary="Country" 
-                  secondary={tenant.owner.country || 'N/A'} 
-                  primaryTypographyProps={{ variant: 'subtitle2' }}
-                />
-              </ListItem>
             </Box>
-          </List>
+          </Box>
+          
+          <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+            Owner
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2 }}>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+              <ListItemText 
+                primary="Name" 
+                secondary={tenant.owner.name} 
+                primaryTypographyProps={{ variant: 'subtitle2' }}
+              />
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+              <ListItemText 
+                primary="eMail" 
+                secondary={tenant.owner.email} 
+                primaryTypographyProps={{ variant: 'subtitle2' }}
+              />
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+              <ListItemText 
+                primary="Phone" 
+                secondary={tenant.owner.phone || 'N/A'} 
+                primaryTypographyProps={{ variant: 'subtitle2' }}
+              />
+            </Box>
+            <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
+              <ListItemText 
+                primary="Address" 
+                secondary={tenant.owner.address || 'N/A'} 
+                primaryTypographyProps={{ variant: 'subtitle2' }}
+              />
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+              <ListItemText 
+                primary="Country" 
+                secondary={tenant.owner.country || 'N/A'} 
+                primaryTypographyProps={{ variant: 'subtitle2' }}
+              />
+            </Box>
+          </Box>
         </Paper>
       </Grid>
 
-      {/* Subscription Information Panel */}
-      <Grid item xs={12} md={6}>
+      {/* Subscription Panel */}
+      <Grid item xs={12}>
         <Paper 
           elevation={2} 
           sx={{ 
             p: 2, 
-            height: '100%', 
             border: '1px solid #ddd', 
             borderRadius: '4px' 
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Subscription Information
+            Subscription
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
-          <List disablePadding>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.subscription?.name || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="ID" 
                 secondary={tenant.subscription?.id || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Description" 
                 secondary={tenant.subscription?.description || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            
+            <Box sx={{ minWidth: '300px', flex: '2 1 auto' }}>
               <ListItemText 
                 primary="Services" 
                 secondary={
@@ -481,43 +480,44 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
                 }
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Term Type" 
                 secondary={tenant.subscription?.termType || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Status" 
                 secondary={tenant.subscription?.status || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Start Date" 
                 secondary={tenant.subscription?.startDate || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="End Date" 
                 secondary={tenant.subscription?.endDate || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            </Box>
+            <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Configs" 
                 secondary={tenant.subscription?.configs || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
-            </ListItem>
-          </List>
+            </Box>
+          </Box>
         </Paper>
       </Grid>
     </Grid>
