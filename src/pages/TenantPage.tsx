@@ -1,6 +1,36 @@
 import React, { useState } from "react";
-import { Grid, Paper, Typography, Box, Divider, List, ListItem, ListItemText, Chip } from "@mui/material";
+import { 
+  Grid, 
+  Paper, 
+  Typography, 
+  Box, 
+  Divider, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+} from "@mui/material";
 import "./TenantPage.css";
+
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: "Owner" | "Engineer" | "Member";
+  ipWhitelist: string[];
+  mfaEnabled: boolean;
+};
 
 type Tenant = {
   id: string;
@@ -27,6 +57,7 @@ type Tenant = {
     endDate?: string;
     configs?: string;
   };
+  users?: User[];
 };
 
 const mockTenants: Tenant[] = [
@@ -54,7 +85,33 @@ const mockTenants: Tenant[] = [
       startDate: "2023-01-15",
       endDate: "2024-01-14",
       configs: "Custom deployment with high availability"
-    }
+    },
+    users: [
+      {
+        id: "u1",
+        name: "Alice Smith",
+        email: "alice@example.com",
+        role: "Owner",
+        ipWhitelist: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u2",
+        name: "Bob Johnson",
+        email: "bob@example.com",
+        role: "Engineer",
+        ipWhitelist: ["192.168.1.2"],
+        mfaEnabled: true
+      },
+      {
+        id: "u3",
+        name: "Carol Williams",
+        email: "carol@example.com",
+        role: "Member",
+        ipWhitelist: [],
+        mfaEnabled: false
+      }
+    ]
   },
   {
     id: "2",
@@ -80,7 +137,25 @@ const mockTenants: Tenant[] = [
       startDate: "2023-03-10",
       endDate: "",
       configs: "Default configuration"
-    }
+    },
+    users: [
+      {
+        id: "u4",
+        name: "David Brown",
+        email: "david@example.com",
+        role: "Owner",
+        ipWhitelist: ["192.168.2.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u5",
+        name: "Emma Davis",
+        email: "emma@example.com",
+        role: "Engineer",
+        ipWhitelist: ["192.168.2.2", "10.0.0.2"],
+        mfaEnabled: true
+      }
+    ]
   },
   // 他のテナントも必要に応じて追加可能
 ];
@@ -113,7 +188,7 @@ export const TenantPage: React.FC = () => {
         </div>
         <div className="tab-content">
           {activeTab === "info" && <TenantInfoPanel tenant={selectedTenant} />}
-          {activeTab === "users" && <p>ユーザー一覧をここに表示します。</p>}
+          {activeTab === "users" && <TenantUserListPanel tenant={selectedTenant} />}
           {activeTab === "devices" && <p>デバイス一覧をここに表示します。</p>}
           {activeTab === "billing" && <p>請求情報をここに表示します。</p>}
         </div>
@@ -339,5 +414,102 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
         </Paper>
       </Grid>
     </Grid>
+  );
+};
+
+const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
+  if (!tenant) return null;
+  
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [openIpDialog, setOpenIpDialog] = useState(false);
+  
+  const handleOpenIpDialog = (user: User) => {
+    setSelectedUser(user);
+    setOpenIpDialog(true);
+  };
+  
+  const handleCloseIpDialog = () => {
+    setOpenIpDialog(false);
+  };
+  
+  return (
+    <Paper
+      elevation={2}
+      sx={{
+        p: 2,
+        border: '1px solid #ddd',
+        borderRadius: '4px'
+      }}
+    >
+      <Typography variant="h6" gutterBottom>
+        User List
+      </Typography>
+      <Divider sx={{ mb: 2 }} />
+      
+      <TableContainer>
+        <Table aria-label="user list table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>IP Whitelist</TableCell>
+              <TableCell>MFA</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tenant.users && tenant.users.length > 0 ? (
+              tenant.users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.role}</TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outlined" 
+                      size="small"
+                      onClick={() => handleOpenIpDialog(user)}
+                    >
+                      View
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    {user.mfaEnabled ? 'Enabled' : 'Disabled'}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} align="center">No users found</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      
+      <Dialog open={openIpDialog} onClose={handleCloseIpDialog} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          IP Whitelist for {selectedUser?.name}
+        </DialogTitle>
+        <DialogContent dividers>
+          {selectedUser && selectedUser.ipWhitelist.length > 0 ? (
+            <List dense>
+              {selectedUser.ipWhitelist.map((ip, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={ip} />
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No IP addresses in whitelist
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseIpDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Paper>
   );
 };
