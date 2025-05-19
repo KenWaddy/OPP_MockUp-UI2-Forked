@@ -23,8 +23,12 @@ import {
   Switch,
   Checkbox,
   FormGroup,
-  FormControlLabel
+  FormControlLabel,
+  TextField,
+  IconButton,
+  InputAdornment
 } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import "./TenantPage.css";
 
 type User = {
@@ -427,14 +431,50 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [openIpDialog, setOpenIpDialog] = useState(false);
   const [users, setUsers] = useState<User[]>(tenant.users || []);
+  const [editMode, setEditMode] = useState(false);
+  const [editableIpList, setEditableIpList] = useState<string[]>([]);
+  const [newIpAddress, setNewIpAddress] = useState('');
   
   const handleOpenIpDialog = (user: User) => {
     setSelectedUser(user);
+    setEditableIpList(user.ipWhitelist.slice());
+    setEditMode(false);
     setOpenIpDialog(true);
   };
   
   const handleCloseIpDialog = () => {
     setOpenIpDialog(false);
+    setEditMode(false);
+  };
+  
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+  
+  const handleSaveClick = () => {
+    if (selectedUser) {
+      const updatedUsers = users.map(user => 
+        user.id === selectedUser.id 
+          ? { ...user, ipWhitelist: editableIpList } 
+          : user
+      );
+      setUsers(updatedUsers);
+      setSelectedUser({ ...selectedUser, ipWhitelist: editableIpList });
+      setEditMode(false);
+    }
+  };
+  
+  const handleAddIp = () => {
+    if (newIpAddress.trim() !== '') {
+      setEditableIpList([...editableIpList, newIpAddress.trim()]);
+      setNewIpAddress('');
+    }
+  };
+  
+  const handleRemoveIp = (index: number) => {
+    const newList = [...editableIpList];
+    newList.splice(index, 1);
+    setEditableIpList(newList);
   };
   
   const handleMfaToggle = (userId: string) => {
@@ -557,22 +597,98 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
           IP Whitelist for {selectedUser?.name}
         </DialogTitle>
         <DialogContent dividers>
-          {selectedUser && selectedUser.ipWhitelist.length > 0 ? (
-            <List dense>
-              {selectedUser.ipWhitelist.map((ip, index) => (
-                <ListItem key={index}>
-                  <ListItemText primary={ip} />
-                </ListItem>
-              ))}
-            </List>
+          {editMode ? (
+            <>
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="New IP Address"
+                  value={newIpAddress}
+                  onChange={(e) => setNewIpAddress(e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Button 
+                          variant="contained" 
+                          size="small" 
+                          onClick={handleAddIp}
+                          disabled={!newIpAddress.trim()}
+                        >
+                          Add
+                        </Button>
+                      </InputAdornment>
+                    ),
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && newIpAddress.trim() !== '') {
+                      handleAddIp();
+                    }
+                  }}
+                />
+              </Box>
+              {editableIpList.length > 0 ? (
+                <List dense>
+                  {editableIpList.map((ip, index) => (
+                    <ListItem 
+                      key={index}
+                      secondaryAction={
+                        <IconButton 
+                          edge="end" 
+                          aria-label="delete" 
+                          onClick={() => handleRemoveIp(index)}
+                          size="small"
+                        >
+                          <DeleteIcon>delete</DeleteIcon>
+                        </IconButton>
+                      }
+                    >
+                      <ListItemText primary={ip} />
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No IP addresses in whitelist
+                </Typography>
+              )}
+            </>
           ) : (
-            <Typography variant="body2" color="text.secondary">
-              No IP addresses in whitelist
-            </Typography>
+            <>
+              {selectedUser && selectedUser.ipWhitelist.length > 0 ? (
+                <List dense>
+                  {selectedUser.ipWhitelist.map((ip, index) => (
+                    <ListItem key={index}>
+                      <ListItemText primary={ip} />
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No IP addresses in whitelist
+                </Typography>
+              )}
+            </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseIpDialog}>Close</Button>
+          {editMode ? (
+            <>
+              <Button onClick={handleSaveClick} color="primary">
+                Save
+              </Button>
+              <Button onClick={() => setEditMode(false)}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={handleEditClick} color="primary">
+                Edit
+              </Button>
+              <Button onClick={handleCloseIpDialog}>Close</Button>
+            </>
+          )}
         </DialogActions>
       </Dialog>
     </Paper>
