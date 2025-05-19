@@ -1222,7 +1222,7 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
         
         {(paymentType === "Monthly" || paymentType === "Annually") && (
           <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
-            <FormControl fullWidth size="small">
+            <FormControl size="small" sx={{ width: 'auto', minWidth: '80px' }}>
               <InputLabel>Due Day</InputLabel>
               <Select
                 value={tenant.billingDetails?.dueDay || 1}
@@ -1281,15 +1281,15 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ pr: 1 }}>Device Type</TableCell>
-                  <TableCell align="center" sx={{ pl: 1, width: '100px' }}>Quantity</TableCell>
+                  <TableCell sx={{ pr: 0, width: '120px' }}>Device Type</TableCell>
+                  <TableCell align="left" sx={{ pl: 0, width: '60px' }}>Quantity</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {deviceContract.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell sx={{ pr: 1 }}>{item.type}</TableCell>
-                    <TableCell align="center" sx={{ pl: 1, width: '100px' }}>{item.quantity}</TableCell>
+                    <TableCell sx={{ pr: 0, width: '120px' }}>{item.type}</TableCell>
+                    <TableCell align="left" sx={{ pl: 0, width: '60px' }}>{item.quantity}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
