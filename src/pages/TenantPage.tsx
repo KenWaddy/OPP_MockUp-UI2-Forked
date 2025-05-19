@@ -61,6 +61,11 @@ type Device = {
   attributes: Attribute[];
 };
 
+type DeviceContractItem = {
+  type: Device["type"];
+  quantity: number;
+};
+
 type Tenant = {
   id: string;
   name: string;
@@ -75,6 +80,17 @@ type Tenant = {
   contract: string;
   status: string;
   billing: string;
+  billingDetails?: {
+    billingId?: string;
+    deviceContract?: DeviceContractItem[];
+    startDate?: string;
+    endDate?: string;
+    paymentType?: "One-time" | "Monthly" | "Annually";
+    billingDate?: string; // For One-time payment
+    dueDay?: number | "End of Month"; // For Monthly/Annually payment
+    dueMonth?: number; // For Annually payment
+    billingStartDate?: string;
+  };
   subscription?: {
     name?: string;
     id?: string;
@@ -105,6 +121,19 @@ const mockTenants: Tenant[] = [
     contract: "Evergreen",
     status: "Active",
     billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-001",
+      deviceContract: [
+        { type: "Server", quantity: 5 },
+        { type: "Workstation", quantity: 10 },
+        { type: "Mobile", quantity: 15 }
+      ],
+      startDate: "2023-01-15",
+      endDate: "2024-01-14",
+      paymentType: "Monthly",
+      dueDay: 15,
+      billingStartDate: "2023-01-15"
+    },
     subscription: {
       name: "Enterprise Plan",
       id: "EP-001",
@@ -203,6 +232,18 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-002",
+      deviceContract: [
+        { type: "Server", quantity: 2 },
+        { type: "Workstation", quantity: 5 }
+      ],
+      startDate: "2023-03-10",
+      endDate: "2024-03-09",
+      paymentType: "Monthly",
+      dueDay: "End of Month",
+      billingStartDate: "2023-03-10"
+    },
     subscription: {
       name: "Standard Plan",
       id: "SP-002",
@@ -297,7 +338,7 @@ export const TenantPage: React.FC = () => {
           {activeTab === "info" && <TenantInfoPanel tenant={selectedTenant} />}
           {activeTab === "users" && <TenantUserListPanel tenant={selectedTenant} />}
           {activeTab === "devices" && <TenantDeviceListPanel tenant={selectedTenant} />}
-          {activeTab === "billing" && <p>請求情報をここに表示します。</p>}
+          {activeTab === "billing" && <TenantBillingInfoPanel tenant={selectedTenant} />}
         </div>
       </div>
     );
@@ -1084,6 +1125,182 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
           )}
         </DialogActions>
       </Dialog>
+    </Paper>
+  );
+};
+const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
+  if (!tenant) return null;
+
+  const [paymentType, setPaymentType] = useState<"One-time" | "Monthly" | "Annually">(
+    tenant.billingDetails?.paymentType || "Monthly"
+  );
+  
+  const [deviceContract, setDeviceContract] = useState<DeviceContractItem[]>(
+    tenant.billingDetails?.deviceContract || []
+  );
+
+  const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  
+  const totalDevices = deviceContract.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <Paper
+      elevation={2}
+      sx={{
+        p: 2,
+        border: '1px solid #ddd',
+        borderRadius: '4px'
+      }}
+    >
+      <Typography variant="h6" gutterBottom>
+        Billing Information
+      </Typography>
+      <Divider sx={{ mb: 2 }} />
+      
+      {/* Basic Billing Info */}
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <ListItemText 
+            primary="Billing ID" 
+            secondary={tenant.billingDetails?.billingId || 'N/A'} 
+            primaryTypographyProps={{ variant: 'subtitle2' }}
+          />
+        </Box>
+        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <ListItemText 
+            primary="Start Date" 
+            secondary={tenant.billingDetails?.startDate || 'N/A'} 
+            primaryTypographyProps={{ variant: 'subtitle2' }}
+          />
+        </Box>
+        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <ListItemText 
+            primary="End Date" 
+            secondary={tenant.billingDetails?.endDate || 'N/A'} 
+            primaryTypographyProps={{ variant: 'subtitle2' }}
+          />
+        </Box>
+        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <ListItemText 
+            primary="Billing Start Date" 
+            secondary={tenant.billingDetails?.billingStartDate || 'N/A'} 
+            primaryTypographyProps={{ variant: 'subtitle2' }}
+          />
+        </Box>
+      </Box>
+      
+      {/* Payment Type Section */}
+      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+        Payment Settings
+      </Typography>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2, mb: 3 }}>
+        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <FormControl fullWidth size="small">
+            <InputLabel>Payment Type</InputLabel>
+            <Select
+              value={paymentType}
+              onChange={(e) => setPaymentType(e.target.value as "One-time" | "Monthly" | "Annually")}
+              label="Payment Type"
+            >
+              <MenuItem value="One-time">One-time</MenuItem>
+              <MenuItem value="Monthly">Monthly</MenuItem>
+              <MenuItem value="Annually">Annually</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+        
+        {/* Conditional Fields Based on Payment Type */}
+        {paymentType === "One-time" && (
+          <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <ListItemText 
+              primary="Billing Date" 
+              secondary={tenant.billingDetails?.billingDate || 'N/A'} 
+              primaryTypographyProps={{ variant: 'subtitle2' }}
+            />
+          </Box>
+        )}
+        
+        {(paymentType === "Monthly" || paymentType === "Annually") && (
+          <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Due Day</InputLabel>
+              <Select
+                value={tenant.billingDetails?.dueDay || 1}
+                label="Due Day"
+              >
+                {[...Array(31)].map((_, i) => (
+                  <MenuItem key={i+1} value={i+1}>{i+1}</MenuItem>
+                ))}
+                <MenuItem value="End of Month">End of Month</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+        
+        {paymentType === "Annually" && (
+          <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Due Month</InputLabel>
+              <Select
+                value={tenant.billingDetails?.dueMonth || 1}
+                label="Due Month"
+              >
+                {[
+                  { value: 1, label: "January" },
+                  { value: 2, label: "February" },
+                  { value: 3, label: "March" },
+                  { value: 4, label: "April" },
+                  { value: 5, label: "May" },
+                  { value: 6, label: "June" },
+                  { value: 7, label: "July" },
+                  { value: 8, label: "August" },
+                  { value: 9, label: "September" },
+                  { value: 10, label: "October" },
+                  { value: 11, label: "November" },
+                  { value: 12, label: "December" }
+                ].map(month => (
+                  <MenuItem key={month.value} value={month.value}>{month.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+      </Box>
+      
+      {/* Device Contract Section */}
+      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+        Device Contract
+      </Typography>
+      <Box sx={{ pl: 2 }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Total Devices: {totalDevices}
+        </Typography>
+        
+        {deviceContract.length > 0 ? (
+          <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Device Type</TableCell>
+                  <TableCell align="right">Quantity</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {deviceContract.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.type}</TableCell>
+                    <TableCell align="right">{item.quantity}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No device contract information available.
+          </Typography>
+        )}
+      </Box>
     </Paper>
   );
 };
