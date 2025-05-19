@@ -1168,14 +1168,14 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
         </Box>
         <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
           <ListItemText 
-            primary="Start Date" 
+            primary="Contract Start" 
             secondary={tenant.billingDetails?.startDate || 'N/A'} 
             primaryTypographyProps={{ variant: 'subtitle2' }}
           />
         </Box>
         <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
           <ListItemText 
-            primary="End Date" 
+            primary="Contract End" 
             secondary={tenant.billingDetails?.endDate || 'N/A'} 
             primaryTypographyProps={{ variant: 'subtitle2' }}
           />
@@ -1195,7 +1195,7 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2, mb: 3 }}>
         <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
-          <FormControl fullWidth size="small">
+          <FormControl size="small" sx={{ width: 'auto', minWidth: '120px' }}>
             <InputLabel>Payment Type</InputLabel>
             <Select
               value={paymentType}
@@ -1281,15 +1281,15 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Device Type</TableCell>
-                  <TableCell align="right">Quantity</TableCell>
+                  <TableCell sx={{ pr: 1 }}>Device Type</TableCell>
+                  <TableCell align="center" sx={{ pl: 1, width: '100px' }}>Quantity</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {deviceContract.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell>{item.type}</TableCell>
-                    <TableCell align="right">{item.quantity}</TableCell>
+                    <TableCell sx={{ pr: 1 }}>{item.type}</TableCell>
+                    <TableCell align="center" sx={{ pl: 1, width: '100px' }}>{item.quantity}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
