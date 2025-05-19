@@ -19,7 +19,11 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Switch,
+  Checkbox,
+  FormGroup,
+  FormControlLabel
 } from "@mui/material";
 import "./TenantPage.css";
 
@@ -27,7 +31,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role: "Owner" | "Engineer" | "Member";
+  roles: ("Owner" | "Engineer" | "Member")[];
   ipWhitelist: string[];
   mfaEnabled: boolean;
 };
@@ -91,7 +95,7 @@ const mockTenants: Tenant[] = [
         id: "u1",
         name: "Alice Smith",
         email: "alice@example.com",
-        role: "Owner",
+        roles: ["Owner"],
         ipWhitelist: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
         mfaEnabled: true
       },
@@ -99,7 +103,7 @@ const mockTenants: Tenant[] = [
         id: "u2",
         name: "Bob Johnson",
         email: "bob@example.com",
-        role: "Engineer",
+        roles: ["Engineer", "Member"],
         ipWhitelist: ["192.168.1.2"],
         mfaEnabled: true
       },
@@ -107,7 +111,7 @@ const mockTenants: Tenant[] = [
         id: "u3",
         name: "Carol Williams",
         email: "carol@example.com",
-        role: "Member",
+        roles: ["Member"],
         ipWhitelist: [],
         mfaEnabled: false
       }
@@ -143,7 +147,7 @@ const mockTenants: Tenant[] = [
         id: "u4",
         name: "David Brown",
         email: "david@example.com",
-        role: "Owner",
+        roles: ["Owner", "Engineer"],
         ipWhitelist: ["192.168.2.1"],
         mfaEnabled: true
       },
@@ -151,7 +155,7 @@ const mockTenants: Tenant[] = [
         id: "u5",
         name: "Emma Davis",
         email: "emma@example.com",
-        role: "Engineer",
+        roles: ["Engineer", "Member"],
         ipWhitelist: ["192.168.2.2", "10.0.0.2"],
         mfaEnabled: true
       }
@@ -422,6 +426,7 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
   
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [openIpDialog, setOpenIpDialog] = useState(false);
+  const [users, setUsers] = useState<User[]>(tenant.users || []);
   
   const handleOpenIpDialog = (user: User) => {
     setSelectedUser(user);
@@ -430,6 +435,29 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
   
   const handleCloseIpDialog = () => {
     setOpenIpDialog(false);
+  };
+  
+  const handleMfaToggle = (userId: string) => {
+    setUsers(prevUsers => 
+      prevUsers.map(user => 
+        user.id === userId ? { ...user, mfaEnabled: !user.mfaEnabled } : user
+      )
+    );
+  };
+  
+  const handleRoleToggle = (userId: string, role: "Owner" | "Engineer" | "Member") => {
+    setUsers(prevUsers => 
+      prevUsers.map(user => {
+        if (user.id === userId) {
+          const hasRole = user.roles.includes(role);
+          const newRoles = hasRole 
+            ? user.roles.filter(r => r !== role) 
+            : [...user.roles, role];
+          return { ...user, roles: newRoles };
+        }
+        return user;
+      })
+    );
   };
   
   return (
@@ -458,12 +486,45 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
             </TableRow>
           </TableHead>
           <TableBody>
-            {tenant.users && tenant.users.length > 0 ? (
-              tenant.users.map((user) => (
+            {users.length > 0 ? (
+              users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
+                  <TableCell>
+                    <FormGroup row>
+                      <FormControlLabel
+                        control={
+                          <Checkbox 
+                            size="small"
+                            checked={user.roles.includes("Owner")}
+                            onChange={() => handleRoleToggle(user.id, "Owner")}
+                          />
+                        }
+                        label="Owner"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox 
+                            size="small"
+                            checked={user.roles.includes("Engineer")}
+                            onChange={() => handleRoleToggle(user.id, "Engineer")}
+                          />
+                        }
+                        label="Engineer"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox 
+                            size="small"
+                            checked={user.roles.includes("Member")}
+                            onChange={() => handleRoleToggle(user.id, "Member")}
+                          />
+                        }
+                        label="Member"
+                      />
+                    </FormGroup>
+                  </TableCell>
                   <TableCell>
                     <Button 
                       variant="outlined" 
@@ -474,7 +535,11 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                     </Button>
                   </TableCell>
                   <TableCell>
-                    {user.mfaEnabled ? 'Enabled' : 'Disabled'}
+                    <Switch
+                      checked={user.mfaEnabled}
+                      onChange={() => handleMfaToggle(user.id)}
+                      size="small"
+                    />
                   </TableCell>
                 </TableRow>
               ))
