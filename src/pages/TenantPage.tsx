@@ -402,15 +402,15 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'flex-start' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.name} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="ID" 
                 secondary={tenant.id} 
@@ -429,22 +429,22 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
           <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
             Owner
           </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2 }}>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2, justifyContent: 'flex-start' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.owner.name} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="eMail" 
                 secondary={tenant.owner.email} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Phone" 
                 secondary={tenant.owner.phone || 'N/A'} 
@@ -458,7 +458,7 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Country" 
                 secondary={tenant.owner.country || 'N/A'} 
@@ -484,15 +484,15 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'flex-start' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.subscription?.name || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="ID" 
                 secondary={tenant.subscription?.id || 'N/A'} 
@@ -523,28 +523,28 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
               />
             </Box>
             
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Term Type" 
                 secondary={tenant.subscription?.termType || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Status" 
                 secondary={tenant.subscription?.status || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Start Date" 
                 secondary={tenant.subscription?.startDate || 'N/A'} 
                 primaryTypographyProps={{ variant: 'subtitle2' }}
               />
             </Box>
-            <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+            <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="End Date" 
                 secondary={tenant.subscription?.endDate || 'N/A'} 
@@ -1158,8 +1158,8 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
       <Divider sx={{ mb: 2 }} />
       
       {/* Basic Billing Info */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3, justifyContent: 'flex-start' }}>
+        <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
           <ListItemText 
             primary="Billing ID" 
             secondary={tenant.billingDetails?.billingId || 'N/A'} 
@@ -1193,8 +1193,8 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
       <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
         Payment Settings
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2, mb: 3 }}>
-        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2, mb: 3, justifyContent: 'flex-start' }}>
+        <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
           <FormControl size="small" sx={{ width: 'auto', minWidth: '120px' }}>
             <InputLabel>Payment Type</InputLabel>
             <Select
@@ -1211,7 +1211,7 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
         
         {/* Conditional Fields Based on Payment Type */}
         {paymentType === "One-time" && (
-          <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
             <ListItemText 
               primary="Billing Date" 
               secondary={tenant.billingDetails?.billingDate || 'N/A'} 
@@ -1221,7 +1221,7 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
         )}
         
         {(paymentType === "Monthly" || paymentType === "Annually") && (
-          <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
             <FormControl size="small" sx={{ width: 'auto', minWidth: '80px' }}>
               <InputLabel>Due Day</InputLabel>
               <Select
@@ -1238,7 +1238,7 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
         )}
         
         {paymentType === "Annually" && (
-          <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
+          <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
             <FormControl fullWidth size="small">
               <InputLabel>Due Month</InputLabel>
               <Select
