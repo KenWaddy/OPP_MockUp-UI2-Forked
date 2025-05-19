@@ -305,7 +305,776 @@ const mockTenants: Tenant[] = [
       }
     ]
   },
-  // 他のテナントも必要に応じて追加可能
+  {
+    id: "3",
+    name: "Tenant C",
+    description: "Healthcare provider system",
+    owner: {
+      name: "Charlie",
+      email: "charlie@healthcare.com",
+      phone: "+1-333-444-5555",
+      address: "789 Medical Center Blvd",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Annually",
+    billingDetails: {
+      billingId: "BID-003",
+      deviceContract: [
+        { type: "Server", quantity: 8 },
+        { type: "Workstation", quantity: 25 },
+        { type: "Mobile", quantity: 40 },
+        { type: "IoT", quantity: 15 }
+      ],
+      startDate: "2023-02-01",
+      endDate: "2026-01-31",
+      paymentType: "Annually",
+      dueDay: 1,
+      dueMonth: 2,
+      billingStartDate: "2023-02-01"
+    },
+    subscription: {
+      name: "Healthcare Enterprise",
+      id: "HE-003",
+      description: "HIPAA-compliant healthcare system with advanced security",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Compliance Monitoring", "Audit Logging"],
+      termType: "Multi-year",
+      status: "Active",
+      startDate: "2023-02-01",
+      endDate: "2026-01-31",
+      configs: "High-security deployment with redundancy"
+    },
+    users: [
+      {
+        id: "u6",
+        name: "Dr. Sarah Chen",
+        email: "sarah@healthcare.com",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.3.1", "10.0.0.3"],
+        mfaEnabled: true
+      },
+      {
+        id: "u7",
+        name: "Michael Johnson",
+        email: "michael@healthcare.com",
+        roles: ["Engineer"],
+        ipWhitelist: ["192.168.3.2"],
+        mfaEnabled: true
+      },
+      {
+        id: "u8",
+        name: "Lisa Rodriguez",
+        email: "lisa@healthcare.com",
+        roles: ["Member"],
+        ipWhitelist: ["192.168.3.3"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d6",
+        name: "Patient Records Server",
+        type: "Server",
+        deviceId: "SRV-003",
+        serialNo: "PQR123456789",
+        description: "Secure server for patient records",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "24 cores" },
+          { key: "RAM", value: "256GB" },
+          { key: "Storage", value: "10TB SSD RAID" },
+          { key: "OS", value: "RHEL 8 Secure" }
+        ]
+      },
+      {
+        id: "d7",
+        name: "Nurse Station Workstation",
+        type: "Workstation",
+        deviceId: "WS-003",
+        serialNo: "STU987654321",
+        description: "Workstation for nursing staff",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "8 cores" },
+          { key: "RAM", value: "32GB" },
+          { key: "Storage", value: "1TB SSD" },
+          { key: "OS", value: "Windows 10 Enterprise LTSC" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "4",
+    name: "Tenant D",
+    description: "Financial services company",
+    owner: {
+      name: "Diana",
+      email: "diana@finance.com",
+      phone: "+1-444-555-6666",
+      address: "101 Wall Street",
+      country: "United States"
+    },
+    contract: "Evergreen",
+    status: "Active",
+    billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-004",
+      deviceContract: [
+        { type: "Server", quantity: 12 },
+        { type: "Workstation", quantity: 50 },
+        { type: "Mobile", quantity: 20 }
+      ],
+      startDate: "2023-04-15",
+      endDate: "",
+      paymentType: "Monthly",
+      dueDay: 15,
+      billingStartDate: "2023-04-15"
+    },
+    subscription: {
+      name: "Financial Enterprise",
+      id: "FE-004",
+      description: "High-security financial services platform",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Financial Compliance", "Real-time Monitoring"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-04-15",
+      endDate: "2024-04-14",
+      configs: "High-frequency trading optimized deployment"
+    },
+    users: [
+      {
+        id: "u9",
+        name: "Frank Williams",
+        email: "frank@finance.com",
+        roles: ["Owner", "Engineer"],
+        ipWhitelist: ["192.168.4.1", "10.0.0.4"],
+        mfaEnabled: true
+      },
+      {
+        id: "u10",
+        name: "Grace Lee",
+        email: "grace@finance.com",
+        roles: ["Engineer"],
+        ipWhitelist: ["192.168.4.2"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d8",
+        name: "Trading Server",
+        type: "Server",
+        deviceId: "SRV-004",
+        serialNo: "VWX123456789",
+        description: "Low-latency trading server",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "32 cores" },
+          { key: "RAM", value: "512GB" },
+          { key: "Storage", value: "4TB NVMe" },
+          { key: "Network", value: "10Gbps dedicated" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "5",
+    name: "Tenant E",
+    description: "E-commerce platform",
+    owner: {
+      name: "Edward",
+      email: "edward@ecommerce.com",
+      phone: "+1-555-666-7777",
+      address: "202 Market Street",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Annually",
+    billingDetails: {
+      billingId: "BID-005",
+      deviceContract: [
+        { type: "Server", quantity: 20 },
+        { type: "Workstation", quantity: 15 },
+        { type: "Mobile", quantity: 10 }
+      ],
+      startDate: "2023-05-01",
+      endDate: "2025-04-30",
+      paymentType: "Annually",
+      dueDay: 1,
+      dueMonth: 5,
+      billingStartDate: "2023-05-01"
+    },
+    subscription: {
+      name: "E-commerce Enterprise",
+      id: "EE-005",
+      description: "Scalable e-commerce platform with peak season support",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Elastic Scaling", "CDN Integration"],
+      termType: "Multi-year",
+      status: "Active",
+      startDate: "2023-05-01",
+      endDate: "2025-04-30",
+      configs: "Auto-scaling with load balancing"
+    },
+    users: [
+      {
+        id: "u11",
+        name: "Helen Brown",
+        email: "helen@ecommerce.com",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.5.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u12",
+        name: "Ian Clark",
+        email: "ian@ecommerce.com",
+        roles: ["Engineer", "Member"],
+        ipWhitelist: ["192.168.5.2", "10.0.0.5"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d9",
+        name: "Web Server Cluster",
+        type: "Server",
+        deviceId: "SRV-005",
+        serialNo: "YZA123456789",
+        description: "Web server for e-commerce platform",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "16 cores" },
+          { key: "RAM", value: "128GB" },
+          { key: "Storage", value: "2TB SSD" },
+          { key: "OS", value: "Ubuntu 22.04 LTS" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "6",
+    name: "Tenant F",
+    description: "Manufacturing company",
+    owner: {
+      name: "Fiona",
+      email: "fiona@manufacturing.com",
+      phone: "+1-666-777-8888",
+      address: "303 Factory Road",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-006",
+      deviceContract: [
+        { type: "Server", quantity: 5 },
+        { type: "Workstation", quantity: 30 },
+        { type: "IoT", quantity: 100 }
+      ],
+      startDate: "2023-06-15",
+      endDate: "2024-06-14",
+      paymentType: "Monthly",
+      dueDay: "End of Month",
+      billingStartDate: "2023-06-15"
+    },
+    subscription: {
+      name: "Manufacturing Suite",
+      id: "MS-006",
+      description: "IoT-enabled manufacturing management system",
+      services: ["Core Platform", "Analytics", "IoT Hub", "Basic Support"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-06-15",
+      endDate: "2024-06-14",
+      configs: "Factory floor integration"
+    },
+    users: [
+      {
+        id: "u13",
+        name: "George Martinez",
+        email: "george@manufacturing.com",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.6.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u14",
+        name: "Hannah Wilson",
+        email: "hannah@manufacturing.com",
+        roles: ["Engineer"],
+        ipWhitelist: ["192.168.6.2"],
+        mfaEnabled: false
+      }
+    ],
+    devices: [
+      {
+        id: "d10",
+        name: "Production Line Controller",
+        type: "IoT",
+        deviceId: "IOT-006",
+        serialNo: "BCD987654321",
+        description: "Main controller for production line",
+        status: "Activated",
+        attributes: [
+          { key: "Connectivity", value: "Industrial Ethernet" },
+          { key: "Power", value: "24V DC" },
+          { key: "Enclosure", value: "IP67 Industrial" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "7",
+    name: "Tenant G",
+    description: "Government agency",
+    owner: {
+      name: "Gregory",
+      email: "gregory@gov.gov",
+      phone: "+1-777-888-9999",
+      address: "404 Government Plaza",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Annually",
+    billingDetails: {
+      billingId: "BID-007",
+      deviceContract: [
+        { type: "Server", quantity: 15 },
+        { type: "Workstation", quantity: 200 },
+        { type: "Mobile", quantity: 50 }
+      ],
+      startDate: "2023-07-01",
+      endDate: "2026-06-30",
+      paymentType: "Annually",
+      dueDay: 1,
+      dueMonth: 7,
+      billingStartDate: "2023-07-01"
+    },
+    subscription: {
+      name: "Government Secure",
+      id: "GS-007",
+      description: "FedRAMP-compliant secure government platform",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Compliance Monitoring", "Audit Logging"],
+      termType: "Multi-year",
+      status: "Active",
+      startDate: "2023-07-01",
+      endDate: "2026-06-30",
+      configs: "Air-gapped secure deployment"
+    },
+    users: [
+      {
+        id: "u15",
+        name: "Irene Taylor",
+        email: "irene@gov.gov",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.7.1", "10.0.0.7"],
+        mfaEnabled: true
+      },
+      {
+        id: "u16",
+        name: "Jack Robinson",
+        email: "jack@gov.gov",
+        roles: ["Engineer", "Member"],
+        ipWhitelist: ["192.168.7.2"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d11",
+        name: "Secure Database Server",
+        type: "Server",
+        deviceId: "SRV-007",
+        serialNo: "EFG123456789",
+        description: "Classified information database",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "64 cores" },
+          { key: "RAM", value: "1TB" },
+          { key: "Storage", value: "20TB SSD RAID" },
+          { key: "Security", value: "FIPS 140-2" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "8",
+    name: "Tenant H",
+    description: "Educational institution",
+    owner: {
+      name: "Henry",
+      email: "henry@edu.edu",
+      phone: "+1-888-999-0000",
+      address: "505 Campus Drive",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Annually",
+    billingDetails: {
+      billingId: "BID-008",
+      deviceContract: [
+        { type: "Server", quantity: 10 },
+        { type: "Workstation", quantity: 500 },
+        { type: "Mobile", quantity: 100 }
+      ],
+      startDate: "2023-08-15",
+      endDate: "2024-08-14",
+      paymentType: "Annually",
+      dueDay: 15,
+      dueMonth: 8,
+      billingStartDate: "2023-08-15"
+    },
+    subscription: {
+      name: "Education Suite",
+      id: "ES-008",
+      description: "Learning management system with student portal",
+      services: ["Core Platform", "Analytics", "API Access", "Basic Support", "Learning Tools"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-08-15",
+      endDate: "2024-08-14",
+      configs: "Campus-wide deployment"
+    },
+    users: [
+      {
+        id: "u17",
+        name: "Karen White",
+        email: "karen@edu.edu",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.8.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u18",
+        name: "Larry Green",
+        email: "larry@edu.edu",
+        roles: ["Engineer"],
+        ipWhitelist: ["192.168.8.2"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d12",
+        name: "Student Lab Server",
+        type: "Server",
+        deviceId: "SRV-008",
+        serialNo: "HIJ123456789",
+        description: "Server for student computer labs",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "32 cores" },
+          { key: "RAM", value: "256GB" },
+          { key: "Storage", value: "8TB SSD" },
+          { key: "OS", value: "Windows Server 2022" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "9",
+    name: "Tenant I",
+    description: "Insurance company",
+    owner: {
+      name: "Isabella",
+      email: "isabella@insurance.com",
+      phone: "+1-999-000-1111",
+      address: "606 Policy Boulevard",
+      country: "United States"
+    },
+    contract: "Evergreen",
+    status: "Active",
+    billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-009",
+      deviceContract: [
+        { type: "Server", quantity: 8 },
+        { type: "Workstation", quantity: 120 },
+        { type: "Mobile", quantity: 60 }
+      ],
+      startDate: "2023-09-01",
+      endDate: "",
+      paymentType: "Monthly",
+      dueDay: 1,
+      billingStartDate: "2023-09-01"
+    },
+    subscription: {
+      name: "Insurance Enterprise",
+      id: "IE-009",
+      description: "Claims processing and policy management system",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Document Management"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-09-01",
+      endDate: "2024-08-31",
+      configs: "High-availability deployment"
+    },
+    users: [
+      {
+        id: "u19",
+        name: "Mark Johnson",
+        email: "mark@insurance.com",
+        roles: ["Owner", "Engineer"],
+        ipWhitelist: ["192.168.9.1", "10.0.0.9"],
+        mfaEnabled: true
+      },
+      {
+        id: "u20",
+        name: "Nancy Davis",
+        email: "nancy@insurance.com",
+        roles: ["Member"],
+        ipWhitelist: ["192.168.9.2"],
+        mfaEnabled: false
+      }
+    ],
+    devices: [
+      {
+        id: "d13",
+        name: "Claims Processing Server",
+        type: "Server",
+        deviceId: "SRV-009",
+        serialNo: "KLM123456789",
+        description: "Server for processing insurance claims",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "24 cores" },
+          { key: "RAM", value: "192GB" },
+          { key: "Storage", value: "6TB SSD" },
+          { key: "OS", value: "RHEL 9" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "10",
+    name: "Tenant J",
+    description: "Media and entertainment company",
+    owner: {
+      name: "James",
+      email: "james@media.com",
+      phone: "+1-000-111-2222",
+      address: "707 Studio Way",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-010",
+      deviceContract: [
+        { type: "Server", quantity: 25 },
+        { type: "Workstation", quantity: 75 },
+        { type: "Mobile", quantity: 30 }
+      ],
+      startDate: "2023-10-15",
+      endDate: "2024-10-14",
+      paymentType: "Monthly",
+      dueDay: 15,
+      billingStartDate: "2023-10-15"
+    },
+    subscription: {
+      name: "Media Production Suite",
+      id: "MP-010",
+      description: "Content creation and distribution platform",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Content Delivery", "Media Storage"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-10-15",
+      endDate: "2024-10-14",
+      configs: "High-bandwidth media optimized"
+    },
+    users: [
+      {
+        id: "u21",
+        name: "Oliver Smith",
+        email: "oliver@media.com",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.10.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u22",
+        name: "Patricia Brown",
+        email: "patricia@media.com",
+        roles: ["Engineer", "Member"],
+        ipWhitelist: ["192.168.10.2", "10.0.0.10"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d14",
+        name: "Media Rendering Farm",
+        type: "Server",
+        deviceId: "SRV-010",
+        serialNo: "NOP123456789",
+        description: "High-performance rendering cluster",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "128 cores" },
+          { key: "RAM", value: "1TB" },
+          { key: "Storage", value: "100TB SSD" },
+          { key: "GPU", value: "8x NVIDIA A100" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "11",
+    name: "Tenant K",
+    description: "Retail chain",
+    owner: {
+      name: "Katherine",
+      email: "katherine@retail.com",
+      phone: "+1-111-222-3333",
+      address: "808 Shopping Center Rd",
+      country: "United States"
+    },
+    contract: "Termed",
+    status: "Active",
+    billing: "Annually",
+    billingDetails: {
+      billingId: "BID-011",
+      deviceContract: [
+        { type: "Server", quantity: 15 },
+        { type: "Workstation", quantity: 300 },
+        { type: "Mobile", quantity: 150 },
+        { type: "IoT", quantity: 200 }
+      ],
+      startDate: "2023-11-01",
+      endDate: "2024-10-31",
+      paymentType: "Annually",
+      dueDay: 1,
+      dueMonth: 11,
+      billingStartDate: "2023-11-01"
+    },
+    subscription: {
+      name: "Retail Management",
+      id: "RM-011",
+      description: "Point-of-sale and inventory management system",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "Inventory Management", "POS Integration"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-11-01",
+      endDate: "2024-10-31",
+      configs: "Multi-location deployment"
+    },
+    users: [
+      {
+        id: "u23",
+        name: "Quinn Adams",
+        email: "quinn@retail.com",
+        roles: ["Owner"],
+        ipWhitelist: ["192.168.11.1", "10.0.0.11"],
+        mfaEnabled: true
+      },
+      {
+        id: "u24",
+        name: "Robert Miller",
+        email: "robert@retail.com",
+        roles: ["Engineer"],
+        ipWhitelist: ["192.168.11.2"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d15",
+        name: "Inventory Control System",
+        type: "Server",
+        deviceId: "SRV-011",
+        serialNo: "QRS123456789",
+        description: "Central inventory management server",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "16 cores" },
+          { key: "RAM", value: "128GB" },
+          { key: "Storage", value: "8TB SSD" },
+          { key: "OS", value: "Ubuntu 20.04 LTS" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "12",
+    name: "Tenant L",
+    description: "Logistics company",
+    owner: {
+      name: "Leonard",
+      email: "leonard@logistics.com",
+      phone: "+1-222-333-4444",
+      address: "909 Shipping Lane",
+      country: "United States"
+    },
+    contract: "Evergreen",
+    status: "Active",
+    billing: "Monthly",
+    billingDetails: {
+      billingId: "BID-012",
+      deviceContract: [
+        { type: "Server", quantity: 10 },
+        { type: "Workstation", quantity: 50 },
+        { type: "Mobile", quantity: 200 },
+        { type: "IoT", quantity: 500 }
+      ],
+      startDate: "2023-12-15",
+      endDate: "",
+      paymentType: "Monthly",
+      dueDay: "End of Month",
+      billingStartDate: "2023-12-15"
+    },
+    subscription: {
+      name: "Logistics Suite",
+      id: "LS-012",
+      description: "Fleet management and package tracking system",
+      services: ["Core Platform", "Analytics", "API Access", "Premium Support", "GPS Tracking", "Route Optimization"],
+      termType: "Annual",
+      status: "Active",
+      startDate: "2023-12-15",
+      endDate: "2024-12-14",
+      configs: "Global distribution network"
+    },
+    users: [
+      {
+        id: "u25",
+        name: "Susan Clark",
+        email: "susan@logistics.com",
+        roles: ["Owner", "Engineer"],
+        ipWhitelist: ["192.168.12.1"],
+        mfaEnabled: true
+      },
+      {
+        id: "u26",
+        name: "Thomas Wilson",
+        email: "thomas@logistics.com",
+        roles: ["Member"],
+        ipWhitelist: ["192.168.12.2", "10.0.0.12"],
+        mfaEnabled: true
+      }
+    ],
+    devices: [
+      {
+        id: "d16",
+        name: "Fleet Tracking Server",
+        type: "Server",
+        deviceId: "SRV-012",
+        serialNo: "TUV123456789",
+        description: "Real-time fleet tracking system",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "32 cores" },
+          { key: "RAM", value: "256GB" },
+          { key: "Storage", value: "12TB SSD" },
+          { key: "OS", value: "RHEL 8" }
+        ]
+      }
+    ]
+  }
 ];
 
 export const TenantPage: React.FC = () => {
