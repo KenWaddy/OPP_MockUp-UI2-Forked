@@ -1,0 +1,30 @@
+.tenant-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tenant-list th,
+.tenant-list td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+.clickable {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.tenant-detail .tabs {
+  display: flex;
+  margin-top: 16px;
+}
+.tenant-detail .tab {
+  margin-right: 16px;
+  cursor: pointer;
+}
+.tenant-detail .tab.active {
+  font-weight: bold;
+  border-bottom: 2px solid black;
+}
+.tab-content {
+  margin-top: 16px;
+}
