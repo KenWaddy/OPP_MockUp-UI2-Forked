@@ -26,9 +26,14 @@ import {
   FormControlLabel,
   TextField,
   IconButton,
-  InputAdornment
+  InputAdornment,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import "./TenantPage.css";
 
 type User = {
@@ -38,6 +43,22 @@ type User = {
   roles: ("Owner" | "Engineer" | "Member")[];
   ipWhitelist: string[];
   mfaEnabled: boolean;
+};
+
+type Attribute = {
+  key: string;
+  value: string;
+};
+
+type Device = {
+  id: string;
+  name: string;
+  type: "Server" | "Workstation" | "Mobile" | "IoT" | "Other";
+  deviceId: string;
+  serialNo: string;
+  description: string;
+  status: "Registered" | "Activated";
+  attributes: Attribute[];
 };
 
 type Tenant = {
@@ -66,6 +87,7 @@ type Tenant = {
     configs?: string;
   };
   users?: User[];
+  devices?: Device[];
 };
 
 const mockTenants: Tenant[] = [
@@ -119,6 +141,52 @@ const mockTenants: Tenant[] = [
         ipWhitelist: [],
         mfaEnabled: false
       }
+    ],
+    devices: [
+      {
+        id: "d1",
+        name: "Production Server",
+        type: "Server",
+        deviceId: "SRV-001",
+        serialNo: "ABC123456789",
+        description: "Main production server for Company A",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "12 cores" },
+          { key: "RAM", value: "64GB" },
+          { key: "Storage", value: "2TB SSD" },
+          { key: "OS", value: "Ubuntu 22.04" }
+        ]
+      },
+      {
+        id: "d2",
+        name: "Development Workstation",
+        type: "Workstation",
+        deviceId: "WS-001",
+        serialNo: "DEF987654321",
+        description: "Developer workstation for engineering team",
+        status: "Registered",
+        attributes: [
+          { key: "CPU", value: "8 cores" },
+          { key: "RAM", value: "32GB" },
+          { key: "Storage", value: "1TB SSD" },
+          { key: "OS", value: "Windows 11" }
+        ]
+      },
+      {
+        id: "d3",
+        name: "Field Tablet",
+        type: "Mobile",
+        deviceId: "MOB-001",
+        serialNo: "GHI112233445",
+        description: "Tablet for field technicians",
+        status: "Activated",
+        attributes: [
+          { key: "Screen", value: "10.5 inch" },
+          { key: "Battery", value: "10000mAh" },
+          { key: "Storage", value: "128GB" }
+        ]
+      }
     ]
   },
   {
@@ -163,6 +231,37 @@ const mockTenants: Tenant[] = [
         ipWhitelist: ["192.168.2.2", "10.0.0.2"],
         mfaEnabled: true
       }
+    ],
+    devices: [
+      {
+        id: "d4",
+        name: "Analytics Server",
+        type: "Server",
+        deviceId: "SRV-002",
+        serialNo: "JKL123789456",
+        description: "Data analytics server for Company B",
+        status: "Activated",
+        attributes: [
+          { key: "CPU", value: "16 cores" },
+          { key: "RAM", value: "128GB" },
+          { key: "Storage", value: "4TB SSD" },
+          { key: "OS", value: "Red Hat Enterprise Linux" }
+        ]
+      },
+      {
+        id: "d5",
+        name: "IoT Gateway",
+        type: "IoT",
+        deviceId: "IOT-001",
+        serialNo: "MNO456789123",
+        description: "Gateway for IoT devices",
+        status: "Registered",
+        attributes: [
+          { key: "Connectivity", value: "Wi-Fi, Bluetooth, Zigbee" },
+          { key: "Power", value: "PoE" },
+          { key: "Enclosure", value: "IP66 Waterproof" }
+        ]
+      }
     ]
   },
   // 他のテナントも必要に応じて追加可能
@@ -197,7 +296,7 @@ export const TenantPage: React.FC = () => {
         <div className="tab-content">
           {activeTab === "info" && <TenantInfoPanel tenant={selectedTenant} />}
           {activeTab === "users" && <TenantUserListPanel tenant={selectedTenant} />}
-          {activeTab === "devices" && <p>デバイス一覧をここに表示します。</p>}
+          {activeTab === "devices" && <TenantDeviceListPanel tenant={selectedTenant} />}
           {activeTab === "billing" && <p>請求情報をここに表示します。</p>}
         </div>
       </div>
@@ -687,6 +786,300 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                 Edit
               </Button>
               <Button onClick={handleCloseIpDialog}>Close</Button>
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
+    </Paper>
+  );
+};
+
+const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
+  if (!tenant) return null;
+  
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  const [openAttributesDialog, setOpenAttributesDialog] = useState(false);
+  const [devices, setDevices] = useState<Device[]>(tenant.devices || []);
+  const [editMode, setEditMode] = useState(false);
+  const [editableAttributes, setEditableAttributes] = useState<Attribute[]>([]);
+  const [newAttribute, setNewAttribute] = useState<Attribute>({ key: '', value: '' });
+  
+  const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  const statusOptions: Device["status"][] = ["Registered", "Activated"];
+  
+  const handleOpenAttributesDialog = (device: Device) => {
+    setSelectedDevice(device);
+    setEditableAttributes(device.attributes.map(attr => ({ ...attr })));
+    setEditMode(false);
+    setOpenAttributesDialog(true);
+  };
+  
+  const handleCloseAttributesDialog = () => {
+    setOpenAttributesDialog(false);
+    setEditMode(false);
+  };
+  
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+  
+  const handleSaveClick = () => {
+    if (selectedDevice) {
+      const updatedDevices = devices.map(device => 
+        device.id === selectedDevice.id 
+          ? { ...device, attributes: editableAttributes } 
+          : device
+      );
+      setDevices(updatedDevices);
+      setSelectedDevice({ ...selectedDevice, attributes: editableAttributes });
+      setEditMode(false);
+    }
+  };
+  
+  const handleAddAttribute = () => {
+    if (newAttribute.key.trim() !== '') {
+      setEditableAttributes([...editableAttributes, { ...newAttribute }]);
+      setNewAttribute({ key: '', value: '' });
+    }
+  };
+  
+  const handleRemoveAttribute = (index: number) => {
+    const newList = [...editableAttributes];
+    newList.splice(index, 1);
+    setEditableAttributes(newList);
+  };
+  
+  const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
+    const newAttributes = [...editableAttributes];
+    newAttributes[index][field] = value;
+    setEditableAttributes(newAttributes);
+  };
+  
+  const handleTypeChange = (deviceId: string, newType: Device["type"]) => {
+    setDevices(prevDevices => 
+      prevDevices.map(device => 
+        device.id === deviceId ? { ...device, type: newType } : device
+      )
+    );
+  };
+  
+  const handleStatusChange = (deviceId: string, newStatus: Device["status"]) => {
+    setDevices(prevDevices => 
+      prevDevices.map(device => 
+        device.id === deviceId ? { ...device, status: newStatus } : device
+      )
+    );
+  };
+  
+  return (
+    <Paper
+      elevation={2}
+      sx={{
+        p: 2,
+        border: '1px solid #ddd',
+        borderRadius: '4px'
+      }}
+    >
+      <Typography variant="h6" gutterBottom>
+        Device List
+      </Typography>
+      <Divider sx={{ mb: 2 }} />
+      
+      <TableContainer>
+        <Table aria-label="device list table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Device ID</TableCell>
+              <TableCell>Serial No.</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Attributes</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {devices.length > 0 ? (
+              devices.map((device) => (
+                <TableRow key={device.id}>
+                  <TableCell>{device.name}</TableCell>
+                  <TableCell>
+                    <FormControl size="small" fullWidth>
+                      <Select
+                        value={device.type}
+                        onChange={(e) => handleTypeChange(device.id, e.target.value as Device["type"])}
+                      >
+                        {deviceTypes.map((type) => (
+                          <MenuItem key={type} value={type}>
+                            {type}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>{device.deviceId}</TableCell>
+                  <TableCell>{device.serialNo}</TableCell>
+                  <TableCell>{device.description}</TableCell>
+                  <TableCell>
+                    <FormControl size="small" fullWidth>
+                      <Select
+                        value={device.status}
+                        onChange={(e) => handleStatusChange(device.id, e.target.value as Device["status"])}
+                      >
+                        {statusOptions.map((status) => (
+                          <MenuItem key={status} value={status}>
+                            {status}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outlined" 
+                      size="small"
+                      onClick={() => handleOpenAttributesDialog(device)}
+                    >
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} align="center">No devices found</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      
+      <Dialog open={openAttributesDialog} onClose={handleCloseAttributesDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Attributes for {selectedDevice?.name}
+        </DialogTitle>
+        <DialogContent dividers>
+          {editMode ? (
+            <>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'flex-end' }}>
+                <TextField
+                  label="Key"
+                  value={newAttribute.key}
+                  onChange={(e) => setNewAttribute({ ...newAttribute, key: e.target.value })}
+                  sx={{ mr: 1, flex: 1 }}
+                  size="small"
+                />
+                <TextField
+                  label="Value"
+                  value={newAttribute.value}
+                  onChange={(e) => setNewAttribute({ ...newAttribute, value: e.target.value })}
+                  sx={{ mr: 1, flex: 1 }}
+                  size="small"
+                />
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddAttribute}
+                  disabled={!newAttribute.key.trim()}
+                >
+                  Add
+                </Button>
+              </Box>
+              {editableAttributes.length > 0 ? (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Key</TableCell>
+                        <TableCell>Value</TableCell>
+                        <TableCell width={50}></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {editableAttributes.map((attr, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={attr.key}
+                              onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={attr.value}
+                              onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              edge="end"
+                              onClick={() => handleRemoveAttribute(index)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No attributes found. Add some using the form above.
+                </Typography>
+              )}
+            </>
+          ) : (
+            <>
+              {selectedDevice && selectedDevice.attributes.length > 0 ? (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Key</TableCell>
+                        <TableCell>Value</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selectedDevice.attributes.map((attr, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{attr.key}</TableCell>
+                          <TableCell>{attr.value}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No attributes found
+                </Typography>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {editMode ? (
+            <>
+              <Button onClick={handleSaveClick} color="primary">
+                Save
+              </Button>
+              <Button onClick={() => setEditMode(false)}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={handleEditClick} color="primary">
+                Edit
+              </Button>
+              <Button onClick={handleCloseAttributesDialog}>Close</Button>
             </>
           )}
         </DialogActions>
