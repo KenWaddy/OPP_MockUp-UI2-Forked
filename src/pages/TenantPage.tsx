@@ -110,7 +110,7 @@ type Tenant = {
   devices?: Device[];
 };
 
-const mockTenants: Tenant[] = [
+export const mockTenants: Tenant[] = [
   {
     id: "1",
     name: "Tenant A",
