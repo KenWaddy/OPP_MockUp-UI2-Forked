@@ -35,6 +35,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import "./TenantPage.css";
 
 type User = {
@@ -1913,11 +1914,112 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
 const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
   if (!tenant) return null;
 
-  const billingList = Array.isArray(tenant.billingDetails) 
-    ? tenant.billingDetails 
-    : tenant.billingDetails ? [tenant.billingDetails] : [];
+  type BillingDetailItem = {
+    billingId?: string;
+    deviceContract?: DeviceContractItem[];
+    startDate?: string;
+    endDate?: string;
+    paymentType?: "One-time" | "Monthly" | "Annually";
+    billingDate?: string;
+    dueDay?: number | "End of Month";
+    dueMonth?: number;
+    billingStartDate?: string;
+  };
 
-  const renderDeviceContract = (deviceContract: DeviceContractItem[] | undefined) => {
+  const [billingList, setBillingList] = useState<BillingDetailItem[]>(
+    Array.isArray(tenant.billingDetails) ? tenant.billingDetails : tenant.billingDetails ? [tenant.billingDetails] : []
+  );
+  
+  const [selectedBilling, setSelectedBilling] = useState<BillingDetailItem | null>(null);
+  const [openBillingDialog, setOpenBillingDialog] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editableBilling, setEditableBilling] = useState<BillingDetailItem | null>(null);
+  const [editableDeviceContract, setEditableDeviceContract] = useState<DeviceContractItem[]>([]);
+  const [newDeviceContract, setNewDeviceContract] = useState<DeviceContractItem>({ type: "Server", quantity: 0 });
+  
+  const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  const paymentTypes: ("One-time" | "Monthly" | "Annually")[] = ["One-time", "Monthly", "Annually"];
+  
+  const handleOpenBillingDialog = (billing?: BillingDetailItem) => {
+    if (billing) {
+      setSelectedBilling(billing);
+      setEditableBilling({...billing});
+      setEditableDeviceContract(billing.deviceContract ? [...billing.deviceContract] : []);
+    } else {
+      setSelectedBilling(null);
+      setEditableBilling({
+        billingId: `BID-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        deviceContract: [],
+        startDate: new Date().toISOString().split('T')[0],
+        paymentType: "Monthly",
+        dueDay: 1,
+        billingStartDate: new Date().toISOString().split('T')[0]
+      });
+      setEditableDeviceContract([]);
+    }
+    setEditMode(true);
+    setOpenBillingDialog(true);
+  };
+  
+  const handleCloseBillingDialog = () => {
+    setOpenBillingDialog(false);
+    setEditMode(false);
+  };
+  
+  const handleSaveBilling = () => {
+    if (editableBilling) {
+      const updatedBilling = {
+        ...editableBilling,
+        deviceContract: editableDeviceContract
+      };
+      
+      let updatedBillingList;
+      
+      if (selectedBilling) {
+        updatedBillingList = billingList.map(billing => 
+          billing.billingId === selectedBilling.billingId 
+            ? updatedBilling 
+            : billing
+        );
+      } else {
+        updatedBillingList = [...billingList, updatedBilling];
+      }
+      
+      setBillingList(updatedBillingList);
+      setOpenBillingDialog(false);
+      setEditMode(false);
+    }
+  };
+  
+  const handleAddDeviceContract = () => {
+    if (newDeviceContract.quantity > 0) {
+      setEditableDeviceContract([...editableDeviceContract, { ...newDeviceContract }]);
+      setNewDeviceContract({ type: "Server", quantity: 0 });
+    }
+  };
+  
+  const handleRemoveDeviceContract = (index: number) => {
+    const newList = [...editableDeviceContract];
+    newList.splice(index, 1);
+    setEditableDeviceContract(newList);
+  };
+  
+  const handleDeviceContractChange = (index: number, field: 'type' | 'quantity', value: any) => {
+    const newContract = [...editableDeviceContract];
+    if (field === 'type') {
+      newContract[index].type = value as Device["type"];
+    } else if (field === 'quantity') {
+      newContract[index].quantity = parseInt(value, 10) || 0;
+    }
+    setEditableDeviceContract(newContract);
+  };
+  
+  const handleDeleteBilling = (billingId: string) => {
+    const updatedBillingList = billingList.filter(billing => billing.billingId !== billingId);
+    setBillingList(updatedBillingList);
+  };
+
+  const renderNumberOfDevices = (deviceContract: DeviceContractItem[] | undefined) => {
     if (!deviceContract || deviceContract.length === 0) return 'No devices';
     
     const total = deviceContract.reduce((sum, item) => sum + item.quantity, 0);
@@ -1970,6 +2072,7 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
           variant="outlined" 
           size="small" 
           startIcon={<AddIcon />}
+          onClick={() => handleOpenBillingDialog()}
         >
           Add Billing
         </Button>
@@ -1986,7 +2089,8 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
                 <TableCell>Contract End</TableCell>
                 <TableCell>Billing Start Date</TableCell>
                 <TableCell>Payment Settings</TableCell>
-                <TableCell>Device Contract</TableCell>
+                <TableCell>Number of Device</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -1998,30 +2102,21 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
                   <TableCell>{billing.billingStartDate || 'N/A'}</TableCell>
                   <TableCell>{renderPaymentSettings(billing)}</TableCell>
                   <TableCell>
-                    <Tooltip title={
-                      <TableContainer>
-                        <Table size="small">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Type</TableCell>
-                              <TableCell>Quantity</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {billing.deviceContract && billing.deviceContract.map((item, idx) => (
-                              <TableRow key={idx}>
-                                <TableCell>{item.type}</TableCell>
-                                <TableCell>{item.quantity}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    } arrow>
-                      <Box sx={{ cursor: 'pointer' }}>
-                        {renderDeviceContract(billing.deviceContract)}
-                      </Box>
-                    </Tooltip>
+                    {renderNumberOfDevices(billing.deviceContract)}
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenBillingDialog(billing)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteBilling(billing.billingId || '')}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -2033,6 +2128,245 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
           No billing information available.
         </Typography>
       )}
+      
+      <Dialog open={openBillingDialog} onClose={handleCloseBillingDialog} maxWidth="md" fullWidth>
+        <DialogTitle>
+          {selectedBilling ? 'Edit Billing' : 'Add New Billing'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Billing ID"
+                value={editableBilling?.billingId || ''}
+                onChange={(e) => setEditableBilling({...editableBilling!, billingId: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Payment Type</InputLabel>
+                <Select
+                  value={editableBilling?.paymentType || 'Monthly'}
+                  onChange={(e) => setEditableBilling({...editableBilling!, paymentType: e.target.value as "One-time" | "Monthly" | "Annually"})}
+                  label="Payment Type"
+                >
+                  {paymentTypes.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Start Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={editableBilling?.startDate || ''}
+                onChange={(e) => setEditableBilling({...editableBilling!, startDate: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="End Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={editableBilling?.endDate || ''}
+                onChange={(e) => setEditableBilling({...editableBilling!, endDate: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Billing Start Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={editableBilling?.billingStartDate || ''}
+                onChange={(e) => setEditableBilling({...editableBilling!, billingStartDate: e.target.value})}
+              />
+            </Grid>
+            {editableBilling?.paymentType === 'One-time' && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Billing Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={editableBilling?.billingDate || ''}
+                  onChange={(e) => setEditableBilling({...editableBilling!, billingDate: e.target.value})}
+                />
+              </Grid>
+            )}
+            {(editableBilling?.paymentType === 'Monthly' || editableBilling?.paymentType === 'Annually') && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Due Day"
+                  type="number"
+                  inputProps={{ min: 1, max: 31 }}
+                  value={editableBilling?.dueDay === 'End of Month' ? 31 : editableBilling?.dueDay || 1}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    setEditableBilling({
+                      ...editableBilling!, 
+                      dueDay: value === 31 ? 'End of Month' : value
+                    });
+                  }}
+                />
+              </Grid>
+            )}
+            {editableBilling?.paymentType === 'Annually' && (
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Due Month</InputLabel>
+                  <Select
+                    value={editableBilling?.dueMonth || 1}
+                    onChange={(e) => setEditableBilling({...editableBilling!, dueMonth: Number(e.target.value)})}
+                    label="Due Month"
+                  >
+                    {[
+                      'January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'
+                    ].map((month, index) => (
+                      <MenuItem key={month} value={index + 1}>
+                        {month}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            )}
+          </Grid>
+          
+          <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+            Number of Device
+          </Typography>
+          
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'flex-end' }}>
+            <FormControl sx={{ mr: 1, flex: 1 }} size="small">
+              <InputLabel>Device Type</InputLabel>
+              <Select
+                value={newDeviceContract.type}
+                onChange={(e) => setNewDeviceContract({ 
+                  ...newDeviceContract, 
+                  type: e.target.value as Device["type"] 
+                })}
+                label="Device Type"
+              >
+                {deviceTypes.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="Quantity"
+              type="number"
+              value={newDeviceContract.quantity}
+              onChange={(e) => setNewDeviceContract({ 
+                ...newDeviceContract, 
+                quantity: parseInt(e.target.value, 10) || 0 
+              })}
+              sx={{ mr: 1, flex: 1 }}
+              size="small"
+              inputProps={{ min: 1 }}
+            />
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={handleAddDeviceContract}
+              disabled={newDeviceContract.quantity <= 0}
+            >
+              Add
+            </Button>
+          </Box>
+          
+          {editableDeviceContract.length > 0 ? (
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Device Type</TableCell>
+                    <TableCell>Quantity</TableCell>
+                    <TableCell width={50}></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {editableDeviceContract.map((contract, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            value={contract.type}
+                            onChange={(e) => handleDeviceContractChange(
+                              index, 
+                              'type', 
+                              e.target.value as Device["type"]
+                            )}
+                          >
+                            {deviceTypes.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          type="number"
+                          value={contract.quantity}
+                          onChange={(e) => handleDeviceContractChange(
+                            index, 
+                            'quantity', 
+                            e.target.value
+                          )}
+                          inputProps={{ min: 1 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          size="small"
+                          edge="end"
+                          onClick={() => handleRemoveDeviceContract(index)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No device contracts added. Add some using the form above.
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveBilling} color="primary">
+            Save
+          </Button>
+          <Button onClick={handleCloseBillingDialog}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };
