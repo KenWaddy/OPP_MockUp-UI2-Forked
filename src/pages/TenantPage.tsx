@@ -1627,6 +1627,8 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
   const [editMode, setEditMode] = useState(false);
   const [editableAttributes, setEditableAttributes] = useState<Attribute[]>([]);
   const [newAttribute, setNewAttribute] = useState<Attribute>({ key: '', value: '' });
+  const [openDeviceDialog, setOpenDeviceDialog] = useState(false);
+  const [editableDevice, setEditableDevice] = useState<Device | null>(null);
   
   const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
   const statusOptions: Device["status"][] = ["Registered", "Activated"];
@@ -1694,6 +1696,54 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
       )
     );
   };
+
+  const handleOpenDeviceDialog = (device?: Device) => {
+    if (device) {
+      setSelectedDevice(device);
+      setEditableDevice({...device, attributes: [...device.attributes]});
+    } else {
+      setSelectedDevice(null);
+      setEditableDevice({
+        id: `d${devices.length + 1}`,
+        name: '',
+        type: "Server",
+        deviceId: `DEV-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        serialNo: '',
+        description: '',
+        status: "Registered",
+        attributes: []
+      });
+    }
+    setOpenDeviceDialog(true);
+  };
+  
+  const handleCloseDeviceDialog = () => {
+    setOpenDeviceDialog(false);
+  };
+  
+  const handleSaveDevice = () => {
+    if (editableDevice) {
+      let updatedDevices;
+      
+      if (selectedDevice) {
+        updatedDevices = devices.map(device => 
+          device.id === selectedDevice.id 
+            ? editableDevice 
+            : device
+        );
+      } else {
+        updatedDevices = [...devices, editableDevice];
+      }
+      
+      setDevices(updatedDevices);
+      setOpenDeviceDialog(false);
+    }
+  };
+  
+  const handleDeleteDevice = (deviceId: string) => {
+    const updatedDevices = devices.filter(device => device.id !== deviceId);
+    setDevices(updatedDevices);
+  };
   
   return (
     <Paper
@@ -1704,9 +1754,19 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
         borderRadius: '4px'
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        Device List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">
+          Device List
+        </Typography>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenDeviceDialog()}
+        >
+          Add Device
+        </Button>
+      </Box>
       <Divider sx={{ mb: 2 }} />
       
       <TableContainer>
@@ -1720,6 +1780,7 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
               <TableCell>Description</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Attributes</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1766,6 +1827,20 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
                     >
                       View
                     </Button>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenDeviceDialog(device)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteDevice(device.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))
@@ -1906,6 +1981,96 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
               <Button onClick={handleCloseAttributesDialog}>Close</Button>
             </>
           )}
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDeviceDialog} onClose={handleCloseDeviceDialog} maxWidth="md" fullWidth>
+        <DialogTitle>
+          {selectedDevice ? 'Edit Device' : 'Add New Device'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Name"
+                required
+                value={editableDevice?.name || ''}
+                onChange={(e) => setEditableDevice({...editableDevice!, name: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={editableDevice?.type || 'Server'}
+                  onChange={(e) => setEditableDevice({...editableDevice!, type: e.target.value as Device["type"]})}
+                  label="Type"
+                >
+                  {deviceTypes.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Device ID"
+                required
+                value={editableDevice?.deviceId || ''}
+                onChange={(e) => setEditableDevice({...editableDevice!, deviceId: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Serial No."
+                value={editableDevice?.serialNo || ''}
+                onChange={(e) => setEditableDevice({...editableDevice!, serialNo: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Description"
+                multiline
+                rows={2}
+                value={editableDevice?.description || ''}
+                onChange={(e) => setEditableDevice({...editableDevice!, description: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={editableDevice?.status || 'Registered'}
+                  onChange={(e) => setEditableDevice({...editableDevice!, status: e.target.value as Device["status"]})}
+                  label="Status"
+                >
+                  {statusOptions.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveDevice} color="primary">
+            Save
+          </Button>
+          <Button onClick={handleCloseDeviceDialog}>
+            Cancel
+          </Button>
         </DialogActions>
       </Dialog>
     </Paper>
