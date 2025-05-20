@@ -1471,21 +1471,48 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.name} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="ID" 
                 secondary={tenant.id} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Description" 
                 secondary={tenant.description || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
           </Box>
@@ -1498,35 +1525,80 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.owner.name} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="eMail" 
                 secondary={tenant.owner.email} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Phone" 
                 secondary={tenant.owner.phone || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Address" 
                 secondary={tenant.owner.address || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Country" 
                 secondary={tenant.owner.country || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
           </Box>
@@ -1553,21 +1625,48 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
               <ListItemText 
                 primary="Name" 
                 secondary={tenant.subscription?.name || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="ID" 
                 secondary={tenant.subscription?.id || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Description" 
                 secondary={tenant.subscription?.description || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             
@@ -1583,7 +1682,16 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
                     </Box>
                   ) : 'N/A'
                 }
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             
@@ -1591,35 +1699,80 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
               <ListItemText 
                 primary="Term Type" 
                 secondary={tenant.subscription?.termType || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Status" 
                 secondary={tenant.subscription?.status || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="Start Date" 
                 secondary={tenant.subscription?.startDate || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
               <ListItemText 
                 primary="End Date" 
                 secondary={tenant.subscription?.endDate || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
             <Box sx={{ minWidth: '250px', flex: '1 1 auto' }}>
               <ListItemText 
                 primary="Configs" 
                 secondary={tenant.subscription?.configs || 'N/A'} 
-                primaryTypographyProps={{ variant: 'subtitle2' }}
+                primaryTypographyProps={{ 
+                  variant: 'subtitle2',
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
+                secondaryTypographyProps={{
+                  fontSize: '0.875rem', // Default size + 1px
+                  color: '#333'
+                }}
               />
             </Box>
           </Box>
