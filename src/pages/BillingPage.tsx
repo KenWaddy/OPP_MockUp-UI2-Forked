@@ -444,9 +444,6 @@ export const BillingPage: React.FC = () => {
           
           {/* Stacked Date-based Range Filters vertically */}
           <Grid item xs={12}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Contract Start
-            </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
                 fullWidth
@@ -454,7 +451,7 @@ export const BillingPage: React.FC = () => {
                 label="From (YYYY-MM)"
                 value={filters.contractStartFrom}
                 onChange={(e) => setFilters({ ...filters, contractStartFrom: e.target.value })}
-                placeholder="2023-01"
+                placeholder="Contract Start: From (YYYY-MM)"
               />
               <TextField
                 fullWidth
@@ -462,15 +459,12 @@ export const BillingPage: React.FC = () => {
                 label="To (YYYY-MM)"
                 value={filters.contractStartTo}
                 onChange={(e) => setFilters({ ...filters, contractStartTo: e.target.value })}
-                placeholder="2025-12"
+                placeholder="Contract Start: To (YYYY-MM)"
               />
             </Box>
           </Grid>
           
           <Grid item xs={12}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Contract End
-            </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
                 fullWidth
@@ -478,7 +472,7 @@ export const BillingPage: React.FC = () => {
                 label="From (YYYY-MM)"
                 value={filters.contractEndFrom}
                 onChange={(e) => setFilters({ ...filters, contractEndFrom: e.target.value })}
-                placeholder="2023-01"
+                placeholder="Contract End: From (YYYY-MM)"
               />
               <TextField
                 fullWidth
@@ -486,15 +480,12 @@ export const BillingPage: React.FC = () => {
                 label="To (YYYY-MM)"
                 value={filters.contractEndTo}
                 onChange={(e) => setFilters({ ...filters, contractEndTo: e.target.value })}
-                placeholder="2025-12"
+                placeholder="Contract End: To (YYYY-MM)"
               />
             </Box>
           </Grid>
           
           <Grid item xs={12}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Next Billing Month
-            </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
                 fullWidth
@@ -502,7 +493,7 @@ export const BillingPage: React.FC = () => {
                 label="From (YYYY-MM)"
                 value={filters.nextBillingFrom}
                 onChange={(e) => setFilters({ ...filters, nextBillingFrom: e.target.value })}
-                placeholder="2023-01"
+                placeholder="Next Billing Month: From (YYYY-MM)"
               />
               <TextField
                 fullWidth
@@ -510,7 +501,7 @@ export const BillingPage: React.FC = () => {
                 label="To (YYYY-MM)"
                 value={filters.nextBillingTo}
                 onChange={(e) => setFilters({ ...filters, nextBillingTo: e.target.value })}
-                placeholder="2025-12"
+                placeholder="Next Billing Month: To (YYYY-MM)"
               />
             </Box>
           </Grid>
