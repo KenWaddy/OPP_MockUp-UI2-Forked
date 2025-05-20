@@ -379,40 +379,40 @@ export const DevicePage: React.FC = () => {
   };
   
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 2,
-        m: 2,
-        border: '1px solid #ddd',
-        borderRadius: '4px'
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" fontWeight="bold">
-          Device Management
-        </Typography>
-        <Button 
-          variant="outlined" 
-          size="small" 
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDeviceDialog()}
-        >
-          Add Device
-        </Button>
-      </Box>
-      <Divider sx={{ mb: 2 }} />
+    <div className="device-list">
+      <h2>Device Management</h2>
       
-      {/* Filter section */}
-      <Paper 
+      <Paper
         elevation={2}
-        sx={{ 
-          p: 2, 
-          mb: 2, 
-          border: '1px solid #ddd', 
-          borderRadius: '4px' 
+        sx={{
+          p: 2,
+          mb: 2,
+          border: '1px solid #ddd',
+          borderRadius: '4px'
         }}
       >
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDeviceDialog()}
+          >
+            Add Device
+          </Button>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+      
+        {/* Filter section */}
+        <Paper 
+          elevation={2}
+          sx={{ 
+            p: 2, 
+            mb: 2, 
+            border: '1px solid #ddd', 
+            borderRadius: '4px' 
+          }}
+        >
         <Typography variant="body1" gutterBottom>
           Filters
         </Typography>
@@ -927,6 +927,7 @@ export const DevicePage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Paper>
+      </Paper>
+    </div>
   );
 };

@@ -362,20 +362,18 @@ export const BillingPage: React.FC = () => {
   const filteredAndSortedBillings = getFilteredAndSortedBillings();
   
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 2,
-        m: 2,
-        border: '1px solid #ddd',
-        borderRadius: '4px'
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">
-          Billing Management
-        </Typography>
-      </Box>
+    <div className="billing-list">
+      <h2>Billing Management</h2>
+      
+      <Paper
+        elevation={2}
+        sx={{
+          p: 2,
+          mb: 2,
+          border: '1px solid #ddd',
+          borderRadius: '4px'
+        }}
+      >
       
       {/* Filters Section */}
       <Paper sx={{ p: 2, mb: 2 }} variant="outlined">
@@ -609,6 +607,7 @@ export const BillingPage: React.FC = () => {
           No billing information available.
         </Typography>
       )}
-    </Paper>
+      </Paper>
+    </div>
   );
 };
