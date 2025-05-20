@@ -1683,28 +1683,6 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
     setEditableIpList(newList);
   };
   
-  const handleMfaToggle = (userId: string) => {
-    setUsers(prevUsers => 
-      prevUsers.map(user => 
-        user.id === userId ? { ...user, mfaEnabled: !user.mfaEnabled } : user
-      )
-    );
-  };
-  
-  const handleRoleToggle = (userId: string, role: "Owner" | "Engineer" | "Member") => {
-    setUsers(prevUsers => 
-      prevUsers.map(user => {
-        if (user.id === userId) {
-          const hasRole = user.roles.includes(role);
-          const newRoles = hasRole 
-            ? user.roles.filter(r => r !== role) 
-            : [...user.roles, role];
-          return { ...user, roles: newRoles };
-        }
-        return user;
-      })
-    );
-  };
 
   const handleOpenUserDialog = (user?: User) => {
     if (user) {
@@ -1795,38 +1773,9 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <FormGroup row>
-                      <FormControlLabel
-                        control={
-                          <Checkbox 
-                            size="small"
-                            checked={user.roles.includes("Owner")}
-                            onChange={() => handleRoleToggle(user.id, "Owner")}
-                          />
-                        }
-                        label="Owner"
-                      />
-                      <FormControlLabel
-                        control={
-                          <Checkbox 
-                            size="small"
-                            checked={user.roles.includes("Engineer")}
-                            onChange={() => handleRoleToggle(user.id, "Engineer")}
-                          />
-                        }
-                        label="Engineer"
-                      />
-                      <FormControlLabel
-                        control={
-                          <Checkbox 
-                            size="small"
-                            checked={user.roles.includes("Member")}
-                            onChange={() => handleRoleToggle(user.id, "Member")}
-                          />
-                        }
-                        label="Member"
-                      />
-                    </FormGroup>
+                    <Typography variant="body2">
+                      {user.roles.join(", ")}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Button 
@@ -1838,11 +1787,9 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                     </Button>
                   </TableCell>
                   <TableCell>
-                    <Switch
-                      checked={user.mfaEnabled}
-                      onChange={() => handleMfaToggle(user.id)}
-                      size="small"
-                    />
+                    <Typography variant="body2">
+                      {user.mfaEnabled ? "Enabled" : "Disabled"}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <IconButton
@@ -2137,21 +2084,6 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
     setEditableAttributes(newAttributes);
   };
   
-  const handleTypeChange = (deviceId: string, newType: Device["type"]) => {
-    setDevices(prevDevices => 
-      prevDevices.map(device => 
-        device.id === deviceId ? { ...device, type: newType } : device
-      )
-    );
-  };
-  
-  const handleStatusChange = (deviceId: string, newStatus: Device["status"]) => {
-    setDevices(prevDevices => 
-      prevDevices.map(device => 
-        device.id === deviceId ? { ...device, status: newStatus } : device
-      )
-    );
-  };
 
   const handleOpenDeviceDialog = (device?: Device) => {
     if (device) {
@@ -2245,35 +2177,17 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
                 <TableRow key={device.id}>
                   <TableCell>{device.name}</TableCell>
                   <TableCell>
-                    <FormControl size="small" fullWidth>
-                      <Select
-                        value={device.type}
-                        onChange={(e) => handleTypeChange(device.id, e.target.value as Device["type"])}
-                      >
-                        {deviceTypes.map((type) => (
-                          <MenuItem key={type} value={type}>
-                            {type}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <Typography variant="body2">
+                      {device.type}
+                    </Typography>
                   </TableCell>
                   <TableCell>{device.deviceId}</TableCell>
                   <TableCell>{device.serialNo}</TableCell>
                   <TableCell>{device.description}</TableCell>
                   <TableCell>
-                    <FormControl size="small" fullWidth>
-                      <Select
-                        value={device.status}
-                        onChange={(e) => handleStatusChange(device.id, e.target.value as Device["status"])}
-                      >
-                        {statusOptions.map((status) => (
-                          <MenuItem key={status} value={status}>
-                            {status}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <Typography variant="body2">
+                      {device.status}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Button 
