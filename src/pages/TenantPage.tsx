@@ -36,6 +36,8 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import "./TenantPage.css";
 
 type User = {
@@ -1094,6 +1096,130 @@ const mockTenants: Tenant[] = [
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [activeTab, setActiveTab] = useState("info");
+  const [filters, setFilters] = useState<{
+    contractType: string;
+    billingType: string;
+    status: string;
+    tenantName: string;
+    ownerName: string;
+    mailAddress: string;
+  }>({
+    contractType: "",
+    billingType: "",
+    status: "",
+    tenantName: "",
+    ownerName: "",
+    mailAddress: "",
+  });
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'ascending' | 'descending';
+  } | null>(null);
+
+  const getFilteredAndSortedTenants = () => {
+    let filteredTenants = [...mockTenants];
+    
+    if (filters.contractType) {
+      filteredTenants = filteredTenants.filter(
+        tenant => tenant.contract === filters.contractType
+      );
+    }
+    
+    if (filters.billingType) {
+      filteredTenants = filteredTenants.filter(
+        tenant => tenant.billing === filters.billingType
+      );
+    }
+    
+    if (filters.status) {
+      filteredTenants = filteredTenants.filter(
+        tenant => tenant.status === filters.status
+      );
+    }
+    
+    if (filters.tenantName) {
+      filteredTenants = filteredTenants.filter(
+        tenant => tenant.name.toLowerCase().includes(filters.tenantName.toLowerCase())
+      );
+    }
+    
+    if (filters.ownerName) {
+      filteredTenants = filteredTenants.filter(
+        tenant => tenant.owner.name.toLowerCase().includes(filters.ownerName.toLowerCase())
+      );
+    }
+    
+    if (filters.mailAddress) {
+      filteredTenants = filteredTenants.filter(
+        tenant => tenant.owner.email.toLowerCase().includes(filters.mailAddress.toLowerCase())
+      );
+    }
+    
+    if (sortConfig) {
+      filteredTenants.sort((a, b) => {
+        let valueA, valueB;
+        
+        switch (sortConfig.key) {
+          case 'tenant':
+            valueA = a.name;
+            valueB = b.name;
+            break;
+          case 'owner':
+            valueA = a.owner.name;
+            valueB = b.owner.name;
+            break;
+          case 'email':
+            valueA = a.owner.email;
+            valueB = b.owner.email;
+            break;
+          case 'contract':
+            valueA = a.contract;
+            valueB = b.contract;
+            break;
+          case 'status':
+            valueA = a.status;
+            valueB = b.status;
+            break;
+          case 'billing':
+            valueA = a.billing;
+            valueB = b.billing;
+            break;
+          default:
+            valueA = '';
+            valueB = '';
+        }
+        
+        if (valueA < valueB) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (valueA > valueB) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    
+    return filteredTenants;
+  };
+
+  const requestSort = (key: string) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    
+    if (sortConfig && sortConfig.key === key) {
+      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
+    }
+    
+    setSortConfig({ key, direction });
+  };
+
+  const getSortDirectionIndicator = (key: string) => {
+    if (!sortConfig || sortConfig.key !== key) {
+      return null;
+    }
+    return sortConfig.direction === 'ascending' 
+      ? <ArrowUpwardIcon fontSize="small" />
+      : <ArrowDownwardIcon fontSize="small" />;
+  };
 
   if (selectedTenant) {
     return (
@@ -1130,37 +1256,192 @@ export const TenantPage: React.FC = () => {
   return (
     <div className="tenant-list">
       <h2>Tenant List</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Tenant Name</th>
-            <th>Owner Name</th>
-            <th>Mail Address</th>
-            <th>Contract</th>
-            <th>Status</th>
-            <th>Billing</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mockTenants.map((tenant) => (
-            <tr key={tenant.id}>
-              <td>
-                <span
-                  className="clickable"
-                  onClick={() => setSelectedTenant(tenant)}
-                >
-                  {tenant.name}
-                </span>
-              </td>
-              <td>{tenant.owner.name}</td>
-              <td>{tenant.owner.email}</td>
-              <td>{tenant.contract}</td>
-              <td>{tenant.status}</td>
-              <td>{tenant.billing}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      
+      {/* Filter section */}
+      <Paper 
+        elevation={2}
+        sx={{ 
+          p: 2, 
+          mb: 2, 
+          border: '1px solid #ddd', 
+          borderRadius: '4px' 
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Filters
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        
+        <Grid container spacing={2}>
+          {/* Dropdown filters */}
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Contract Type</InputLabel>
+              <Select
+                value={filters.contractType}
+                label="Contract Type"
+                onChange={(e) => setFilters({ ...filters, contractType: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="Evergreen">Evergreen</MenuItem>
+                <MenuItem value="Termed">Termed</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Billing Type</InputLabel>
+              <Select
+                value={filters.billingType}
+                label="Billing Type"
+                onChange={(e) => setFilters({ ...filters, billingType: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="Monthly">Monthly</MenuItem>
+                <MenuItem value="Annually">Annually</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={filters.status}
+                label="Status"
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          {/* Text input filters */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Tenant Name"
+              value={filters.tenantName}
+              onChange={(e) => setFilters({ ...filters, tenantName: e.target.value })}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Owner Name"
+              value={filters.ownerName}
+              onChange={(e) => setFilters({ ...filters, ownerName: e.target.value })}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Mail Address"
+              value={filters.mailAddress}
+              onChange={(e) => setFilters({ ...filters, mailAddress: e.target.value })}
+            />
+          </Grid>
+        </Grid>
+        
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            onClick={() => setFilters({
+              contractType: "",
+              billingType: "",
+              status: "",
+              tenantName: "",
+              ownerName: "",
+              mailAddress: "",
+            })}
+          >
+            Reset Filters
+          </Button>
+        </Box>
+      </Paper>
+      
+      {/* Tenant Table */}
+      <TableContainer component={Paper} variant="outlined">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell 
+                onClick={() => requestSort('tenant')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Tenant Name {getSortDirectionIndicator('tenant')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('owner')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Owner Name {getSortDirectionIndicator('owner')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('email')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Mail Address {getSortDirectionIndicator('email')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('contract')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Contract {getSortDirectionIndicator('contract')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('status')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Status {getSortDirectionIndicator('status')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('billing')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Billing {getSortDirectionIndicator('billing')}
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {getFilteredAndSortedTenants().length > 0 ? (
+              getFilteredAndSortedTenants().map((tenant) => (
+                <TableRow key={tenant.id}>
+                  <TableCell>
+                    <span
+                      className="clickable"
+                      onClick={() => setSelectedTenant(tenant)}
+                      style={{ cursor: 'pointer', color: 'blue' }}
+                    >
+                      {tenant.name}
+                    </span>
+                  </TableCell>
+                  <TableCell>{tenant.owner.name}</TableCell>
+                  <TableCell>{tenant.owner.email}</TableCell>
+                  <TableCell>{tenant.contract}</TableCell>
+                  <TableCell>{tenant.status}</TableCell>
+                  <TableCell>{tenant.billing}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No tenants match the filter criteria
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };
