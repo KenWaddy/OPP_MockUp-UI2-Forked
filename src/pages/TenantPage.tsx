@@ -2742,6 +2742,68 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
     
     return settings;
   };
+  
+  const calculateNextBillingMonth = (billing: typeof billingList[0]) => {
+    if (!billing) return '—';
+    
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth(); // 0-11
+    
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June', 
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    if (billing.paymentType === 'Monthly') {
+      let nextBillingYear = currentYear;
+      let nextBillingMonth = currentMonth;
+      
+      // If we're in the current month, the next billing is for next month's subscription
+      nextBillingMonth = currentMonth;
+      
+      return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
+    } 
+    else if (billing.paymentType === 'Annually') {
+      if (!billing.dueMonth) return '—';
+      
+      const dueMonth = billing.dueMonth - 1; // Convert to 0-11 format
+      
+      let nextBillingYear = currentYear;
+      let nextBillingMonth = dueMonth - 1; // One month before due month
+      
+      if (dueMonth < currentMonth) {
+        nextBillingYear = currentYear + 1;
+      }
+      
+      if (nextBillingMonth < 0) {
+        nextBillingMonth = 11; // December
+        nextBillingYear -= 1;
+      }
+      
+      return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
+    } 
+    else if (billing.paymentType === 'One-time') {
+      if (!billing.billingDate) return '—';
+      
+      try {
+        const billingDate = new Date(billing.billingDate);
+        let priorMonth = billingDate.getMonth() - 1;
+        let priorYear = billingDate.getFullYear();
+        
+        if (priorMonth < 0) {
+          priorMonth = 11; // December
+          priorYear -= 1;
+        }
+        
+        return `${priorYear}-${String(priorMonth + 1).padStart(2, '0')}`;
+      } catch (e) {
+        return '—';
+      }
+    }
+    
+    return '—'; // Default for unknown payment types
+  };
 
   return (
     <Paper
@@ -2776,6 +2838,7 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Contract Start</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Contract End</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Billing Start Date</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Next Billing Month</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Payment Settings</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Number of Device</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
@@ -2788,6 +2851,7 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.startDate || 'N/A'}</TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.endDate || 'N/A'}</TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingStartDate || 'N/A'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{calculateNextBillingMonth(billing)}</TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{renderPaymentSettings(billing)}</TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
                     {renderNumberOfDevices(billing.deviceContract)}
