@@ -1911,22 +1911,22 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
         <Table aria-label="user list table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>IP Whitelist</TableCell>
-              <TableCell>MFA</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Role</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>IP Whitelist</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>MFA</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.length > 0 ? (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{user.name}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{user.email}</TableCell>
                   <TableCell>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
                       {user.roles.join(", ")}
                     </Typography>
                   </TableCell>
@@ -1940,7 +1940,7 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                     </Button>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
                       {user.mfaEnabled ? "Enabled" : "Disabled"}
                     </Typography>
                   </TableCell>
@@ -2314,31 +2314,31 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
         <Table aria-label="device list table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Device ID</TableCell>
-              <TableCell>Serial No.</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Attributes</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Type</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Device ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Serial No.</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Attributes</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {devices.length > 0 ? (
               devices.map((device) => (
                 <TableRow key={device.id}>
-                  <TableCell>{device.name}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.name}</TableCell>
                   <TableCell>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
                       {device.type}
                     </Typography>
                   </TableCell>
-                  <TableCell>{device.deviceId}</TableCell>
-                  <TableCell>{device.serialNo}</TableCell>
-                  <TableCell>{device.description}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.deviceId}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.serialNo}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.description}</TableCell>
                   <TableCell>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
                       {device.status}
                     </Typography>
                   </TableCell>
@@ -2772,24 +2772,24 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Billing ID</TableCell>
-                <TableCell>Contract Start</TableCell>
-                <TableCell>Contract End</TableCell>
-                <TableCell>Billing Start Date</TableCell>
-                <TableCell>Payment Settings</TableCell>
-                <TableCell>Number of Device</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Billing ID</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Contract Start</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Contract End</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Billing Start Date</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Payment Settings</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Number of Device</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {billingList.map((billing, index) => (
                 <TableRow key={index}>
-                  <TableCell>{billing.billingId || 'N/A'}</TableCell>
-                  <TableCell>{billing.startDate || 'N/A'}</TableCell>
-                  <TableCell>{billing.endDate || 'N/A'}</TableCell>
-                  <TableCell>{billing.billingStartDate || 'N/A'}</TableCell>
-                  <TableCell>{renderPaymentSettings(billing)}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingId || 'N/A'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.startDate || 'N/A'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.endDate || 'N/A'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingStartDate || 'N/A'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{renderPaymentSettings(billing)}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
                     {renderNumberOfDevices(billing.deviceContract)}
                   </TableCell>
                   <TableCell>
