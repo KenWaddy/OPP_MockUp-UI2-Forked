@@ -1638,6 +1638,8 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
   const [editMode, setEditMode] = useState(false);
   const [editableIpList, setEditableIpList] = useState<string[]>([]);
   const [newIpAddress, setNewIpAddress] = useState('');
+  const [openUserDialog, setOpenUserDialog] = useState(false);
+  const [editableUser, setEditableUser] = useState<User | null>(null);
   
   const handleOpenIpDialog = (user: User) => {
     setSelectedUser(user);
@@ -1703,6 +1705,52 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
       })
     );
   };
+
+  const handleOpenUserDialog = (user?: User) => {
+    if (user) {
+      setSelectedUser(user);
+      setEditableUser({...user, ipWhitelist: [...user.ipWhitelist]});
+    } else {
+      setSelectedUser(null);
+      setEditableUser({
+        id: `u${users.length + 1}`,
+        name: '',
+        email: '',
+        roles: ["Member"],
+        ipWhitelist: [],
+        mfaEnabled: false
+      });
+    }
+    setOpenUserDialog(true);
+  };
+  
+  const handleCloseUserDialog = () => {
+    setOpenUserDialog(false);
+  };
+  
+  const handleSaveUser = () => {
+    if (editableUser) {
+      let updatedUsers;
+      
+      if (selectedUser) {
+        updatedUsers = users.map(user => 
+          user.id === selectedUser.id 
+            ? editableUser 
+            : user
+        );
+      } else {
+        updatedUsers = [...users, editableUser];
+      }
+      
+      setUsers(updatedUsers);
+      setOpenUserDialog(false);
+    }
+  };
+  
+  const handleDeleteUser = (userId: string) => {
+    const updatedUsers = users.filter(user => user.id !== userId);
+    setUsers(updatedUsers);
+  };
   
   return (
     <Paper
@@ -1713,9 +1761,19 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
         borderRadius: '4px'
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        User List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">
+          User List
+        </Typography>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenUserDialog()}
+        >
+          Add User
+        </Button>
+      </Box>
       <Divider sx={{ mb: 2 }} />
       
       <TableContainer>
@@ -1727,6 +1785,7 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
               <TableCell>Role</TableCell>
               <TableCell>IP Whitelist</TableCell>
               <TableCell>MFA</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1784,6 +1843,20 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                       onChange={() => handleMfaToggle(user.id)}
                       size="small"
                     />
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenUserDialog(user)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteUser(user.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))
@@ -1893,6 +1966,108 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
               <Button onClick={handleCloseIpDialog}>Close</Button>
             </>
           )}
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openUserDialog} onClose={handleCloseUserDialog} maxWidth="md" fullWidth>
+        <DialogTitle>
+          {selectedUser ? 'Edit User' : 'Add New User'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Name"
+                required
+                value={editableUser?.name || ''}
+                onChange={(e) => setEditableUser({...editableUser!, name: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Email"
+                required
+                type="email"
+                value={editableUser?.email || ''}
+                onChange={(e) => setEditableUser({...editableUser!, email: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" gutterBottom>
+                Roles
+              </Typography>
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox 
+                      checked={editableUser?.roles.includes("Owner") || false}
+                      onChange={(e) => {
+                        if (!editableUser) return;
+                        const newRoles = e.target.checked 
+                          ? [...editableUser.roles, "Owner"] 
+                          : editableUser.roles.filter(r => r !== "Owner");
+                        setEditableUser({...editableUser, roles: newRoles});
+                      }}
+                    />
+                  }
+                  label="Owner"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox 
+                      checked={editableUser?.roles.includes("Engineer") || false}
+                      onChange={(e) => {
+                        if (!editableUser) return;
+                        const newRoles = e.target.checked 
+                          ? [...editableUser.roles, "Engineer"] 
+                          : editableUser.roles.filter(r => r !== "Engineer");
+                        setEditableUser({...editableUser, roles: newRoles});
+                      }}
+                    />
+                  }
+                  label="Engineer"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox 
+                      checked={editableUser?.roles.includes("Member") || false}
+                      onChange={(e) => {
+                        if (!editableUser) return;
+                        const newRoles = e.target.checked 
+                          ? [...editableUser.roles, "Member"] 
+                          : editableUser.roles.filter(r => r !== "Member");
+                        setEditableUser({...editableUser, roles: newRoles});
+                      }}
+                    />
+                  }
+                  label="Member"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={editableUser?.mfaEnabled || false}
+                    onChange={(e) => setEditableUser({...editableUser!, mfaEnabled: e.target.checked})}
+                  />
+                }
+                label="MFA Enabled"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveUser} color="primary">
+            Save
+          </Button>
+          <Button onClick={handleCloseUserDialog}>
+            Cancel
+          </Button>
         </DialogActions>
       </Dialog>
     </Paper>
