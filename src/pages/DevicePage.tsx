@@ -246,7 +246,7 @@ export const DevicePage: React.FC = () => {
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">
+        <Typography variant="h6" fontWeight="bold">
           Device Management
         </Typography>
         <Button 
@@ -264,13 +264,13 @@ export const DevicePage: React.FC = () => {
         <Table aria-label="device list table">
           <TableHead>
             <TableRow>
+              <TableCell>Tenant</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Device ID</TableCell>
               <TableCell>Serial No.</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Tenant</TableCell>
               <TableCell>Attributes</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -279,20 +279,6 @@ export const DevicePage: React.FC = () => {
             {allDevices.length > 0 ? (
               allDevices.map((device) => (
                 <TableRow key={device.id}>
-                  <TableCell>{device.name}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {device.type}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{device.deviceId}</TableCell>
-                  <TableCell>{device.serialNo}</TableCell>
-                  <TableCell>{device.description}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {device.status}
-                    </Typography>
-                  </TableCell>
                   <TableCell>
                     {'isUnregistered' in device ? (
                       <FormControl size="small" fullWidth>
@@ -323,6 +309,20 @@ export const DevicePage: React.FC = () => {
                     ) : (
                       <Chip label={(device as DeviceWithTenant).tenantName} size="small" />
                     )}
+                  </TableCell>
+                  <TableCell>{device.name}</TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {device.type}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{device.deviceId}</TableCell>
+                  <TableCell>{device.serialNo}</TableCell>
+                  <TableCell>{device.description}</TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {device.status}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Button 
