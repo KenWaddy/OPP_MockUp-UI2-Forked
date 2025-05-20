@@ -610,7 +610,22 @@ export const DevicePage: React.FC = () => {
                         </Select>
                       </FormControl>
                     ) : (
-                      <Chip label={(device as DeviceWithTenant).tenantName} size="small" />
+                      <span
+                        className="clickable"
+                        onClick={() => {
+                          const tenant = mockTenants.find(t => t.id === (device as DeviceWithTenant).tenantId);
+                          if (tenant) {
+                            window.history.pushState({}, '', '/');
+                            const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
+                              detail: { tenant } 
+                            });
+                            window.dispatchEvent(tenantPageEvent);
+                          }
+                        }}
+                        style={{ cursor: 'pointer', color: 'blue' }}
+                      >
+                        {(device as DeviceWithTenant).tenantName}
+                      </span>
                     )}
                   </TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.name}</TableCell>
@@ -624,27 +639,29 @@ export const DevicePage: React.FC = () => {
                     {device.status}
                   </TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
-                    <Button 
-                      variant="outlined" 
-                      size="small"
+                    <span
+                      className="clickable"
                       onClick={() => handleOpenAttributesDialog(device)}
+                      style={{ cursor: 'pointer', color: 'blue' }}
                     >
                       View
-                    </Button>
+                    </span>
                   </TableCell>
                   <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
-                    <IconButton
-                      size="small"
+                    <span
+                      className="clickable"
                       onClick={() => handleOpenDeviceDialog(device)}
+                      style={{ cursor: 'pointer', color: 'blue', marginRight: '8px' }}
                     >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
+                      Edit
+                    </span>
+                    <span
+                      className="clickable"
                       onClick={() => handleDeleteDevice(device.id)}
+                      style={{ cursor: 'pointer', color: 'blue' }}
                     >
-                      <DeleteIcon />
-                    </IconButton>
+                      Delete
+                    </span>
                   </TableCell>
                 </TableRow>
               ))
