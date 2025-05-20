@@ -1267,7 +1267,7 @@ export const TenantPage: React.FC = () => {
           borderRadius: '4px' 
         }}
       >
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="body1" gutterBottom>
           Filters
         </Typography>
         <Divider sx={{ mb: 2 }} />
