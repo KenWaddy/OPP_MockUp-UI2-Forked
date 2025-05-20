@@ -446,6 +446,18 @@ export const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: 15,
       billingStartDate: "2023-04-15"
+    },
+    {
+      billingId: "BID-004-OT",
+      deviceContract: [
+        { type: "Server", quantity: 2 },
+        { type: "Workstation", quantity: 5 }
+      ],
+      startDate: "2023-08-01",
+      endDate: "2023-08-31",
+      paymentType: "One-time",
+      billingDate: "2023-08-15",
+      billingStartDate: "2023-08-01"
     }],
     subscription: {
       name: "Financial Enterprise",
