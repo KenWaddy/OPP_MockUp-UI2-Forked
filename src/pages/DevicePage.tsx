@@ -29,6 +29,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { mockTenants } from "./TenantPage";
 
 type Attribute = {
@@ -66,6 +68,29 @@ export const DevicePage: React.FC = () => {
   const [openDeviceDialog, setOpenDeviceDialog] = useState(false);
   const [editableDevice, setEditableDevice] = useState<DeviceWithTenant | UnregisteredDevice | null>(null);
   const [tenantOptions, setTenantOptions] = useState<{id: string, name: string}[]>([]);
+  
+  const [filters, setFilters] = useState<{
+    tenant: string;
+    name: string;
+    type: string;
+    deviceId: string;
+    serialNo: string;
+    description: string;
+    status: string;
+  }>({
+    tenant: "",
+    name: "",
+    type: "",
+    deviceId: "",
+    serialNo: "",
+    description: "",
+    status: "",
+  });
+  
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'ascending' | 'descending';
+  } | null>(null);
   
   const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
   const statusOptions: Device["status"][] = ["Registered", "Activated"];
@@ -235,6 +260,124 @@ export const DevicePage: React.FC = () => {
     setAllDevices(updatedDevices);
   };
   
+  const getFilteredAndSortedDevices = () => {
+    let filteredDevices = [...allDevices];
+    
+    if (filters.tenant) {
+      filteredDevices = filteredDevices.filter(device => {
+        if ('isUnregistered' in device) {
+          return false; // Unregistered devices don't have a tenant
+        }
+        return (device as DeviceWithTenant).tenantName.toLowerCase().includes(filters.tenant.toLowerCase());
+      });
+    }
+    
+    if (filters.name) {
+      filteredDevices = filteredDevices.filter(
+        device => device.name.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+    
+    if (filters.type) {
+      filteredDevices = filteredDevices.filter(
+        device => device.type === filters.type
+      );
+    }
+    
+    if (filters.deviceId) {
+      filteredDevices = filteredDevices.filter(
+        device => device.deviceId.toLowerCase().includes(filters.deviceId.toLowerCase())
+      );
+    }
+    
+    if (filters.serialNo) {
+      filteredDevices = filteredDevices.filter(
+        device => device.serialNo.toLowerCase().includes(filters.serialNo.toLowerCase())
+      );
+    }
+    
+    if (filters.description) {
+      filteredDevices = filteredDevices.filter(
+        device => device.description.toLowerCase().includes(filters.description.toLowerCase())
+      );
+    }
+    
+    if (filters.status) {
+      filteredDevices = filteredDevices.filter(
+        device => device.status === filters.status
+      );
+    }
+    
+    if (sortConfig) {
+      filteredDevices.sort((a, b) => {
+        let valueA, valueB;
+        
+        switch (sortConfig.key) {
+          case 'tenant':
+            valueA = 'isUnregistered' in a ? '' : (a as DeviceWithTenant).tenantName;
+            valueB = 'isUnregistered' in b ? '' : (b as DeviceWithTenant).tenantName;
+            break;
+          case 'name':
+            valueA = a.name;
+            valueB = b.name;
+            break;
+          case 'type':
+            valueA = a.type;
+            valueB = b.type;
+            break;
+          case 'deviceId':
+            valueA = a.deviceId;
+            valueB = b.deviceId;
+            break;
+          case 'serialNo':
+            valueA = a.serialNo;
+            valueB = b.serialNo;
+            break;
+          case 'description':
+            valueA = a.description;
+            valueB = b.description;
+            break;
+          case 'status':
+            valueA = a.status;
+            valueB = b.status;
+            break;
+          default:
+            valueA = '';
+            valueB = '';
+        }
+        
+        if (valueA < valueB) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (valueA > valueB) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    
+    return filteredDevices;
+  };
+  
+  const requestSort = (key: string) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    
+    if (sortConfig && sortConfig.key === key) {
+      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
+    }
+    
+    setSortConfig({ key, direction });
+  };
+  
+  const getSortDirectionIndicator = (key: string) => {
+    if (!sortConfig || sortConfig.key !== key) {
+      return null;
+    }
+    return sortConfig.direction === 'ascending' 
+      ? <ArrowUpwardIcon fontSize="small" />
+      : <ArrowDownwardIcon fontSize="small" />;
+  };
+  
   return (
     <Paper
       elevation={2}
@@ -260,24 +403,184 @@ export const DevicePage: React.FC = () => {
       </Box>
       <Divider sx={{ mb: 2 }} />
       
+      {/* Filter section */}
+      <Paper 
+        elevation={2}
+        sx={{ 
+          p: 2, 
+          mb: 2, 
+          border: '1px solid #ddd', 
+          borderRadius: '4px' 
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Filters
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        
+        <Grid container spacing={2}>
+          {/* Dropdown filters */}
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={filters.type}
+                label="Type"
+                onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                {deviceTypes.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={filters.status}
+                label="Status"
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                {statusOptions.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Tenant"
+              value={filters.tenant}
+              onChange={(e) => setFilters({ ...filters, tenant: e.target.value })}
+            />
+          </Grid>
+          
+          {/* Text input filters */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Name"
+              value={filters.name}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Device ID"
+              value={filters.deviceId}
+              onChange={(e) => setFilters({ ...filters, deviceId: e.target.value })}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Serial No."
+              value={filters.serialNo}
+              onChange={(e) => setFilters({ ...filters, serialNo: e.target.value })}
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Description"
+              value={filters.description}
+              onChange={(e) => setFilters({ ...filters, description: e.target.value })}
+            />
+          </Grid>
+        </Grid>
+        
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            onClick={() => setFilters({
+              tenant: "",
+              name: "",
+              type: "",
+              deviceId: "",
+              serialNo: "",
+              description: "",
+              status: "",
+            })}
+            startIcon={<FilterListIcon />}
+          >
+            Reset Filters
+          </Button>
+        </Box>
+      </Paper>
+      
       <TableContainer>
         <Table aria-label="device list table">
           <TableHead>
             <TableRow>
-              <TableCell>Tenant</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Device ID</TableCell>
-              <TableCell>Serial No.</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell 
+                onClick={() => requestSort('tenant')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Tenant {getSortDirectionIndicator('tenant')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('name')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Name {getSortDirectionIndicator('name')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('type')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Type {getSortDirectionIndicator('type')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('deviceId')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Device ID {getSortDirectionIndicator('deviceId')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('serialNo')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Serial No. {getSortDirectionIndicator('serialNo')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('description')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Description {getSortDirectionIndicator('description')}
+              </TableCell>
+              <TableCell 
+                onClick={() => requestSort('status')}
+                sx={{ cursor: 'pointer' }}
+              >
+                Status {getSortDirectionIndicator('status')}
+              </TableCell>
               <TableCell>Attributes</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {allDevices.length > 0 ? (
-              allDevices.map((device) => (
+            {getFilteredAndSortedDevices().length > 0 ? (
+              getFilteredAndSortedDevices().map((device) => (
                 <TableRow key={device.id}>
                   <TableCell>
                     {'isUnregistered' in device ? (
@@ -351,7 +654,7 @@ export const DevicePage: React.FC = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center">No devices found</TableCell>
+                <TableCell colSpan={9} align="center">No devices match the filter criteria</TableCell>
               </TableRow>
             )}
           </TableBody>
