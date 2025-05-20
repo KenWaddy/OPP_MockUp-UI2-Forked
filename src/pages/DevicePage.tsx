@@ -534,55 +534,55 @@ export const DevicePage: React.FC = () => {
             <TableRow>
               <TableCell 
                 onClick={() => requestSort('tenant')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Tenant {getSortDirectionIndicator('tenant')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('name')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Name {getSortDirectionIndicator('name')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('type')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Type {getSortDirectionIndicator('type')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('deviceId')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Device ID {getSortDirectionIndicator('deviceId')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('serialNo')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Serial No. {getSortDirectionIndicator('serialNo')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('description')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Description {getSortDirectionIndicator('description')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('status')}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
               >
                 Status {getSortDirectionIndicator('status')}
               </TableCell>
-              <TableCell>Attributes</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Attributes</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {getFilteredAndSortedDevices().length > 0 ? (
               getFilteredAndSortedDevices().map((device) => (
                 <TableRow key={device.id}>
-                  <TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
                     {'isUnregistered' in device ? (
                       <FormControl size="small" fullWidth>
                         <Select
@@ -613,21 +613,17 @@ export const DevicePage: React.FC = () => {
                       <Chip label={(device as DeviceWithTenant).tenantName} size="small" />
                     )}
                   </TableCell>
-                  <TableCell>{device.name}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {device.type}
-                    </Typography>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.name}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                    {device.type}
                   </TableCell>
-                  <TableCell>{device.deviceId}</TableCell>
-                  <TableCell>{device.serialNo}</TableCell>
-                  <TableCell>{device.description}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {device.status}
-                    </Typography>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.deviceId}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.serialNo}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.description}</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                    {device.status}
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
                     <Button 
                       variant="outlined" 
                       size="small"
@@ -636,7 +632,7 @@ export const DevicePage: React.FC = () => {
                       View
                     </Button>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
                     <IconButton
                       size="small"
                       onClick={() => handleOpenDeviceDialog(device)}
@@ -654,7 +650,7 @@ export const DevicePage: React.FC = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center">No devices match the filter criteria</TableCell>
+                <TableCell colSpan={9} align="center" sx={{ fontSize: '0.875rem', color: '#333' }}>No devices match the filter criteria</TableCell>
               </TableRow>
             )}
           </TableBody>
