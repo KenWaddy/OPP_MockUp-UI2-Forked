@@ -30,7 +30,8 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  Tooltip
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -90,7 +91,7 @@ type Tenant = {
     dueDay?: number | "End of Month"; // For Monthly/Annually payment
     dueMonth?: number; // For Annually payment
     billingStartDate?: string;
-  };
+  }[];
   subscription?: {
     name?: string;
     id?: string;
@@ -121,7 +122,7 @@ const mockTenants: Tenant[] = [
     contract: "Evergreen",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-001",
       deviceContract: [
         { type: "Server", quantity: 5 },
@@ -134,6 +135,18 @@ const mockTenants: Tenant[] = [
       dueDay: 15,
       billingStartDate: "2023-01-15"
     },
+    {
+      billingId: "BID-001-A",
+      deviceContract: [
+        { type: "IoT", quantity: 25 }
+      ],
+      startDate: "2023-06-01",
+      endDate: "2024-05-31",
+      paymentType: "Annually",
+      dueDay: 1,
+      dueMonth: 6,
+      billingStartDate: "2023-06-01"
+    }],
     subscription: {
       name: "Enterprise Plan",
       id: "EP-001",
@@ -232,7 +245,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-002",
       deviceContract: [
         { type: "Server", quantity: 2 },
@@ -243,7 +256,7 @@ const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: "End of Month",
       billingStartDate: "2023-03-10"
-    },
+    }],
     subscription: {
       name: "Standard Plan",
       id: "SP-002",
@@ -319,7 +332,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Annually",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-003",
       deviceContract: [
         { type: "Server", quantity: 8 },
@@ -333,7 +346,7 @@ const mockTenants: Tenant[] = [
       dueDay: 1,
       dueMonth: 2,
       billingStartDate: "2023-02-01"
-    },
+    }],
     subscription: {
       name: "Healthcare Enterprise",
       id: "HE-003",
@@ -418,7 +431,7 @@ const mockTenants: Tenant[] = [
     contract: "Evergreen",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-004",
       deviceContract: [
         { type: "Server", quantity: 12 },
@@ -430,7 +443,7 @@ const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: 15,
       billingStartDate: "2023-04-15"
-    },
+    }],
     subscription: {
       name: "Financial Enterprise",
       id: "FE-004",
@@ -492,7 +505,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Annually",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-005",
       deviceContract: [
         { type: "Server", quantity: 20 },
@@ -505,7 +518,7 @@ const mockTenants: Tenant[] = [
       dueDay: 1,
       dueMonth: 5,
       billingStartDate: "2023-05-01"
-    },
+    }],
     subscription: {
       name: "E-commerce Enterprise",
       id: "EE-005",
@@ -567,7 +580,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-006",
       deviceContract: [
         { type: "Server", quantity: 5 },
@@ -579,7 +592,7 @@ const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: "End of Month",
       billingStartDate: "2023-06-15"
-    },
+    }],
     subscription: {
       name: "Manufacturing Suite",
       id: "MS-006",
@@ -640,7 +653,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Annually",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-007",
       deviceContract: [
         { type: "Server", quantity: 15 },
@@ -653,7 +666,7 @@ const mockTenants: Tenant[] = [
       dueDay: 1,
       dueMonth: 7,
       billingStartDate: "2023-07-01"
-    },
+    }],
     subscription: {
       name: "Government Secure",
       id: "GS-007",
@@ -715,7 +728,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Annually",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-008",
       deviceContract: [
         { type: "Server", quantity: 10 },
@@ -728,7 +741,7 @@ const mockTenants: Tenant[] = [
       dueDay: 15,
       dueMonth: 8,
       billingStartDate: "2023-08-15"
-    },
+    }],
     subscription: {
       name: "Education Suite",
       id: "ES-008",
@@ -790,7 +803,7 @@ const mockTenants: Tenant[] = [
     contract: "Evergreen",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-009",
       deviceContract: [
         { type: "Server", quantity: 8 },
@@ -802,7 +815,7 @@ const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: 1,
       billingStartDate: "2023-09-01"
-    },
+    }],
     subscription: {
       name: "Insurance Enterprise",
       id: "IE-009",
@@ -864,7 +877,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-010",
       deviceContract: [
         { type: "Server", quantity: 25 },
@@ -876,7 +889,7 @@ const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: 15,
       billingStartDate: "2023-10-15"
-    },
+    }],
     subscription: {
       name: "Media Production Suite",
       id: "MP-010",
@@ -938,7 +951,7 @@ const mockTenants: Tenant[] = [
     contract: "Termed",
     status: "Active",
     billing: "Annually",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-011",
       deviceContract: [
         { type: "Server", quantity: 15 },
@@ -952,7 +965,7 @@ const mockTenants: Tenant[] = [
       dueDay: 1,
       dueMonth: 11,
       billingStartDate: "2023-11-01"
-    },
+    }],
     subscription: {
       name: "Retail Management",
       id: "RM-011",
@@ -1014,7 +1027,7 @@ const mockTenants: Tenant[] = [
     contract: "Evergreen",
     status: "Active",
     billing: "Monthly",
-    billingDetails: {
+    billingDetails: [{
       billingId: "BID-012",
       deviceContract: [
         { type: "Server", quantity: 10 },
@@ -1027,7 +1040,7 @@ const mockTenants: Tenant[] = [
       paymentType: "Monthly",
       dueDay: "End of Month",
       billingStartDate: "2023-12-15"
-    },
+    }],
     subscription: {
       name: "Logistics Suite",
       id: "LS-012",
@@ -1099,7 +1112,7 @@ export const TenantPage: React.FC = () => {
                 ? "User List"
                 : tab === "devices"
                 ? "Device List"
-                : "Billing Info"}
+                : "Billing List"}
             </span>
           ))}
         </div>
@@ -1107,7 +1120,7 @@ export const TenantPage: React.FC = () => {
           {activeTab === "info" && <TenantInfoPanel tenant={selectedTenant} />}
           {activeTab === "users" && <TenantUserListPanel tenant={selectedTenant} />}
           {activeTab === "devices" && <TenantDeviceListPanel tenant={selectedTenant} />}
-          {activeTab === "billing" && <TenantBillingInfoPanel tenant={selectedTenant} />}
+          {activeTab === "billing" && <TenantBillingListPanel tenant={selectedTenant} />}
         </div>
       </div>
     );
@@ -1897,20 +1910,48 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
     </Paper>
   );
 };
-const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
+const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
   if (!tenant) return null;
 
-  const [paymentType, setPaymentType] = useState<"One-time" | "Monthly" | "Annually">(
-    tenant.billingDetails?.paymentType || "Monthly"
-  );
-  
-  const [deviceContract, setDeviceContract] = useState<DeviceContractItem[]>(
-    tenant.billingDetails?.deviceContract || []
-  );
+  const billingList = Array.isArray(tenant.billingDetails) 
+    ? tenant.billingDetails 
+    : tenant.billingDetails ? [tenant.billingDetails] : [];
 
-  const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
-  
-  const totalDevices = deviceContract.reduce((sum, item) => sum + item.quantity, 0);
+  const renderDeviceContract = (deviceContract: DeviceContractItem[] | undefined) => {
+    if (!deviceContract || deviceContract.length === 0) return 'No devices';
+    
+    const total = deviceContract.reduce((sum, item) => sum + item.quantity, 0);
+    const summary = deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
+    return `${total} Devices: ${summary}`;
+  };
+
+  const renderPaymentSettings = (billing: typeof billingList[0]) => {
+    if (!billing) return 'N/A';
+    
+    let settings = `${billing.paymentType || 'N/A'}`;
+    
+    if (billing.paymentType === 'One-time' && billing.billingDate) {
+      settings += ` | Billing Date: ${billing.billingDate}`;
+    }
+    
+    if ((billing.paymentType === 'Monthly' || billing.paymentType === 'Annually') && billing.dueDay) {
+      settings += ` | Due Day: ${billing.dueDay}`;
+    }
+    
+    if (billing.paymentType === 'Annually' && billing.dueMonth) {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June', 
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const month = typeof billing.dueMonth === 'number' && billing.dueMonth >= 1 && billing.dueMonth <= 12 
+        ? months[billing.dueMonth - 1] 
+        : billing.dueMonth;
+      
+      settings += ` | Due Month: ${month}`;
+    }
+    
+    return settings;
+  };
 
   return (
     <Paper
@@ -1921,155 +1962,77 @@ const TenantBillingInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
         borderRadius: '4px'
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        Billing Information
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">
+          Billing List
+        </Typography>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          startIcon={<AddIcon />}
+        >
+          Add Billing
+        </Button>
+      </Box>
       <Divider sx={{ mb: 2 }} />
       
-      {/* Basic Billing Info */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3, justifyContent: 'flex-start' }}>
-        <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
-          <ListItemText 
-            primary="Billing ID" 
-            secondary={tenant.billingDetails?.billingId || 'N/A'} 
-            primaryTypographyProps={{ variant: 'subtitle2' }}
-          />
-        </Box>
-        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
-          <ListItemText 
-            primary="Contract Start" 
-            secondary={tenant.billingDetails?.startDate || 'N/A'} 
-            primaryTypographyProps={{ variant: 'subtitle2' }}
-          />
-        </Box>
-        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
-          <ListItemText 
-            primary="Contract End" 
-            secondary={tenant.billingDetails?.endDate || 'N/A'} 
-            primaryTypographyProps={{ variant: 'subtitle2' }}
-          />
-        </Box>
-        <Box sx={{ minWidth: '200px', flex: '1 1 auto' }}>
-          <ListItemText 
-            primary="Billing Start Date" 
-            secondary={tenant.billingDetails?.billingStartDate || 'N/A'} 
-            primaryTypographyProps={{ variant: 'subtitle2' }}
-          />
-        </Box>
-      </Box>
-      
-      {/* Payment Type Section */}
-      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-        Payment Settings
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, pl: 2, mb: 3, justifyContent: 'flex-start' }}>
-        <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
-          <FormControl size="small" sx={{ width: 'auto', minWidth: '120px' }}>
-            <InputLabel>Payment Type</InputLabel>
-            <Select
-              value={paymentType}
-              onChange={(e) => setPaymentType(e.target.value as "One-time" | "Monthly" | "Annually")}
-              label="Payment Type"
-            >
-              <MenuItem value="One-time">One-time</MenuItem>
-              <MenuItem value="Monthly">Monthly</MenuItem>
-              <MenuItem value="Annually">Annually</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-        
-        {/* Conditional Fields Based on Payment Type */}
-        {paymentType === "One-time" && (
-          <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
-            <ListItemText 
-              primary="Billing Date" 
-              secondary={tenant.billingDetails?.billingDate || 'N/A'} 
-              primaryTypographyProps={{ variant: 'subtitle2' }}
-            />
-          </Box>
-        )}
-        
-        {(paymentType === "Monthly" || paymentType === "Annually") && (
-          <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
-            <FormControl size="small" sx={{ width: 'auto', minWidth: '80px' }}>
-              <InputLabel>Due Day</InputLabel>
-              <Select
-                value={tenant.billingDetails?.dueDay || 1}
-                label="Due Day"
-              >
-                {[...Array(31)].map((_, i) => (
-                  <MenuItem key={i+1} value={i+1}>{i+1}</MenuItem>
-                ))}
-                <MenuItem value="End of Month">End of Month</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        )}
-        
-        {paymentType === "Annually" && (
-          <Box sx={{ minWidth: '200px', flex: '0 1 auto' }}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Due Month</InputLabel>
-              <Select
-                value={tenant.billingDetails?.dueMonth || 1}
-                label="Due Month"
-              >
-                {[
-                  { value: 1, label: "January" },
-                  { value: 2, label: "February" },
-                  { value: 3, label: "March" },
-                  { value: 4, label: "April" },
-                  { value: 5, label: "May" },
-                  { value: 6, label: "June" },
-                  { value: 7, label: "July" },
-                  { value: 8, label: "August" },
-                  { value: 9, label: "September" },
-                  { value: 10, label: "October" },
-                  { value: 11, label: "November" },
-                  { value: 12, label: "December" }
-                ].map(month => (
-                  <MenuItem key={month.value} value={month.value}>{month.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        )}
-      </Box>
-      
-      {/* Device Contract Section */}
-      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-        Device Contract
-      </Typography>
-      <Box sx={{ pl: 2 }}>
-        <Typography variant="body2" sx={{ mb: 1 }}>
-          Total Devices: {totalDevices}
-        </Typography>
-        
-        {deviceContract.length > 0 ? (
-          <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ pr: 0, width: '120px' }}>Device Type</TableCell>
-                  <TableCell align="left" sx={{ pl: 0, width: '60px' }}>Quantity</TableCell>
+      {billingList.length > 0 ? (
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Billing ID</TableCell>
+                <TableCell>Contract Start</TableCell>
+                <TableCell>Contract End</TableCell>
+                <TableCell>Billing Start Date</TableCell>
+                <TableCell>Payment Settings</TableCell>
+                <TableCell>Device Contract</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {billingList.map((billing, index) => (
+                <TableRow key={index}>
+                  <TableCell>{billing.billingId || 'N/A'}</TableCell>
+                  <TableCell>{billing.startDate || 'N/A'}</TableCell>
+                  <TableCell>{billing.endDate || 'N/A'}</TableCell>
+                  <TableCell>{billing.billingStartDate || 'N/A'}</TableCell>
+                  <TableCell>{renderPaymentSettings(billing)}</TableCell>
+                  <TableCell>
+                    <Tooltip title={
+                      <TableContainer>
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Type</TableCell>
+                              <TableCell>Quantity</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {billing.deviceContract && billing.deviceContract.map((item, idx) => (
+                              <TableRow key={idx}>
+                                <TableCell>{item.type}</TableCell>
+                                <TableCell>{item.quantity}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    } arrow>
+                      <Box sx={{ cursor: 'pointer' }}>
+                        {renderDeviceContract(billing.deviceContract)}
+                      </Box>
+                    </Tooltip>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {deviceContract.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell sx={{ pr: 0, width: '120px' }}>{item.type}</TableCell>
-                    <TableCell align="left" sx={{ pl: 0, width: '60px' }}>{item.quantity}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            No device contract information available.
-          </Typography>
-        )}
-      </Box>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+          No billing information available.
+        </Typography>
+      )}
     </Paper>
   );
 };
