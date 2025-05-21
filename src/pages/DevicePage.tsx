@@ -530,15 +530,6 @@ export const DevicePage: React.FC = () => {
         </Box>
       </Paper>
       
-      <Paper
-        elevation={2}
-        sx={{
-          p: 2,
-          mb: 2,
-          border: '1px solid #ddd',
-          borderRadius: '4px'
-        }}
-      >
       <TableContainer component={Paper} variant="outlined">
         <Table size="small" aria-label="device list table">
           <TableHead>
@@ -938,7 +929,7 @@ export const DevicePage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      </Paper>
+
     </div>
   );
 };
