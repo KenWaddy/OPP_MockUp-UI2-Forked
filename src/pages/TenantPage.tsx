@@ -39,76 +39,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  roles: ("Owner" | "Engineer" | "Member")[];
-  ipWhitelist: string[];
-  mfaEnabled: boolean;
-};
-
-type Attribute = {
-  key: string;
-  value: string;
-};
-
-type Device = {
-  id: string;
-  name: string;
-  type: "Server" | "Workstation" | "Mobile" | "IoT" | "Other";
-  deviceId: string;
-  serialNo: string;
-  description: string;
-  status: "Registered" | "Activated";
-  attributes: Attribute[];
-};
-
-type DeviceContractItem = {
-  type: Device["type"];
-  quantity: number;
-};
-
-type Tenant = {
-  id: string;
-  name: string;
-  description?: string;
-  owner: {
-    name: string;
-    email: string;
-    phone?: string;
-    address?: string;
-    country?: string;
-  };
-  contract: string;
-  status: string;
-  billing: string;
-  billingDetails?: {
-    billingId?: string;
-    deviceContract?: DeviceContractItem[];
-    startDate?: string;
-    endDate?: string;
-    paymentType?: "One-time" | "Monthly" | "Annually";
-    billingDate?: string; // For One-time payment
-    dueDay?: number | "End of Month"; // For Monthly/Annually payment
-    dueMonth?: number; // For Annually payment
-    billingStartDate?: string;
-  }[];
-  subscription?: {
-    name?: string;
-    id?: string;
-    description?: string;
-    services?: string[];
-    termType?: string;
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    configs?: string;
-  };
-  users?: User[];
-  devices?: Device[];
-};
+import { Tenant, User, Device, Attribute, DeviceContractItem } from '../mocks';
 
 export const mockTenants: Tenant[] = [
   {
