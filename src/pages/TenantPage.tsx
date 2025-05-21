@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { 
+import React, { useState, useEffect } from "react";
+import {
   Grid, 
   Paper, 
   Typography, 
@@ -1044,6 +1044,18 @@ export const TenantPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("info");
   const [openTenantDialog, setOpenTenantDialog] = useState(false);
   const [editableTenant, setEditableTenant] = useState<Tenant | null>(null);
+  
+  useEffect(() => {
+    const selectedTenantId = localStorage.getItem('selectedTenantId');
+    if (selectedTenantId) {
+      const tenant = mockTenants.find(t => t.id === selectedTenantId);
+      if (tenant) {
+        setSelectedTenant(tenant);
+        localStorage.removeItem('selectedTenantId');
+      }
+    }
+  }, []);
+  
   const [filters, setFilters] = useState<{
     contractType: string;
     billingType: string;

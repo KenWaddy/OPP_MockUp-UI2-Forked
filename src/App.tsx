@@ -16,6 +16,7 @@ export default function App() {
   useEffect(() => {
     const handleTenantNavigation = (event: TenantNavigationEvent) => {
       setActiveTab("tenant");
+      localStorage.setItem('selectedTenantId', event.detail.tenant.id);
     };
     
     window.addEventListener('navigate-to-tenant', handleTenantNavigation as EventListener);

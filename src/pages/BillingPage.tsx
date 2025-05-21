@@ -593,6 +593,7 @@ export const BillingPage: React.FC = () => {
                       onClick={() => {
                         const tenant = mockTenants.find(t => t.id === billing.tenantId);
                         if (tenant) {
+                          localStorage.setItem('selectedTenantId', tenant.id);
                           window.history.pushState({}, '', '/');
                           const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
                             detail: { tenant } 

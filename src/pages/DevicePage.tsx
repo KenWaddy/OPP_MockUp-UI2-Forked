@@ -550,6 +550,7 @@ export const DevicePage: React.FC = () => {
                         onClick={() => {
                           const tenant = mockTenants.find(t => t.id === (device as DeviceWithTenant).tenantId);
                           if (tenant) {
+                            localStorage.setItem('selectedTenantId', tenant.id);
                             window.history.pushState({}, '', '/');
                             const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
                               detail: { tenant } 
