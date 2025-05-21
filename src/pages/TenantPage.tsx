@@ -1177,7 +1177,7 @@ export const TenantPage: React.FC = () => {
           onChange={(e, newValue) => setActiveTab(newValue)}
           sx={{ mb: 2 }}
         >
-          <Tab value="info" label="Tenant Info" />
+          <Tab value="info" label="Basic Info" />
           <Tab value="users" label="User List" />
           <Tab value="devices" label="Device List" />
           <Tab value="billing" label="Billing List" />
@@ -1391,7 +1391,7 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
 
   return (
     <Grid container spacing={3} direction="column">
-      {/* Basic Info Panel */}
+      {/* Tenant Panel */}
       <Grid item xs={12}>
         <Paper 
           elevation={2} 
@@ -1402,7 +1402,7 @@ const TenantInfoPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) => {
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Basic Info
+            Tenant
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
