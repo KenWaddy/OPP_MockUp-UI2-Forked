@@ -446,7 +446,7 @@ export const BillingPage: React.FC = () => {
               <TextField
                 fullWidth
                 size="small"
-                label="From (YYYY-MM)"
+                label="Contract Start: From (YYYY-MM)"
                 value={filters.contractStartFrom}
                 onChange={(e) => setFilters({ ...filters, contractStartFrom: e.target.value })}
                 placeholder="Contract Start: From (YYYY-MM)"
@@ -454,7 +454,7 @@ export const BillingPage: React.FC = () => {
               <TextField
                 fullWidth
                 size="small"
-                label="To (YYYY-MM)"
+                label="Contract Start: To (YYYY-MM)"
                 value={filters.contractStartTo}
                 onChange={(e) => setFilters({ ...filters, contractStartTo: e.target.value })}
                 placeholder="Contract Start: To (YYYY-MM)"
@@ -467,7 +467,7 @@ export const BillingPage: React.FC = () => {
               <TextField
                 fullWidth
                 size="small"
-                label="From (YYYY-MM)"
+                label="Contract End: From (YYYY-MM)"
                 value={filters.contractEndFrom}
                 onChange={(e) => setFilters({ ...filters, contractEndFrom: e.target.value })}
                 placeholder="Contract End: From (YYYY-MM)"
@@ -475,7 +475,7 @@ export const BillingPage: React.FC = () => {
               <TextField
                 fullWidth
                 size="small"
-                label="To (YYYY-MM)"
+                label="Contract End: To (YYYY-MM)"
                 value={filters.contractEndTo}
                 onChange={(e) => setFilters({ ...filters, contractEndTo: e.target.value })}
                 placeholder="Contract End: To (YYYY-MM)"
@@ -488,7 +488,7 @@ export const BillingPage: React.FC = () => {
               <TextField
                 fullWidth
                 size="small"
-                label="From (YYYY-MM)"
+                label="Next Billing Month: From (YYYY-MM)"
                 value={filters.nextBillingFrom}
                 onChange={(e) => setFilters({ ...filters, nextBillingFrom: e.target.value })}
                 placeholder="Next Billing Month: From (YYYY-MM)"
@@ -496,7 +496,7 @@ export const BillingPage: React.FC = () => {
               <TextField
                 fullWidth
                 size="small"
-                label="To (YYYY-MM)"
+                label="Next Billing Month: To (YYYY-MM)"
                 value={filters.nextBillingTo}
                 onChange={(e) => setFilters({ ...filters, nextBillingTo: e.target.value })}
                 placeholder="Next Billing Month: To (YYYY-MM)"
