@@ -31,7 +31,9 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Tooltip
+  Tooltip,
+  Tabs,
+  Tab
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -1166,33 +1168,28 @@ export const TenantPage: React.FC = () => {
 
   if (selectedTenant) {
     return (
-      <div className="tenant-detail">
-        <button onClick={() => setSelectedTenant(null)}>Back</button>
-        <h2>{selectedTenant.name} - Detail</h2>
-        <div className="tabs">
-          {["info", "users", "devices", "billing"].map((tab) => (
-            <span
-              key={tab}
-              className={activeTab === tab ? "tab active" : "tab"}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "info"
-                ? "Tenant Info"
-                : tab === "users"
-                ? "User List"
-                : tab === "devices"
-                ? "Device List"
-                : "Billing List"}
-            </span>
-          ))}
-        </div>
-        <div className="tab-content">
+      <Box>
+        <Button variant="outlined" onClick={() => setSelectedTenant(null)} sx={{ mb: 2 }}>Back</Button>
+        <Typography variant="h5" sx={{ mb: 2 }}>{selectedTenant.name} - Detail</Typography>
+        
+        <Tabs 
+          value={activeTab} 
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          sx={{ mb: 2 }}
+        >
+          <Tab value="info" label="Tenant Info" />
+          <Tab value="users" label="User List" />
+          <Tab value="devices" label="Device List" />
+          <Tab value="billing" label="Billing List" />
+        </Tabs>
+        
+        <Box sx={{ mt: 2 }}>
           {activeTab === "info" && <TenantInfoPanel tenant={selectedTenant} />}
           {activeTab === "users" && <TenantUserListPanel tenant={selectedTenant} />}
           {activeTab === "devices" && <TenantDeviceListPanel tenant={selectedTenant} />}
           {activeTab === "billing" && <TenantBillingListPanel tenant={selectedTenant} />}
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
