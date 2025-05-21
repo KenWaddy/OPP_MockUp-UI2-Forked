@@ -1,3 +1,3 @@
-export * from './types';
-export * from './tenants';
-export * from './unregisteredDevices';
+export * from './types.js';
+export * from './tenants.js';
+export * from './unregisteredDevices.js';
