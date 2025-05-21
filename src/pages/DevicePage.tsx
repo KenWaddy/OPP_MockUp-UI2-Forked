@@ -32,18 +32,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { mockTenants } from "./TenantPage";
-
-const tableHeaderCellStyle = {
-  fontWeight: 'bold',
-  fontSize: '0.875rem',
-  color: '#333',
-  cursor: 'pointer',
-};
-
-const tableBodyCellStyle = {
-  fontSize: '0.875rem',
-  color: '#333',
-};
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
 
 type Attribute = {
   key: string;

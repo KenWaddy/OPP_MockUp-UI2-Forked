@@ -38,18 +38,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
-const tableHeaderCellStyle = {
-  fontWeight: 'bold',
-  fontSize: '0.875rem',
-  color: '#333',
-  cursor: 'pointer',
-};
-
-const tableBodyCellStyle = {
-  fontSize: '0.875rem',
-  color: '#333',
-};
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
 
 type User = {
   id: string;
