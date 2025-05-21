@@ -1041,6 +1041,8 @@ export const mockTenants: Tenant[] = [
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [activeTab, setActiveTab] = useState("info");
+  const [openTenantDialog, setOpenTenantDialog] = useState(false);
+  const [editableTenant, setEditableTenant] = useState<Tenant | null>(null);
   const [filters, setFilters] = useState<{
     contractType: string;
     billingType: string;
@@ -1166,6 +1168,52 @@ export const TenantPage: React.FC = () => {
       : <ArrowDownwardIcon fontSize="small" />;
   };
 
+  const handleOpenTenantDialog = (tenant?: Tenant) => {
+    if (tenant) {
+      setSelectedTenant(tenant);
+      setEditableTenant({...tenant});
+    } else {
+      setSelectedTenant(null);
+      setEditableTenant({
+        id: `t-new-${Math.floor(Math.random() * 1000)}`,
+        name: '',
+        description: '',
+        owner: {
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          country: ''
+        },
+        contract: "Evergreen",
+        status: "Active",
+        billing: "Monthly",
+        billingDetails: [],
+        users: [],
+        devices: []
+      });
+    }
+    setOpenTenantDialog(true);
+  };
+
+  const handleCloseTenantDialog = () => {
+    setOpenTenantDialog(false);
+  };
+
+  const handleSaveTenant = () => {
+    if (editableTenant) {
+      if (selectedTenant) {
+        const index = mockTenants.findIndex(tenant => tenant.id === selectedTenant.id);
+        if (index !== -1) {
+          mockTenants.splice(index, 1, editableTenant);
+        }
+      } else {
+        mockTenants.push(editableTenant);
+      }
+      setOpenTenantDialog(false);
+    }
+  };
+
   if (selectedTenant) {
     return (
       <Box>
@@ -1196,6 +1244,17 @@ export const TenantPage: React.FC = () => {
   return (
     <div className="tenant-list">
       <h2>Tenant List</h2>
+      
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenTenantDialog()}
+        >
+          Add Tenant
+        </Button>
+      </Box>
       
       {/* Filter section */}
       <Paper 
@@ -1382,6 +1441,149 @@ export const TenantPage: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      
+      {/* Tenant Dialog */}
+      <Dialog open={openTenantDialog} onClose={handleCloseTenantDialog} maxWidth="md" fullWidth>
+        <DialogTitle>
+          {selectedTenant ? 'Edit Tenant' : 'Add New Tenant'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Tenant Name"
+                required
+                value={editableTenant?.name || ''}
+                onChange={(e) => setEditableTenant({...editableTenant!, name: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Description"
+                value={editableTenant?.description || ''}
+                onChange={(e) => setEditableTenant({...editableTenant!, description: e.target.value})}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>Owner Information</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Owner Name"
+                required
+                value={editableTenant?.owner.name || ''}
+                onChange={(e) => setEditableTenant({
+                  ...editableTenant!, 
+                  owner: {...editableTenant!.owner, name: e.target.value}
+                })}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Email"
+                required
+                type="email"
+                value={editableTenant?.owner.email || ''}
+                onChange={(e) => setEditableTenant({
+                  ...editableTenant!, 
+                  owner: {...editableTenant!.owner, email: e.target.value}
+                })}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Phone"
+                value={editableTenant?.owner.phone || ''}
+                onChange={(e) => setEditableTenant({
+                  ...editableTenant!, 
+                  owner: {...editableTenant!.owner, phone: e.target.value}
+                })}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Address"
+                value={editableTenant?.owner.address || ''}
+                onChange={(e) => setEditableTenant({
+                  ...editableTenant!, 
+                  owner: {...editableTenant!.owner, address: e.target.value}
+                })}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Country"
+                value={editableTenant?.owner.country || ''}
+                onChange={(e) => setEditableTenant({
+                  ...editableTenant!, 
+                  owner: {...editableTenant!.owner, country: e.target.value}
+                })}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Contract Type</InputLabel>
+                <Select
+                  value={editableTenant?.contract || 'Evergreen'}
+                  onChange={(e) => setEditableTenant({...editableTenant!, contract: e.target.value})}
+                  label="Contract Type"
+                >
+                  <MenuItem value="Evergreen">Evergreen</MenuItem>
+                  <MenuItem value="Termed">Termed</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={editableTenant?.status || 'Active'}
+                  onChange={(e) => setEditableTenant({...editableTenant!, status: e.target.value})}
+                  label="Status"
+                >
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="Inactive">Inactive</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Billing Type</InputLabel>
+                <Select
+                  value={editableTenant?.billing || 'Monthly'}
+                  onChange={(e) => setEditableTenant({...editableTenant!, billing: e.target.value})}
+                  label="Billing Type"
+                >
+                  <MenuItem value="Monthly">Monthly</MenuItem>
+                  <MenuItem value="Annually">Annually</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveTenant} color="primary">
+            Save
+          </Button>
+          <Button onClick={handleCloseTenantDialog}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
