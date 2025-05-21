@@ -40,6 +40,18 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import "./TenantPage.css";
 
+const tableHeaderCellStyle = {
+  fontWeight: 'bold',
+  fontSize: '0.875rem',
+  color: '#333',
+  cursor: 'pointer',
+};
+
+const tableBodyCellStyle = {
+  fontSize: '0.875rem',
+  color: '#333',
+};
+
 type User = {
   id: string;
   name: string;
@@ -1388,37 +1400,37 @@ export const TenantPage: React.FC = () => {
             <TableRow>
               <TableCell 
                 onClick={() => requestSort('tenant')}
-                sx={{ cursor: 'pointer' }}
+                sx={tableHeaderCellStyle}
               >
                 Tenant Name {getSortDirectionIndicator('tenant')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('owner')}
-                sx={{ cursor: 'pointer' }}
+                sx={tableHeaderCellStyle}
               >
                 Owner Name {getSortDirectionIndicator('owner')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('email')}
-                sx={{ cursor: 'pointer' }}
+                sx={tableHeaderCellStyle}
               >
                 Mail Address {getSortDirectionIndicator('email')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('contract')}
-                sx={{ cursor: 'pointer' }}
+                sx={tableHeaderCellStyle}
               >
                 Contract {getSortDirectionIndicator('contract')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('status')}
-                sx={{ cursor: 'pointer' }}
+                sx={tableHeaderCellStyle}
               >
                 Status {getSortDirectionIndicator('status')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('billing')}
-                sx={{ cursor: 'pointer' }}
+                sx={tableHeaderCellStyle}
               >
                 Billing {getSortDirectionIndicator('billing')}
               </TableCell>
@@ -1428,7 +1440,7 @@ export const TenantPage: React.FC = () => {
             {getFilteredAndSortedTenants().length > 0 ? (
               getFilteredAndSortedTenants().map((tenant) => (
                 <TableRow key={tenant.id}>
-                  <TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     <span
                       className="clickable"
                       onClick={() => setSelectedTenant(tenant)}
@@ -1437,16 +1449,16 @@ export const TenantPage: React.FC = () => {
                       {tenant.name}
                     </span>
                   </TableCell>
-                  <TableCell>{tenant.owner.name}</TableCell>
-                  <TableCell>{tenant.owner.email}</TableCell>
-                  <TableCell>{tenant.contract}</TableCell>
-                  <TableCell>{tenant.status}</TableCell>
-                  <TableCell>{tenant.billing}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{tenant.owner.name}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{tenant.status}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={6} align="center" sx={tableBodyCellStyle}>
                   No tenants match the filter criteria
                 </TableCell>
               </TableRow>
@@ -1923,26 +1935,26 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
         <Table aria-label="user list table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Role</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>IP Whitelist</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>MFA</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Email</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Role</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>IP Whitelist</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>MFA</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.length > 0 ? (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{user.name}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{user.email}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>{user.name}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{user.email}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <Typography variant="body2">
                       {user.roles.join(", ")}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     <Button 
                       variant="outlined" 
                       size="small"
@@ -1951,12 +1963,12 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
                       View
                     </Button>
                   </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <Typography variant="body2">
                       {user.mfaEnabled ? "Enabled" : "Disabled"}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     <IconButton
                       size="small"
                       onClick={() => handleOpenUserDialog(user)}
@@ -1974,7 +1986,7 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} align="center">No users found</TableCell>
+                <TableCell colSpan={5} align="center" sx={tableBodyCellStyle}>No users found</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -2326,35 +2338,35 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
         <Table aria-label="device list table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Type</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Device ID</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Serial No.</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Attributes</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Device ID</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Serial No.</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {devices.length > 0 ? (
               devices.map((device) => (
                 <TableRow key={device.id}>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.name}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <Typography variant="body2">
                       {device.type}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.deviceId}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.serialNo}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.description}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <Typography variant="body2">
                       {device.status}
                     </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     <Button 
                       variant="outlined" 
                       size="small"
@@ -2363,7 +2375,7 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
                       View
                     </Button>
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     <IconButton
                       size="small"
                       onClick={() => handleOpenDeviceDialog(device)}
@@ -2381,7 +2393,7 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} align="center">No devices found</TableCell>
+                <TableCell colSpan={7} align="center" sx={tableBodyCellStyle}>No devices found</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -2846,29 +2858,29 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Billing ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Contract Start</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Contract End</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Billing Start Date</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Next Billing Month</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Payment Settings</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Number of Device</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Billing ID</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Contract Start</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Contract End</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Billing Start Date</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Next Billing Month</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Payment Settings</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Number of Device</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {billingList.map((billing, index) => (
                 <TableRow key={index}>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingId || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.startDate || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.endDate || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingStartDate || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{calculateNextBillingMonth(billing)}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{renderPaymentSettings(billing)}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.billingStartDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     {renderNumberOfDevices(billing.deviceContract)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     <IconButton
                       size="small"
                       onClick={() => handleOpenBillingDialog(billing)}

@@ -33,6 +33,18 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { mockTenants } from "./TenantPage";
 
+const tableHeaderCellStyle = {
+  fontWeight: 'bold',
+  fontSize: '0.875rem',
+  color: '#333',
+  cursor: 'pointer',
+};
+
+const tableBodyCellStyle = {
+  fontSize: '0.875rem',
+  color: '#333',
+};
+
 type Attribute = {
   key: string;
   value: string;
@@ -533,55 +545,55 @@ export const DevicePage: React.FC = () => {
             <TableRow>
               <TableCell 
                 onClick={() => requestSort('tenant')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Tenant {getSortDirectionIndicator('tenant')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('name')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Name {getSortDirectionIndicator('name')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('type')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Type {getSortDirectionIndicator('type')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('deviceId')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Device ID {getSortDirectionIndicator('deviceId')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('serialNo')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Serial No. {getSortDirectionIndicator('serialNo')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('description')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Description {getSortDirectionIndicator('description')}
               </TableCell>
               <TableCell 
                 onClick={() => requestSort('status')}
-                sx={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}
+                sx={tableHeaderCellStyle}
               >
                 Status {getSortDirectionIndicator('status')}
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Attributes</TableCell>
-              <TableCell sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333' }}>Actions</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {getFilteredAndSortedDevices().length > 0 ? (
               getFilteredAndSortedDevices().map((device) => (
                 <TableRow key={device.id}>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>
                     {'isUnregistered' in device ? (
                       <FormControl size="small" fullWidth>
                         <Select
@@ -627,17 +639,17 @@ export const DevicePage: React.FC = () => {
                       </span>
                     )}
                   </TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.name}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     {device.type}
                   </TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.deviceId}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.serialNo}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{device.description}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     {device.status}
                   </TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>
                     <span
                       className="clickable"
                       onClick={() => handleOpenAttributesDialog(device)}
@@ -646,7 +658,7 @@ export const DevicePage: React.FC = () => {
                       View
                     </span>
                   </TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={tableBodyCellStyle}>
                     <span
                       className="clickable"
                       onClick={() => handleOpenDeviceDialog(device)}
@@ -666,7 +678,7 @@ export const DevicePage: React.FC = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ fontSize: '0.875rem', color: '#333' }}>No devices match the filter criteria</TableCell>
+                <TableCell colSpan={9} align="center" sx={tableBodyCellStyle}>No devices match the filter criteria</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -711,15 +723,15 @@ export const DevicePage: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Key</TableCell>
-                        <TableCell>Value</TableCell>
-                        <TableCell width={50}></TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
+                        <TableCell sx={tableHeaderCellStyle} width={50}></TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {editableAttributes.map((attr, index) => (
                         <TableRow key={index}>
-                          <TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
                             <TextField
                               fullWidth
                               size="small"
@@ -727,7 +739,7 @@ export const DevicePage: React.FC = () => {
                               onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
                             <TextField
                               fullWidth
                               size="small"
@@ -735,7 +747,7 @@ export const DevicePage: React.FC = () => {
                               onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
                             <IconButton
                               size="small"
                               edge="end"
@@ -762,15 +774,15 @@ export const DevicePage: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Key</TableCell>
-                        <TableCell>Value</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {selectedDevice.attributes.map((attr, index) => (
                         <TableRow key={index}>
-                          <TableCell>{attr.key}</TableCell>
-                          <TableCell>{attr.value}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{attr.key}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{attr.value}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

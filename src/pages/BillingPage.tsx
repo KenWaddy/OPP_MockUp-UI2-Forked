@@ -22,6 +22,18 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { mockTenants } from "./TenantPage";
 
+const tableHeaderCellStyle = {
+  fontWeight: 'bold',
+  fontSize: '0.875rem',
+  color: '#333',
+  cursor: 'pointer',
+};
+
+const tableBodyCellStyle = {
+  fontSize: '0.875rem',
+  color: '#333',
+};
+
 export const BillingPage: React.FC = () => {
   type BillingDetailItem = {
     billingId?: string;
@@ -532,49 +544,49 @@ export const BillingPage: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('tenant')}
                 >
                   Tenant {getSortDirectionIndicator('tenant')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('billingId')}
                 >
                   Billing ID {getSortDirectionIndicator('billingId')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('contractStart')}
                 >
                   Contract Start {getSortDirectionIndicator('contractStart')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('contractEnd')}
                 >
                   Contract End {getSortDirectionIndicator('contractEnd')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('billingStartDate')}
                 >
                   Billing Start Date {getSortDirectionIndicator('billingStartDate')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('nextBillingMonth')}
                 >
                   Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('paymentSettings')}
                 >
                   Payment Settings {getSortDirectionIndicator('paymentSettings')}
                 </TableCell>
                 <TableCell 
-                  sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#333', cursor: 'pointer' }}
+                  sx={tableHeaderCellStyle}
                   onClick={() => requestSort('numberOfDevices')}
                 >
                   Number of Device {getSortDirectionIndicator('numberOfDevices')}
@@ -584,14 +596,14 @@ export const BillingPage: React.FC = () => {
             <TableBody>
               {filteredAndSortedBillings.map((billing, index) => (
                 <TableRow key={index}>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333', fontWeight: 'medium' }}>{billing.tenantName}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingId || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.startDate || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.endDate || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{billing.billingStartDate || 'N/A'}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{calculateNextBillingMonth(billing)}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>{renderPaymentSettings(billing)}</TableCell>
-                  <TableCell sx={{ fontSize: '0.875rem', color: '#333' }}>
+                  <TableCell sx={{...tableBodyCellStyle, fontWeight: 'medium'}}>{billing.tenantName}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.billingStartDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
                     {renderNumberOfDevices(billing.deviceContract)}
                   </TableCell>
                 </TableRow>
