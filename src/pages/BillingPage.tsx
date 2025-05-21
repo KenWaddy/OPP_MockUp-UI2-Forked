@@ -587,7 +587,24 @@ export const BillingPage: React.FC = () => {
             <TableBody>
               {filteredAndSortedBillings.map((billing, index) => (
                 <TableRow key={index}>
-                  <TableCell sx={{...tableBodyCellStyle, fontWeight: 'medium'}}>{billing.tenantName}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <span
+                      className="clickable"
+                      onClick={() => {
+                        const tenant = mockTenants.find(t => t.id === billing.tenantId);
+                        if (tenant) {
+                          window.history.pushState({}, '', '/');
+                          const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
+                            detail: { tenant } 
+                          });
+                          window.dispatchEvent(tenantPageEvent);
+                        }
+                      }}
+                      style={{ cursor: 'pointer', color: 'blue', fontWeight: 'medium' }}
+                    >
+                      {billing.tenantName}
+                    </span>
+                  </TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
