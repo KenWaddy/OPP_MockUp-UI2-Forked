@@ -365,18 +365,17 @@ export const BillingPage: React.FC = () => {
     <div className="billing-list">
       <h2>Billing Management</h2>
       
-      <Paper
+      {/* Filters Section */}
+      {/* Filter section */}
+      <Paper 
         elevation={2}
-        sx={{
-          p: 2,
-          mb: 2,
-          border: '1px solid #ddd',
-          borderRadius: '4px'
+        sx={{ 
+          p: 2, 
+          mb: 2, 
+          border: '1px solid #ddd', 
+          borderRadius: '4px' 
         }}
       >
-      
-      {/* Filters Section */}
-      <Paper sx={{ p: 2, mb: 2 }} variant="outlined">
         <Typography variant="subtitle1" sx={{ mb: 2 }}>
           Filters
         </Typography>
@@ -527,8 +526,6 @@ export const BillingPage: React.FC = () => {
         </Box>
       </Paper>
 
-      <Divider sx={{ mb: 2 }} />
-      
       {filteredAndSortedBillings.length > 0 ? (
         <TableContainer component={Paper} variant="outlined">
           <Table size="small">
@@ -607,7 +604,6 @@ export const BillingPage: React.FC = () => {
           No billing information available.
         </Typography>
       )}
-      </Paper>
     </div>
   );
 };

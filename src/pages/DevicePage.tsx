@@ -382,15 +382,6 @@ export const DevicePage: React.FC = () => {
     <div className="device-list">
       <h2>Device Management</h2>
       
-      <Paper
-        elevation={2}
-        sx={{
-          p: 2,
-          mb: 2,
-          border: '1px solid #ddd',
-          borderRadius: '4px'
-        }}
-      >
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
           <Button 
             variant="outlined" 
@@ -401,7 +392,6 @@ export const DevicePage: React.FC = () => {
             Add Device
           </Button>
         </Box>
-        <Divider sx={{ mb: 2 }} />
       
         {/* Filter section */}
         <Paper 
@@ -528,6 +518,15 @@ export const DevicePage: React.FC = () => {
         </Box>
       </Paper>
       
+      <Paper
+        elevation={2}
+        sx={{
+          p: 2,
+          mb: 2,
+          border: '1px solid #ddd',
+          borderRadius: '4px'
+        }}
+      >
       <TableContainer>
         <Table aria-label="device list table">
           <TableHead>
