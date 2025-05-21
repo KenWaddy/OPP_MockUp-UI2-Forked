@@ -1,6 +1,7 @@
 import { mockTenants } from '../mocks/index.js';
-import { Tenant } from '../mocks/types.js';
+import { Tenant, DeviceContractItem } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse } from './types.js';
+import { delay } from '../utils/delay.js';
 
 interface BillingItem {
   id: string;
@@ -18,14 +19,16 @@ export class BillingService {
   /**
    * Get paginated billing information
    */
-  getBillingItems(params: PaginationParams): PaginatedResponse<BillingItem> {
+  async getBillingItems(params: PaginationParams): Promise<PaginatedResponse<BillingItem>> {
+    await delay();
+    
     const billingItems: BillingItem[] = [];
     
     mockTenants.forEach(tenant => {
       if (tenant.billingDetails && tenant.billingDetails.length > 0) {
-        tenant.billingDetails.forEach(billing => {
+        tenant.billingDetails.forEach((billing: any) => {
           const totalDevices = billing.deviceContract?.reduce(
-            (sum, contract) => sum + contract.quantity, 0
+            (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
           ) || 0;
           
           let nextBillingDate = '';

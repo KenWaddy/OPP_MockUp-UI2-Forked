@@ -1,12 +1,15 @@
 import { mockTenants } from '../mocks/index.js';
 import { Tenant } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ITenantService } from './types.js';
+import { delay } from '../utils/delay.js';
 
 export class TenantService implements ITenantService {
   /**
    * Get paginated list of tenants with filtering and sorting
    */
-  getTenants(params: PaginationParams): PaginatedResponse<Tenant> {
+  async getTenants(params: PaginationParams): Promise<PaginatedResponse<Tenant>> {
+    await delay();
+    
     let result = [...mockTenants];
     
     if (params.filters) {
@@ -98,8 +101,10 @@ export class TenantService implements ITenantService {
   /**
    * Get tenant by ID with optional related data
    */
-  getTenantById(id: string, includeUsers = false, includeDevices = false, includeBilling = false): ItemResponse<Tenant> {
-    const tenant = mockTenants.find(t => t.id === id);
+  async getTenantById(id: string, includeUsers = false, includeDevices = false, includeBilling = false): Promise<ItemResponse<Tenant>> {
+    await delay();
+    
+    const tenant = mockTenants.find((t: Tenant) => t.id === id);
     
     if (!tenant) {
       return {

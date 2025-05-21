@@ -1,13 +1,16 @@
 import { mockTenants } from '../mocks/index.js';
 import { User } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse } from './types.js';
+import { delay } from '../utils/delay.js';
 
 export class UserService {
   /**
    * Get paginated users for a specific tenant
    */
-  getUsersForTenant(tenantId: string, params: PaginationParams): PaginatedResponse<User> {
-    const tenant = mockTenants.find(t => t.id === tenantId);
+  async getUsersForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<User>> {
+    await delay();
+    
+    const tenant = mockTenants.find((t: any) => t.id === tenantId);
     
     if (!tenant || !tenant.users) {
       return {
@@ -45,19 +48,19 @@ export class UserService {
     
     if (params.sort) {
       result.sort((a, b) => {
-        let valueA = a[params.sort?.field as keyof User] || '';
-        let valueB = b[params.sort?.field as keyof User] || '';
+        let valueA = a[params.sort!.field as keyof User] || '';
+        let valueB = b[params.sort!.field as keyof User] || '';
         
-        if (params.sort?.field === 'roles' && Array.isArray(valueA) && Array.isArray(valueB)) {
+        if (params.sort!.field === 'roles' && Array.isArray(valueA) && Array.isArray(valueB)) {
           valueA = valueA.join(',');
           valueB = valueB.join(',');
         }
         
         if (valueA < valueB) {
-          return params.sort?.order === 'asc' ? -1 : 1;
+          return params.sort!.order === 'asc' ? -1 : 1;
         }
         if (valueA > valueB) {
-          return params.sort?.order === 'asc' ? 1 : -1;
+          return params.sort!.order === 'asc' ? 1 : -1;
         }
         return 0;
       });

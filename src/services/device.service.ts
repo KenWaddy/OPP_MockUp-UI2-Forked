@@ -1,17 +1,20 @@
 import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
 import { Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse } from './types.js';
+import { delay } from '../utils/delay.js';
 
 export class DeviceService {
   /**
    * Get paginated devices with tenant information
    */
-  getDevices(params: PaginationParams): PaginatedResponse<DeviceWithTenant | UnregisteredDevice> {
+  async getDevices(params: PaginationParams): Promise<PaginatedResponse<DeviceWithTenant | UnregisteredDevice>> {
+    await delay();
+    
     const devicesWithTenantInfo: DeviceWithTenant[] = [];
     
     mockTenants.forEach(tenant => {
       if (tenant.devices) {
-        tenant.devices.forEach(device => {
+        tenant.devices.forEach((device: Device) => {
           devicesWithTenantInfo.push({
             ...device,
             tenantId: tenant.id,
@@ -63,19 +66,19 @@ export class DeviceService {
         let valueA: any = '';
         let valueB: any = '';
         
-        if (params.sort?.field === 'tenantName') {
+        if (params.sort!.field === 'tenantName') {
           valueA = 'tenantName' in a ? a.tenantName : '';
           valueB = 'tenantName' in b ? b.tenantName : '';
         } else {
-          valueA = a[params.sort?.field as keyof Device] || '';
-          valueB = b[params.sort?.field as keyof Device] || '';
+          valueA = a[params.sort!.field as keyof Device] || '';
+          valueB = b[params.sort!.field as keyof Device] || '';
         }
         
         if (valueA < valueB) {
-          return params.sort?.order === 'asc' ? -1 : 1;
+          return params.sort!.order === 'asc' ? -1 : 1;
         }
         if (valueA > valueB) {
-          return params.sort?.order === 'asc' ? 1 : -1;
+          return params.sort!.order === 'asc' ? 1 : -1;
         }
         return 0;
       });
@@ -102,8 +105,10 @@ export class DeviceService {
   /**
    * Get devices for a specific tenant with pagination
    */
-  getDevicesForTenant(tenantId: string, params: PaginationParams): PaginatedResponse<Device> {
-    const tenant = mockTenants.find(t => t.id === tenantId);
+  async getDevicesForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<Device>> {
+    await delay();
+    
+    const tenant = mockTenants.find((t: any) => t.id === tenantId);
     
     if (!tenant || !tenant.devices) {
       return {
@@ -145,14 +150,14 @@ export class DeviceService {
     
     if (params.sort) {
       devices.sort((a, b) => {
-        const valueA = a[params.sort?.field as keyof Device] || '';
-        const valueB = b[params.sort?.field as keyof Device] || '';
+        const valueA = a[params.sort!.field as keyof Device] || '';
+        const valueB = b[params.sort!.field as keyof Device] || '';
         
         if (valueA < valueB) {
-          return params.sort?.order === 'asc' ? -1 : 1;
+          return params.sort!.order === 'asc' ? -1 : 1;
         }
         if (valueA > valueB) {
-          return params.sort?.order === 'asc' ? 1 : -1;
+          return params.sort!.order === 'asc' ? 1 : -1;
         }
         return 0;
       });

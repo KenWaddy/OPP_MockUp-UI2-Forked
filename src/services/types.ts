@@ -27,6 +27,6 @@ export interface ItemResponse<T> {
 }
 
 export interface ITenantService {
-  getTenants(params: PaginationParams): PaginatedResponse<Tenant>;
-  getTenantById(id: string, includeUsers?: boolean, includeDevices?: boolean, includeBilling?: boolean): ItemResponse<Tenant>;
+  getTenants(params: PaginationParams): Promise<PaginatedResponse<Tenant>>;
+  getTenantById(id: string, includeUsers?: boolean, includeDevices?: boolean, includeBilling?: boolean): Promise<ItemResponse<Tenant>>;
 }
