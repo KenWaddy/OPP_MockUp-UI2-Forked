@@ -40,6 +40,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
 import { Tenant, User, Device, Attribute, DeviceContractItem } from '../mocks';
 
@@ -1303,6 +1304,7 @@ export const TenantPage: React.FC = () => {
               ownerName: "",
               mailAddress: "",
             })}
+            startIcon={<FilterListIcon />}
           >
             Reset Filters
           </Button>

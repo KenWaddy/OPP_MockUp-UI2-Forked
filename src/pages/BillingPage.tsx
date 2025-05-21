@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
 import { mockTenants } from '../mocks';
 
@@ -521,8 +522,9 @@ export const BillingPage: React.FC = () => {
               paymentType: "",
               deviceType: "",
             })}
+            startIcon={<FilterListIcon />}
           >
-            Clear Filters
+            Reset Filters
           </Button>
         </Box>
       </Paper>
