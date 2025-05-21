@@ -1395,7 +1395,7 @@ export const TenantPage: React.FC = () => {
       
       {/* Tenant Table */}
       <TableContainer component={Paper} variant="outlined">
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell 
@@ -1931,8 +1931,8 @@ const TenantUserListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) =>
       </Box>
       <Divider sx={{ mb: 2 }} />
       
-      <TableContainer>
-        <Table aria-label="user list table">
+      <TableContainer component={Paper} variant="outlined">
+        <Table size="small" aria-label="user list table">
           <TableHead>
             <TableRow>
               <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
@@ -2334,8 +2334,8 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
       </Box>
       <Divider sx={{ mb: 2 }} />
       
-      <TableContainer>
-        <Table aria-label="device list table">
+      <TableContainer component={Paper} variant="outlined">
+        <Table size="small" aria-label="device list table">
           <TableHead>
             <TableRow>
               <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
@@ -2433,7 +2433,7 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
                 </Button>
               </Box>
               {editableAttributes.length > 0 ? (
-                <TableContainer>
+                <TableContainer component={Paper} variant="outlined">
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -2484,7 +2484,7 @@ const TenantDeviceListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant }) 
           ) : (
             <>
               {selectedDevice && selectedDevice.attributes.length > 0 ? (
-                <TableContainer>
+                <TableContainer component={Paper} variant="outlined">
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -3070,7 +3070,7 @@ const TenantBillingListPanel: React.FC<{ tenant: Tenant | null }> = ({ tenant })
           </Box>
           
           {editableDeviceContract.length > 0 ? (
-            <TableContainer>
+            <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
                   <TableRow>
