@@ -31,33 +31,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { mockTenants } from "./TenantPage";
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
-
-type Attribute = {
-  key: string;
-  value: string;
-};
-
-type Device = {
-  id: string;
-  name: string;
-  type: "Server" | "Workstation" | "Mobile" | "IoT" | "Other";
-  deviceId: string;
-  serialNo: string;
-  description: string;
-  status: "Registered" | "Activated";
-  attributes: Attribute[];
-};
-
-type DeviceWithTenant = Device & {
-  tenantId: string;
-  tenantName: string;
-};
-
-type UnregisteredDevice = Omit<DeviceWithTenant, "tenantId" | "tenantName"> & {
-  isUnregistered: true;
-};
+import { mockTenants, mockUnregisteredDevices, Attribute, Device, DeviceWithTenant, UnregisteredDevice } from '../mocks';
 
 export const DevicePage: React.FC = () => {
   const [allDevices, setAllDevices] = useState<(DeviceWithTenant | UnregisteredDevice)[]>([]);
@@ -114,38 +89,7 @@ export const DevicePage: React.FC = () => {
       }
     });
     
-    const unregisteredDevices: UnregisteredDevice[] = [
-      {
-        id: "unreg-1",
-        name: "New Server",
-        type: "Server",
-        deviceId: "SRV-NEW-001",
-        serialNo: "NEW123456",
-        description: "New server awaiting registration",
-        status: "Registered",
-        attributes: [
-          { key: "CPU", value: "24 cores" },
-          { key: "RAM", value: "128GB" }
-        ],
-        isUnregistered: true
-      },
-      {
-        id: "unreg-2",
-        name: "New Workstation",
-        type: "Workstation",
-        deviceId: "WS-NEW-001",
-        serialNo: "NEW654321",
-        description: "New workstation awaiting registration",
-        status: "Registered",
-        attributes: [
-          { key: "CPU", value: "8 cores" },
-          { key: "RAM", value: "32GB" }
-        ],
-        isUnregistered: true
-      }
-    ];
-    
-    setAllDevices([...devicesWithTenantInfo, ...unregisteredDevices]);
+    setAllDevices([...devicesWithTenantInfo, ...mockUnregisteredDevices]);
     setTenantOptions(tenants);
   }, []);
   

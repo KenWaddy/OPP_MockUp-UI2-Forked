@@ -20,8 +20,8 @@ import {
 } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { mockTenants } from "./TenantPage";
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
+import { mockTenants } from '../mocks';
 
 export const BillingPage: React.FC = () => {
   type BillingDetailItem = {
