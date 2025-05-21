@@ -13,7 +13,7 @@ export const TenantDetail: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Button onClick={() => navigate(-1)}>Back</Button>
+      <Button onClick={() => navigate(-1)}>Tenant List</Button>
       <Tabs value={tab} onChange={handleTabChange}>
         <Tab label="Basic Info" />
         <Tab label="User List" />

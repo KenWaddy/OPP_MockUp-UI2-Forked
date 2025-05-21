@@ -1230,7 +1230,7 @@ export const TenantPage: React.FC = () => {
   if (selectedTenant) {
     return (
       <Box>
-        <Button variant="outlined" onClick={() => setSelectedTenant(null)} sx={{ mb: 2 }}>Back</Button>
+        <Button variant="outlined" onClick={() => setSelectedTenant(null)} sx={{ mb: 2 }}>Tenant List</Button>
         <Typography variant="h5" sx={{ mb: 2 }}>{selectedTenant.name} - Detail</Typography>
         
         <Tabs 
