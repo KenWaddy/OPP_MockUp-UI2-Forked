@@ -539,8 +539,8 @@ export const DevicePage: React.FC = () => {
           borderRadius: '4px'
         }}
       >
-      <TableContainer>
-        <Table aria-label="device list table">
+      <TableContainer component={Paper} variant="outlined">
+        <Table size="small" aria-label="device list table">
           <TableHead>
             <TableRow>
               <TableCell 
@@ -719,7 +719,7 @@ export const DevicePage: React.FC = () => {
                 </Button>
               </Box>
               {editableAttributes.length > 0 ? (
-                <TableContainer>
+                <TableContainer component={Paper} variant="outlined">
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -770,7 +770,7 @@ export const DevicePage: React.FC = () => {
           ) : (
             <>
               {selectedDevice && selectedDevice.attributes.length > 0 ? (
-                <TableContainer>
+                <TableContainer component={Paper} variant="outlined">
                   <Table size="small">
                     <TableHead>
                       <TableRow>
