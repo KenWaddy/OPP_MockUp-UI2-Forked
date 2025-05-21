@@ -1,4 +1,4 @@
-import { UnregisteredDevice } from './types';
+import { UnregisteredDevice } from './types.js';
 
 export const mockUnregisteredDevices: UnregisteredDevice[] = [
   {
