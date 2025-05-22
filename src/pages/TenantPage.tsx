@@ -332,10 +332,11 @@ export const TenantPage: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
         <Button 
           variant="outlined" 
-          size="small"
-          onClick={handleExportAllUsers}
+          size="small" 
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenTenantDialog()}
         >
-          Export All User List
+          Add Tenant
         </Button>
         <Button 
           variant="outlined" 
@@ -346,11 +347,10 @@ export const TenantPage: React.FC = () => {
         </Button>
         <Button 
           variant="outlined" 
-          size="small" 
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenTenantDialog()}
+          size="small"
+          onClick={handleExportAllUsers}
         >
-          Add Tenant
+          Export All User List
         </Button>
       </Box>
       
@@ -370,8 +370,20 @@ export const TenantPage: React.FC = () => {
         <Divider sx={{ mb: 2 }} />
         
         <Grid container spacing={2}>
+          {/* Text input filter */}
+          <Grid item xs={12} sm={3}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Text Search"
+              placeholder="Search by Tenant Name, Owner Name, or Email Address"
+              value={filters.textSearch}
+              onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+            />
+          </Grid>
+
           {/* Dropdown filters */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Contract Type</InputLabel>
               <Select
@@ -389,25 +401,7 @@ export const TenantPage: React.FC = () => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Billing Type</InputLabel>
-              <Select
-                value={filters.billingType}
-                label="Billing Type"
-                onChange={(e) => setFilters({ ...filters, billingType: e.target.value })}
-              >
-                <MenuItem value="">All</MenuItem>
-                {billingTypeOptions.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
               <Select
@@ -425,16 +419,22 @@ export const TenantPage: React.FC = () => {
             </FormControl>
           </Grid>
           
-          {/* Text input filter */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Text Search"
-              placeholder="Search by Tenant Name, Owner Name, or Email Address"
-              value={filters.textSearch}
-              onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
-            />
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Billing Type</InputLabel>
+              <Select
+                value={filters.billingType}
+                label="Billing Type"
+                onChange={(e) => setFilters({ ...filters, billingType: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                {billingTypeOptions.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
         

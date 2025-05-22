@@ -68,22 +68,12 @@ export const BillingPage: React.FC = () => {
 
   const [filters, setFilters] = useState<{
     searchText: string;
-    contractStartFrom: string;
-    contractStartTo: string;
-    contractEndFrom: string;
-    contractEndTo: string;
     nextBillingFrom: string;
-    nextBillingTo: string;
     paymentType: string;
     deviceType: string;
   }>({
     searchText: "",
-    contractStartFrom: "",
-    contractStartTo: "",
-    contractEndFrom: "",
-    contractEndTo: "",
     nextBillingFrom: getCurrentMonth(), // Default to current month
-    nextBillingTo: "",
     paymentType: "",
     deviceType: "",
   });
@@ -118,12 +108,7 @@ export const BillingPage: React.FC = () => {
       if (filters.searchText) {
         serviceFilters.unifiedSearch = filters.searchText;
       }
-      if (filters.contractStartFrom) serviceFilters.contractStartFrom = filters.contractStartFrom;
-      if (filters.contractStartTo) serviceFilters.contractStartTo = filters.contractStartTo;
-      if (filters.contractEndFrom) serviceFilters.contractEndFrom = filters.contractEndFrom;
-      if (filters.contractEndTo) serviceFilters.contractEndTo = filters.contractEndTo;
       if (filters.nextBillingFrom) serviceFilters.nextBillingFrom = filters.nextBillingFrom;
-      if (filters.nextBillingTo) serviceFilters.nextBillingTo = filters.nextBillingTo;
       if (filters.paymentType) serviceFilters.paymentType = filters.paymentType;
       if (filters.deviceType) serviceFilters.deviceType = filters.deviceType;
 
@@ -286,18 +271,18 @@ export const BillingPage: React.FC = () => {
 
     return '—'; // Default for unknown payment types
   };
-  
+
   const handleExportAllBillings = async () => {
     try {
       setLoading(true);
       const allBillingItems = await billingService.getAllBillingItems();
-      
+
       const headers = [
-        'tenantName', 'billingId', 'startDate', 'endDate', 
-        'billingStartDate', 'nextBillingMonth', 'paymentSettings', 
+        'tenantName', 'billingId', 'startDate', 'endDate',
+        'billingStartDate', 'nextBillingMonth', 'paymentSettings',
         'numberOfDevices', 'deviceContractDetails'
       ];
-      
+
       exportToCsv(allBillingItems, 'billing-list-export.csv', headers);
     } catch (err) {
       setError(`Error exporting billing items: ${err instanceof Error ? err.message : String(err)}`);
@@ -309,10 +294,10 @@ export const BillingPage: React.FC = () => {
   return (
     <div className="billing-list">
       <h2>Billing Management</h2>
-      
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           size="small"
           onClick={handleExportAllBillings}
         >
@@ -335,8 +320,8 @@ export const BillingPage: React.FC = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          {/* First row: Text-based Filters and Dropdown Filters */}
-          <Grid item xs={12} sm={6}>
+          {/* Text-based Filter */}
+          <Grid item xs={12} sm={3}>
             <TextField
               fullWidth
               size="small"
@@ -352,7 +337,19 @@ export const BillingPage: React.FC = () => {
             />
           </Grid>
 
-          {/* Moved Dropdown Filters to first row */}
+          {/* Next Billing Month: From */}
+          <Grid item xs={12} sm={3}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Next Billing Month: From"
+              value={filters.nextBillingFrom}
+              onChange={(e) => setFilters({ ...filters, nextBillingFrom: e.target.value })}
+              placeholder="YYYY-MM"
+            />
+          </Grid>
+
+          {/* Payment Settings */}
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Payment Settings</InputLabel>
@@ -371,6 +368,7 @@ export const BillingPage: React.FC = () => {
             </FormControl>
           </Grid>
 
+          {/* Device Type */}
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Device Type</InputLabel>
@@ -388,70 +386,6 @@ export const BillingPage: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-
-          {/* Stacked Date-based Range Filters vertically */}
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <TextField
-                fullWidth
-                size="small"
-                label="Contract Start: From (YYYY-MM)"
-                value={filters.contractStartFrom}
-                onChange={(e) => setFilters({ ...filters, contractStartFrom: e.target.value })}
-                placeholder="Contract Start: From (YYYY-MM)"
-              />
-              <TextField
-                fullWidth
-                size="small"
-                label="Contract Start: To (YYYY-MM)"
-                value={filters.contractStartTo}
-                onChange={(e) => setFilters({ ...filters, contractStartTo: e.target.value })}
-                placeholder="Contract Start: To (YYYY-MM)"
-              />
-            </Box>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <TextField
-                fullWidth
-                size="small"
-                label="Contract End: From (YYYY-MM)"
-                value={filters.contractEndFrom}
-                onChange={(e) => setFilters({ ...filters, contractEndFrom: e.target.value })}
-                placeholder="Contract End: From (YYYY-MM)"
-              />
-              <TextField
-                fullWidth
-                size="small"
-                label="Contract End: To (YYYY-MM)"
-                value={filters.contractEndTo}
-                onChange={(e) => setFilters({ ...filters, contractEndTo: e.target.value })}
-                placeholder="Contract End: To (YYYY-MM)"
-              />
-            </Box>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <TextField
-                fullWidth
-                size="small"
-                label="Next Billing Month: From (YYYY-MM)"
-                value={filters.nextBillingFrom}
-                onChange={(e) => setFilters({ ...filters, nextBillingFrom: e.target.value })}
-                placeholder="Next Billing Month: From (YYYY-MM)"
-              />
-              <TextField
-                fullWidth
-                size="small"
-                label="Next Billing Month: To (YYYY-MM)"
-                value={filters.nextBillingTo}
-                onChange={(e) => setFilters({ ...filters, nextBillingTo: e.target.value })}
-                placeholder="Next Billing Month: To (YYYY-MM)"
-              />
-            </Box>
-          </Grid>
         </Grid>
 
         <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
@@ -460,12 +394,7 @@ export const BillingPage: React.FC = () => {
             size="small"
             onClick={() => setFilters({
               searchText: "",
-              contractStartFrom: "",
-              contractStartTo: "",
-              contractEndFrom: "",
-              contractEndTo: "",
               nextBillingFrom: "", // Clear the filter on reset
-              nextBillingTo: "",
               paymentType: "",
               deviceType: "",
             })}

@@ -366,18 +366,18 @@ export const DevicePage: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
         <Button 
           variant="outlined" 
-          size="small"
-          onClick={handleExportAllDevices}
-        >
-          Export All Device List
-        </Button>
-        <Button 
-          variant="outlined" 
           size="small" 
           startIcon={<AddIcon />}
           onClick={() => handleOpenDeviceDialog()}
         >
           Add Device
+        </Button>
+        <Button 
+          variant="outlined" 
+          size="small"
+          onClick={handleExportAllDevices}
+        >
+          Export All Device List
         </Button>
       </Box>
       
@@ -397,8 +397,25 @@ export const DevicePage: React.FC = () => {
         <Divider sx={{ mb: 2 }} />
         
         <Grid container spacing={2}>
+          {/* Unified search text field */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Search"
+              placeholder="Search in Tenant, Name, Device ID, Serial No, Description"
+              value={filters.searchText}
+              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
+                ),
+              }}
+            />
+          </Grid>
+          
           {/* Dropdown filters */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Type</InputLabel>
               <Select
@@ -416,7 +433,7 @@ export const DevicePage: React.FC = () => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
               <Select
@@ -432,23 +449,6 @@ export const DevicePage: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-          
-          {/* Unified search text field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Search"
-              placeholder="Search in Tenant, Name, Device ID, Serial No, Description"
-              value={filters.searchText}
-              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
-              InputProps={{
-                startAdornment: (
-                  <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
-                ),
-              }}
-            />
           </Grid>
         </Grid>
         
