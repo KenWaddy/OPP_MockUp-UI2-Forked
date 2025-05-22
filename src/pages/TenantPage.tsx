@@ -44,14 +44,16 @@ import EditIcon from '@mui/icons-material/Edit';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
-import { Tenant, User, Device, Attribute, DeviceContractItem } from '../mocks/index.js';
-import { TenantService, UserService } from '../services/index.js';
+import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice } from '../mocks/index.js';
+import { TenantService, UserService, DeviceService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 
 // Create service instances
 const tenantService = new TenantService();
 const userService = new UserService();
+const deviceService = new DeviceService();
 
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
@@ -61,6 +63,9 @@ export const TenantPage: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openDeviceAssignDialog, setOpenDeviceAssignDialog] = useState(false);
+  const [unassignedDevices, setUnassignedDevices] = useState<UnregisteredDevice[]>([]);
+  const [selectedUnassignedDevices, setSelectedUnassignedDevices] = useState<string[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 100, // Default to 100 rows
@@ -320,6 +325,87 @@ export const TenantPage: React.FC = () => {
     }
   };
   
+  const handleOpenDeviceAssignDialog = async () => {
+    if (!selectedTenant) return;
+    
+    try {
+      setLoading(true);
+      
+      const response = await deviceService.getDevices({
+        page: 1,
+        limit: 1000,
+        filters: { isUnregistered: true }
+      });
+      
+      setUnassignedDevices(response.data as UnregisteredDevice[]);
+      setSelectedUnassignedDevices([]);
+      setOpenDeviceAssignDialog(true);
+    } catch (err) {
+      setError(`Error loading unassigned devices: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleCloseDeviceAssignDialog = () => {
+    setOpenDeviceAssignDialog(false);
+  };
+  
+  const handleAssignDevices = async () => {
+    if (!selectedTenant || selectedUnassignedDevices.length === 0) return;
+    
+    try {
+      setLoading(true);
+      
+      // In a real implementation, this would call a service method to assign devices to tenant
+      // For now, we'll just update the local state
+      const devicesToAssign = unassignedDevices.filter(device => 
+        selectedUnassignedDevices.includes(device.id)
+      );
+      
+      const updatedDevices = [
+        ...(selectedTenant.devices || []),
+        ...devicesToAssign.map(({ isUnregistered, ...deviceData }) => deviceData)
+      ];
+      
+      setSelectedTenant({
+        ...selectedTenant,
+        devices: updatedDevices
+      });
+      
+      setOpenDeviceAssignDialog(false);
+      
+      // In a real implementation, we would reload the tenant data from the server
+    } catch (err) {
+      setError(`Error assigning devices: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleUnassignDevice = async (deviceId: string) => {
+    if (!selectedTenant) return;
+    
+    try {
+      setLoading(true);
+      
+      // In a real implementation, this would call a service method to unassign the device
+      // For now, we'll just update the local state
+      const updatedDevices = selectedTenant.devices?.filter(device => device.id !== deviceId) || [];
+      
+      setSelectedTenant({
+        ...selectedTenant,
+        devices: updatedDevices
+      });
+      
+      // In a real implementation, we would reload the tenant data from the server
+    } catch (err) {
+      setError(`Error unassigning device: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
@@ -566,19 +652,31 @@ export const TenantPage: React.FC = () => {
           
           {/* Devices Tab */}
           {activeTab === "devices" && (
-            <TableContainer component={Paper} variant="outlined">
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Device ID</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Serial No.</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
-                  </TableRow>
-                </TableHead>
+            <>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenDeviceAssignDialog}
+                >
+                  Assign Device
+                </Button>
+              </Box>
+              <TableContainer component={Paper} variant="outlined">
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Device ID</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Serial No.</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
                 <TableBody>
                   {selectedTenant.devices && selectedTenant.devices.length > 0 ? (
                     selectedTenant.devices.map((device) => (
@@ -610,16 +708,26 @@ export const TenantPage: React.FC = () => {
                             </span>
                           </Tooltip>
                         </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => handleUnassignDevice(device.id)}
+                            aria-label="unassign"
+                          >
+                            <LinkOffIcon fontSize="small" />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} align="center" sx={tableBodyCellStyle}>No devices found</TableCell>
+                      <TableCell colSpan={8} align="center" sx={tableBodyCellStyle}>No devices found</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
+            </>
           )}
           
           {/* Billing Tab */}
@@ -1146,6 +1254,100 @@ export const TenantPage: React.FC = () => {
             disabled={!editableTenant || !editableTenant.name || !editableTenant.owner.name || !editableTenant.owner.email}
           >
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Device Assignment Dialog */}
+      <Dialog 
+        open={openDeviceAssignDialog} 
+        onClose={handleCloseDeviceAssignDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Assign Devices to {selectedTenant?.name}
+        </DialogTitle>
+        <DialogContent dividers>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox 
+                      indeterminate={
+                        selectedUnassignedDevices.length > 0 && 
+                        selectedUnassignedDevices.length < unassignedDevices.length
+                      }
+                      checked={
+                        unassignedDevices.length > 0 && 
+                        selectedUnassignedDevices.length === unassignedDevices.length
+                      }
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedUnassignedDevices(unassignedDevices.map(d => d.id));
+                        } else {
+                          setSelectedUnassignedDevices([]);
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Device ID</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Serial No.</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {unassignedDevices.length > 0 ? (
+                  unassignedDevices.map((device) => (
+                    <TableRow key={device.id}>
+                      <TableCell padding="checkbox">
+                        <Checkbox 
+                          checked={selectedUnassignedDevices.includes(device.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedUnassignedDevices([...selectedUnassignedDevices, device.id]);
+                            } else {
+                              setSelectedUnassignedDevices(
+                                selectedUnassignedDevices.filter(id => id !== device.id)
+                              );
+                            }
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <Chip 
+                          label={device.status} 
+                          color={device.status === "Activated" ? "success" : "warning"}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={tableBodyCellStyle}>No unassigned devices found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeviceAssignDialog}>Cancel</Button>
+          <Button 
+            onClick={handleAssignDevices} 
+            variant="contained" 
+            color="primary"
+            disabled={selectedUnassignedDevices.length === 0}
+          >
+            Assign Selected Devices
           </Button>
         </DialogActions>
       </Dialog>
