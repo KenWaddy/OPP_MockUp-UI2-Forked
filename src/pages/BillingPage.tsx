@@ -26,6 +26,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { BillingService, TenantService } from '../services/index.js';
+import { DeviceContractItem } from '../mocks/types.js';
 
 // Create service instances
 const billingService = new BillingService();
@@ -129,7 +130,7 @@ export const BillingPage: React.FC = () => {
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
         field: sortConfig.key,
-        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc'
+        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
       
       const response = await billingService.getBillingItems({
@@ -139,7 +140,7 @@ export const BillingPage: React.FC = () => {
         sort: serviceSort
       });
       
-      setAllBillings(response.data);
+      setAllBillings(response.data as unknown as AggregatedBillingItem[]);
       setPagination({
         ...pagination,
         total: response.meta.total,
@@ -149,8 +150,9 @@ export const BillingPage: React.FC = () => {
       // Extract all device types for the filter dropdown
       const types = new Set<string>();
       response.data.forEach(billing => {
-        if (billing.deviceContract) {
-          billing.deviceContract.forEach(contract => {
+        const billingItem = billing as unknown as AggregatedBillingItem;
+        if (billingItem.deviceContract) {
+          (billingItem.deviceContract as { type: string; quantity: number }[]).forEach(contract => {
             types.add(contract.type);
           });
         }
