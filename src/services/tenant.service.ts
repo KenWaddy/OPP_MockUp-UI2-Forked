@@ -173,4 +173,35 @@ export class TenantService implements ITenantService {
       success: true
     };
   }
+
+  /**
+   * Get all tenants without pagination, filtering, or sorting
+   * Used for data export and other bulk operations
+   */
+  async getAllTenants(): Promise<Tenant[]> {
+    await delay();
+    
+    const result = await Promise.all(flatTenants.map(async tenant => {
+      const owner = findOwnerForTenant(tenant.id, flatUsers);
+      
+      return {
+        ...tenant,
+        owner: owner ? {
+          name: owner.name,
+          email: owner.email,
+          phone: '',
+          address: '',
+          country: ''
+        } : {
+          name: 'No Owner Assigned',
+          email: 'no-owner@example.com',
+          phone: '',
+          address: '',
+          country: ''
+        }
+      };
+    }));
+    
+    return result;
+  }
 }

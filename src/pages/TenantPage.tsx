@@ -47,6 +47,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { Tenant, User, Device, Attribute, DeviceContractItem } from '../mocks/index.js';
 import { TenantService } from '../services/index.js';
+import { exportToCsv } from '../utils/exportUtils.js';
 
 // Create service instance
 const tenantService = new TenantService();
@@ -271,6 +272,25 @@ export const TenantPage: React.FC = () => {
       : <ArrowDownwardIcon fontSize="small" />;
   };
   
+  const handleExportAllTenants = async () => {
+    try {
+      setLoading(true);
+      const allTenants = await tenantService.getAllTenants();
+      
+      const headers = [
+        'id', 'name', 'description', 
+        'owner.name', 'owner.email', 'owner.phone', 'owner.address', 'owner.country',
+        'contract', 'status', 'billing'
+      ];
+      
+      exportToCsv(allTenants, 'tenant-list-export.csv', headers);
+    } catch (err) {
+      setError(`Error exporting tenants: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
@@ -280,7 +300,14 @@ export const TenantPage: React.FC = () => {
       <h2>Tenant Management</h2>
       
       {/* Add Tenant Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <Button 
+          variant="outlined" 
+          size="small"
+          onClick={handleExportAllTenants}
+        >
+          Export All Tenant List
+        </Button>
         <Button 
           variant="outlined" 
           size="small" 
