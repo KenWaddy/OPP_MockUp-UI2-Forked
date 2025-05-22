@@ -2,6 +2,7 @@ import { mockTenants } from '../mocks/index.js';
 import { User } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse } from './types.js';
 import { delay } from '../utils/delay.js';
+import { flatUsers } from '../mocks/data/index.js';
 
 export class UserService {
   /**
@@ -10,9 +11,9 @@ export class UserService {
   async getUsersForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<User>> {
     await delay();
     
-    const tenant = mockTenants.find((t: any) => t.id === tenantId);
+    const tenantUsers = flatUsers.filter(user => user.tenantId === tenantId);
     
-    if (!tenant || !tenant.users) {
+    if (tenantUsers.length === 0) {
       return {
         data: [],
         meta: {
@@ -24,7 +25,7 @@ export class UserService {
       };
     }
     
-    let result = [...tenant.users];
+    let result = [...tenantUsers];
     
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {

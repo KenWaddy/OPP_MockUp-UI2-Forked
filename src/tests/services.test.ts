@@ -1,4 +1,5 @@
 import { TenantService, UserService, DeviceService, BillingService } from '../services/index.js';
+import { setupTestData } from './testHelpers.js';
 
 const tenantService = new TenantService();
 const userService = new UserService();
@@ -12,6 +13,8 @@ async function runTests() {
   console.log("Starting service tests...");
   
   try {
+    setupTestData();
+    
     await testTenantService();
     await testUserService();
     await testDeviceService();
@@ -49,7 +52,7 @@ async function testTenantService() {
   console.log(`Returned tenants: ${tenantResult.data.length}`);
   console.log("First tenant:", tenantResult.data[0]?.name);
   
-  const tenantByIdResult = await tenantService.getTenantById("1", true, false, false);
+  const tenantByIdResult = await tenantService.getTenantById("tenant-1", true, false, false);
   console.log("\nTenant by ID test:");
   console.log(`Found tenant: ${tenantByIdResult.data?.name}`);
   console.log(`Has users: ${tenantByIdResult.data?.users ? 'Yes' : 'No'}`);
@@ -68,7 +71,7 @@ async function testTenantService() {
 async function testUserService() {
   console.log("\nTesting UserService...");
 
-  const userResult = await userService.getUsersForTenant("1", {
+  const userResult = await userService.getUsersForTenant("tenant-1", {
     page: 1,
     limit: 2,
     filters: {
@@ -123,7 +126,7 @@ async function testDeviceService() {
     console.log("First device:", deviceResult.data[0]?.name);
   }
   
-  const tenantDevicesResult = await deviceService.getDevicesForTenant("1", {
+  const tenantDevicesResult = await deviceService.getDevicesForTenant("tenant-1", {
     page: 1,
     limit: 5
   });
@@ -220,6 +223,19 @@ async function testEdgeCases() {
     throw new Error("Expected proper handling for zero limit");
   }
   console.log("- Zero limit handling: OK");
+  
+  const tenantWithoutOwnerResult = await tenantService.getTenantById("no-owner-tenant-id", true);
+  
+  if (!tenantWithoutOwnerResult.data || tenantWithoutOwnerResult.data.owner.name !== 'No Owner Assigned') {
+    throw new Error("Expected default owner name for tenant without owner");
+  }
+  console.log("- Owner absent handling: OK");
+  
+  const tenantWithAllData = await tenantService.getTenantById("tenant-1", true, true, true);
+  if (!tenantWithAllData.data?.users || !tenantWithAllData.data?.devices || !tenantWithAllData.data?.billingDetails) {
+    throw new Error("Expected tenant to have users, devices, and billing details when requested");
+  }
+  console.log("- Data joining: OK");
 }
 
 runTests();

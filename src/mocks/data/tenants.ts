@@ -16,13 +16,6 @@ export function generateTenants(count: number = 100): FlatTenant[] {
       id,
       name: faker.company.name(),
       description: faker.company.catchPhrase(),
-      owner: {
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        phone: faker.phone.number(),
-        address: faker.location.streetAddress(),
-        country: faker.location.country()
-      },
       contract: faker.helpers.arrayElement(['Evergreen', 'Fixed-term', 'Trial']),
       status: faker.helpers.arrayElement(['Active', 'Inactive', 'Pending', 'Suspended']),
       billing: faker.helpers.arrayElement(['Monthly', 'Annually', 'One-time']),

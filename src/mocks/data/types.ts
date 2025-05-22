@@ -7,13 +7,6 @@ export interface FlatTenant {
   id: string;
   name: string;
   description?: string;
-  owner: {
-    name: string;
-    email: string;
-    phone?: string;
-    address?: string;
-    country?: string;
-  };
   contract: string;
   status: string;
   billing: string;
