@@ -66,6 +66,8 @@ export const TenantPage: React.FC = () => {
   const [openDeviceAssignDialog, setOpenDeviceAssignDialog] = useState(false);
   const [unassignedDevices, setUnassignedDevices] = useState<UnregisteredDevice[]>([]);
   const [selectedUnassignedDevices, setSelectedUnassignedDevices] = useState<string[]>([]);
+  const [openUserDialog, setOpenUserDialog] = useState(false);
+  const [editableUser, setEditableUser] = useState<User | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 100, // Default to 100 rows
@@ -406,6 +408,51 @@ export const TenantPage: React.FC = () => {
     }
   };
   
+  const handleOpenUserDialog = () => {
+    if (!selectedTenant) return;
+    
+    setEditableUser({
+      id: `u-new-${Math.floor(Math.random() * 1000)}`,
+      name: '',
+      email: '',
+      roles: ['Member'], // Default role
+      ipWhitelist: [],
+      mfaEnabled: false
+    });
+    
+    setOpenUserDialog(true);
+  };
+  
+  const handleCloseUserDialog = () => {
+    setOpenUserDialog(false);
+  };
+  
+  const handleSaveUser = () => {
+    if (!selectedTenant || !editableUser) return;
+    
+    try {
+      setLoading(true);
+      
+      // In a real implementation, this would call a service method to add the user
+      // For now, we'll just update the local state
+      const updatedUsers = [
+        ...(selectedTenant.users || []),
+        editableUser
+      ];
+      
+      setSelectedTenant({
+        ...selectedTenant,
+        users: updatedUsers
+      });
+      
+      setOpenUserDialog(false);
+    } catch (err) {
+      setError(`Error adding user: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
@@ -596,17 +643,28 @@ export const TenantPage: React.FC = () => {
           
           {/* Users Tab */}
           {activeTab === "users" && (
-            <TableContainer component={Paper} variant="outlined">
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Email</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Roles</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>IP Whitelist</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>MFA</TableCell>
-                  </TableRow>
-                </TableHead>
+            <>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenUserDialog}
+                >
+                  Add User
+                </Button>
+              </Box>
+              <TableContainer component={Paper} variant="outlined">
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Email</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Roles</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>IP Whitelist</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>MFA</TableCell>
+                    </TableRow>
+                  </TableHead>
                 <TableBody>
                   {selectedTenant.users && selectedTenant.users.length > 0 ? (
                     selectedTenant.users.map((user) => (
@@ -648,6 +706,7 @@ export const TenantPage: React.FC = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+            </>
           )}
           
           {/* Devices Tab */}
@@ -1348,6 +1407,100 @@ export const TenantPage: React.FC = () => {
             disabled={selectedUnassignedDevices.length === 0}
           >
             Assign Selected Devices
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Add User Dialog */}
+      <Dialog 
+        open={openUserDialog} 
+        onClose={handleCloseUserDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Add User to {selectedTenant?.name}
+        </DialogTitle>
+        <DialogContent dividers>
+          {editableUser && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={editableUser.name}
+                  onChange={(e) => setEditableUser({
+                    ...editableUser,
+                    name: e.target.value
+                  })}
+                  margin="normal"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  value={editableUser.email}
+                  onChange={(e) => setEditableUser({
+                    ...editableUser,
+                    email: e.target.value
+                  })}
+                  margin="normal"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Roles</InputLabel>
+                  <Select
+                    multiple
+                    value={editableUser.roles}
+                    label="Roles"
+                    onChange={(e) => setEditableUser({
+                      ...editableUser,
+                      roles: e.target.value as ("Owner" | "Engineer" | "Member")[]
+                    })}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {(selected as string[]).map((value) => (
+                          <Chip key={value} label={value} size="small" />
+                        ))}
+                      </Box>
+                    )}
+                  >
+                    <MenuItem value="Owner">Owner</MenuItem>
+                    <MenuItem value="Engineer">Engineer</MenuItem>
+                    <MenuItem value="Member">Member</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={editableUser.mfaEnabled}
+                      onChange={(e) => setEditableUser({
+                        ...editableUser,
+                        mfaEnabled: e.target.checked
+                      })}
+                    />
+                  }
+                  label="Enable MFA"
+                />
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseUserDialog}>Cancel</Button>
+          <Button 
+            onClick={handleSaveUser} 
+            variant="contained" 
+            color="primary"
+            disabled={!editableUser || !editableUser.name || !editableUser.email}
+          >
+            Save
           </Button>
         </DialogActions>
       </Dialog>
