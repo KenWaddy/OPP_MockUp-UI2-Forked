@@ -4,6 +4,64 @@ import { flatTenants } from './tenants.js';
 import { Attribute } from '../types.js';
 
 /**
+ * Generate attributes for a specific device type
+ * @param type Device type
+ * @returns Array of attributes
+ */
+function generateAttributesForDeviceType(type: FlatDevice["type"]): Attribute[] {
+  const attributes: Attribute[] = [];
+  
+  if (type === "Server") {
+    attributes.push(
+      { key: "CPU", value: `${faker.number.int({ min: 4, max: 64 })} cores` },
+      { key: "RAM", value: `${faker.number.int({ min: 16, max: 512 })}GB` },
+      { key: "Storage", value: `${faker.number.int({ min: 1, max: 20 })}TB` }
+    );
+    
+    if (faker.datatype.boolean(0.7)) {
+      attributes.push({ key: "OS", value: faker.helpers.arrayElement(["Linux", "Windows Server", "VMware ESXi"]) });
+    }
+  } else if (type === "Workstation") {
+    attributes.push(
+      { key: "CPU", value: `${faker.number.int({ min: 2, max: 16 })} cores` },
+      { key: "RAM", value: `${faker.number.int({ min: 8, max: 64 })}GB` }
+    );
+    
+    if (faker.datatype.boolean(0.8)) {
+      attributes.push({ key: "OS", value: faker.helpers.arrayElement(["Windows 10", "Windows 11", "macOS", "Linux"]) });
+    }
+  } else if (type === "Mobile") {
+    attributes.push(
+      { key: "OS", value: faker.helpers.arrayElement(["iOS", "Android"]) },
+      { key: "Model", value: faker.helpers.arrayElement(["iPhone", "Samsung Galaxy", "Google Pixel", "Huawei"]) }
+    );
+  } else if (type === "IoT") {
+    attributes.push(
+      { key: "Connectivity", value: faker.helpers.arrayElement(["WiFi", "Ethernet", "Bluetooth", "Zigbee", "LoRaWAN"]) },
+      { key: "Power", value: faker.helpers.arrayElement(["Battery", "AC", "Solar", "PoE"]) }
+    );
+    
+    if (faker.datatype.boolean(0.6)) {
+      attributes.push({ key: "Protocol", value: faker.helpers.arrayElement(["MQTT", "HTTP", "CoAP", "OPC UA"]) });
+    }
+  } else {
+    attributes.push(
+      { key: "Type", value: faker.helpers.arrayElement(["Network", "Storage", "Security", "Peripheral"]) }
+    );
+  }
+  
+  if (faker.datatype.boolean(0.3)) {
+    attributes.push({ key: "Location", value: faker.location.city() });
+  }
+  
+  if (faker.datatype.boolean(0.4)) {
+    attributes.push({ key: "Department", value: faker.helpers.arrayElement(["IT", "Engineering", "Operations", "Sales", "Marketing", "Finance"]) });
+  }
+  
+  return attributes;
+}
+
+/**
  * Generate a list of devices for a specific tenant
  * @param tenantId ID of the tenant to generate devices for
  * @param count Number of devices to generate
@@ -18,54 +76,7 @@ export function generateDevicesForTenant(tenantId: string, count: number): FlatD
     const type = faker.helpers.arrayElement(deviceTypes);
     const id = `device-${tenantId}-${i}`;
     
-    const attributes: Attribute[] = [];
-    
-    if (type === "Server") {
-      attributes.push(
-        { key: "CPU", value: `${faker.number.int({ min: 4, max: 64 })} cores` },
-        { key: "RAM", value: `${faker.number.int({ min: 16, max: 512 })}GB` },
-        { key: "Storage", value: `${faker.number.int({ min: 1, max: 20 })}TB` }
-      );
-      
-      if (faker.datatype.boolean(0.7)) {
-        attributes.push({ key: "OS", value: faker.helpers.arrayElement(["Linux", "Windows Server", "VMware ESXi"]) });
-      }
-    } else if (type === "Workstation") {
-      attributes.push(
-        { key: "CPU", value: `${faker.number.int({ min: 2, max: 16 })} cores` },
-        { key: "RAM", value: `${faker.number.int({ min: 8, max: 64 })}GB` }
-      );
-      
-      if (faker.datatype.boolean(0.8)) {
-        attributes.push({ key: "OS", value: faker.helpers.arrayElement(["Windows 10", "Windows 11", "macOS", "Linux"]) });
-      }
-    } else if (type === "Mobile") {
-      attributes.push(
-        { key: "OS", value: faker.helpers.arrayElement(["iOS", "Android"]) },
-        { key: "Model", value: faker.helpers.arrayElement(["iPhone", "Samsung Galaxy", "Google Pixel", "Huawei"]) }
-      );
-    } else if (type === "IoT") {
-      attributes.push(
-        { key: "Connectivity", value: faker.helpers.arrayElement(["WiFi", "Ethernet", "Bluetooth", "Zigbee", "LoRaWAN"]) },
-        { key: "Power", value: faker.helpers.arrayElement(["Battery", "AC", "Solar", "PoE"]) }
-      );
-      
-      if (faker.datatype.boolean(0.6)) {
-        attributes.push({ key: "Protocol", value: faker.helpers.arrayElement(["MQTT", "HTTP", "CoAP", "OPC UA"]) });
-      }
-    } else {
-      attributes.push(
-        { key: "Type", value: faker.helpers.arrayElement(["Network", "Storage", "Security", "Peripheral"]) }
-      );
-    }
-    
-    if (faker.datatype.boolean(0.3)) {
-      attributes.push({ key: "Location", value: faker.location.city() });
-    }
-    
-    if (faker.datatype.boolean(0.4)) {
-      attributes.push({ key: "Department", value: faker.helpers.arrayElement(["IT", "Engineering", "Operations", "Sales", "Marketing", "Finance"]) });
-    }
+    const attributes: Attribute[] = generateAttributesForDeviceType(type);
     
     devices.push({
       id,
@@ -75,7 +86,7 @@ export function generateDevicesForTenant(tenantId: string, count: number): FlatD
       deviceId: `${type.substring(0, 3).toUpperCase()}-${faker.string.alphanumeric(6).toUpperCase()}`,
       serialNo: faker.string.alphanumeric(12).toUpperCase(),
       description: faker.lorem.sentence(),
-      status: faker.helpers.arrayElement(["Registered", "Assigned", "Activated"]),
+      status: faker.helpers.arrayElement(["Assigned", "Activated"]), // Remove "Registered" from possible statuses
       attributes
     });
   }
@@ -100,6 +111,38 @@ export function generateAllDevices(): FlatDevice[] {
 }
 
 /**
+ * Generate devices with "Registered" status (not belonging to any tenant)
+ * @param count Number of devices to generate
+ * @returns Array of flat unregistered device objects
+ */
+export function generateRegisteredDevices(count: number = 30): FlatUnregisteredDevice[] {
+  const devices: FlatUnregisteredDevice[] = [];
+  
+  const deviceTypes: FlatDevice["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  
+  for (let i = 0; i < count; i++) {
+    const type = faker.helpers.arrayElement(deviceTypes);
+    const id = `reg-${i}`;
+    
+    const attributes: Attribute[] = generateAttributesForDeviceType(type);
+    
+    devices.push({
+      id,
+      name: `${type} ${faker.string.alphanumeric(4).toUpperCase()}`,
+      type,
+      deviceId: `${type.substring(0, 3).toUpperCase()}-${faker.string.alphanumeric(6).toUpperCase()}`,
+      serialNo: faker.string.alphanumeric(12).toUpperCase(),
+      description: faker.lorem.sentence(),
+      status: "Registered",
+      attributes,
+      isUnregistered: true
+    });
+  }
+  
+  return devices;
+}
+
+/**
  * Generate unregistered devices
  * @param count Number of unregistered devices to generate
  * @returns Array of flat unregistered device objects
@@ -113,23 +156,7 @@ export function generateUnregisteredDevices(count: number = 20): FlatUnregistere
     const type = faker.helpers.arrayElement(deviceTypes);
     const id = `unreg-${i}`;
     
-    const attributes: Attribute[] = [];
-    
-    if (type === "Server") {
-      attributes.push(
-        { key: "CPU", value: `${faker.number.int({ min: 4, max: 64 })} cores` },
-        { key: "RAM", value: `${faker.number.int({ min: 16, max: 512 })}GB` }
-      );
-    } else if (type === "Workstation") {
-      attributes.push(
-        { key: "CPU", value: `${faker.number.int({ min: 2, max: 16 })} cores` },
-        { key: "RAM", value: `${faker.number.int({ min: 8, max: 64 })}GB` }
-      );
-    } else {
-      attributes.push(
-        { key: "Type", value: faker.helpers.arrayElement(["Network", "Storage", "Security", "Peripheral"]) }
-      );
-    }
+    const attributes: Attribute[] = generateAttributesForDeviceType(type);
     
     devices.push({
       id,
@@ -149,4 +176,6 @@ export function generateUnregisteredDevices(count: number = 20): FlatUnregistere
 
 export const flatDevices = generateAllDevices();
 
-export const flatUnregisteredDevices = generateUnregisteredDevices(20);
+export const flatRegisteredDevices = generateRegisteredDevices(30);
+
+export const flatUnregisteredDevices = [...generateUnregisteredDevices(20), ...flatRegisteredDevices];
