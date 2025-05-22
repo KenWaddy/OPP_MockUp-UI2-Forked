@@ -16,13 +16,20 @@ import {
   Select,
   MenuItem,
   Button,
-  Grid
+  Grid,
+  Pagination,
+  CircularProgress,
+  Alert
 } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
-import { mockTenants } from '../mocks';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
+import { BillingService, TenantService } from '../services/index.js';
+
+// Create service instances
+const billingService = new BillingService();
+const tenantService = new TenantService();
 
 export const BillingPage: React.FC = () => {
   type BillingDetailItem = {
@@ -43,6 +50,14 @@ export const BillingPage: React.FC = () => {
   };
 
   const [allBillings, setAllBillings] = useState<AggregatedBillingItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
   
   const getCurrentMonth = (): string => {
     const today = new Date();
@@ -93,162 +108,70 @@ export const BillingPage: React.FC = () => {
   
   const [deviceTypes, setDeviceTypes] = useState<string[]>([]);
   
+  const loadBillings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Convert filters to the format expected by the service
+      const serviceFilters: Record<string, any> = {};
+      if (filters.tenant) serviceFilters.tenantId = filters.tenant;
+      if (filters.billingId) serviceFilters.billingId = filters.billingId;
+      if (filters.contractStartFrom) serviceFilters.contractStartFrom = filters.contractStartFrom;
+      if (filters.contractStartTo) serviceFilters.contractStartTo = filters.contractStartTo;
+      if (filters.contractEndFrom) serviceFilters.contractEndFrom = filters.contractEndFrom;
+      if (filters.contractEndTo) serviceFilters.contractEndTo = filters.contractEndTo;
+      if (filters.nextBillingFrom) serviceFilters.nextBillingFrom = filters.nextBillingFrom;
+      if (filters.nextBillingTo) serviceFilters.nextBillingTo = filters.nextBillingTo;
+      if (filters.paymentType) serviceFilters.paymentType = filters.paymentType;
+      if (filters.deviceType) serviceFilters.deviceType = filters.deviceType;
+      
+      // Convert sort config to the format expected by the service
+      const serviceSort = sortConfig ? {
+        field: sortConfig.key,
+        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc'
+      } : undefined;
+      
+      const response = await billingService.getBillingItems({
+        page: pagination.page,
+        limit: pagination.limit,
+        filters: serviceFilters,
+        sort: serviceSort
+      });
+      
+      setAllBillings(response.data);
+      setPagination({
+        ...pagination,
+        total: response.meta.total,
+        totalPages: response.meta.totalPages
+      });
+      
+      // Extract all device types for the filter dropdown
+      const types = new Set<string>();
+      response.data.forEach(billing => {
+        if (billing.deviceContract) {
+          billing.deviceContract.forEach(contract => {
+            types.add(contract.type);
+          });
+        }
+      });
+      setDeviceTypes(Array.from(types).sort());
+    } catch (err) {
+      setError(`Error loading billing data: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Load billings when component mounts, pagination changes, or filters/sort changes
   useEffect(() => {
-    const types = new Set<string>();
-    
-    allBillings.forEach(billing => {
-      if (billing.deviceContract) {
-        billing.deviceContract.forEach(contract => {
-          types.add(contract.type);
-        });
-      }
-    });
-    
-    setDeviceTypes(Array.from(types).sort());
-  }, [allBillings]);
+    loadBillings();
+  }, [pagination.page, pagination.limit, filters, sortConfig]);
   
   const paymentTypes: ("One-time" | "Monthly" | "Annually")[] = ["One-time", "Monthly", "Annually"];
   
-  useEffect(() => {
-    const aggregatedBillings: AggregatedBillingItem[] = [];
-    
-    mockTenants.forEach(tenant => {
-      if (tenant.billingDetails) {
-        const billingItems = Array.isArray(tenant.billingDetails) 
-          ? tenant.billingDetails 
-          : [tenant.billingDetails];
-        
-        billingItems.forEach(billing => {
-          aggregatedBillings.push({
-            ...billing,
-            tenantId: tenant.id,
-            tenantName: tenant.name
-          });
-        });
-      }
-    });
-    
-    setAllBillings(aggregatedBillings);
-  }, []);
-  
-  const getFilteredAndSortedBillings = () => {
-    let filteredBillings = [...allBillings];
-    
-    if (filters.tenant) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.tenantName.toLowerCase().includes(filters.tenant.toLowerCase())
-      );
-    }
-    
-    if (filters.billingId) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.billingId?.toLowerCase().includes(filters.billingId.toLowerCase()) || false
-      );
-    }
-    
-    if (filters.contractStartFrom) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.startDate && compareYearMonth(billing.startDate, filters.contractStartFrom) >= 0
-      );
-    }
-    
-    if (filters.contractStartTo) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.startDate && compareYearMonth(billing.startDate, filters.contractStartTo) <= 0
-      );
-    }
-    
-    if (filters.contractEndFrom) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.endDate && compareYearMonth(billing.endDate, filters.contractEndFrom) >= 0
-      );
-    }
-    
-    if (filters.contractEndTo) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.endDate && compareYearMonth(billing.endDate, filters.contractEndTo) <= 0
-      );
-    }
-    
-    if (filters.nextBillingFrom) {
-      filteredBillings = filteredBillings.filter(billing => {
-        const nextBillingMonth = calculateNextBillingMonth(billing);
-        return nextBillingMonth !== '—' && compareYearMonth(nextBillingMonth, filters.nextBillingFrom) >= 0;
-      });
-    }
-    
-    if (filters.nextBillingTo) {
-      filteredBillings = filteredBillings.filter(billing => {
-        const nextBillingMonth = calculateNextBillingMonth(billing);
-        return nextBillingMonth !== '—' && compareYearMonth(nextBillingMonth, filters.nextBillingTo) <= 0;
-      });
-    }
-    
-    if (filters.paymentType) {
-      filteredBillings = filteredBillings.filter(
-        billing => billing.paymentType === filters.paymentType
-      );
-    }
-    
-    if (filters.deviceType) {
-      filteredBillings = filteredBillings.filter(billing => 
-        billing.deviceContract?.some(contract => contract.type === filters.deviceType) || false
-      );
-    }
-    
-    if (sortConfig) {
-      filteredBillings.sort((a, b) => {
-        let valueA, valueB;
-        
-        switch (sortConfig.key) {
-          case 'tenant':
-            valueA = a.tenantName;
-            valueB = b.tenantName;
-            break;
-          case 'billingId':
-            valueA = a.billingId || '';
-            valueB = b.billingId || '';
-            break;
-          case 'contractStart':
-            valueA = a.startDate || '';
-            valueB = b.startDate || '';
-            break;
-          case 'contractEnd':
-            valueA = a.endDate || '';
-            valueB = b.endDate || '';
-            break;
-          case 'billingStartDate':
-            valueA = a.billingStartDate || '';
-            valueB = b.billingStartDate || '';
-            break;
-          case 'nextBillingMonth':
-            valueA = calculateNextBillingMonth(a);
-            valueB = calculateNextBillingMonth(b);
-            break;
-          case 'paymentSettings':
-            valueA = a.paymentType || '';
-            valueB = b.paymentType || '';
-            break;
-          case 'numberOfDevices':
-            valueA = a.deviceContract?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-            valueB = b.deviceContract?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-            break;
-          default:
-            valueA = '';
-            valueB = '';
-        }
-        
-        if (valueA < valueB) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (valueA > valueB) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    
-    return filteredBillings;
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setPagination({ ...pagination, page });
   };
   
   const requestSort = (key: string) => {
@@ -360,15 +283,12 @@ export const BillingPage: React.FC = () => {
     
     return '—'; // Default for unknown payment types
   };
-
-  const filteredAndSortedBillings = getFilteredAndSortedBillings();
   
   return (
     <div className="billing-list">
       <h2>Billing Management</h2>
       
       {/* Filters Section */}
-      {/* Filter section */}
       <Paper 
         elevation={2}
         sx={{ 
@@ -528,102 +448,121 @@ export const BillingPage: React.FC = () => {
           </Button>
         </Box>
       </Paper>
-
-      {filteredAndSortedBillings.length > 0 ? (
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('tenant')}
-                >
-                  Tenant {getSortDirectionIndicator('tenant')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('billingId')}
-                >
-                  Billing ID {getSortDirectionIndicator('billingId')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('contractStart')}
-                >
-                  Contract Start {getSortDirectionIndicator('contractStart')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('contractEnd')}
-                >
-                  Contract End {getSortDirectionIndicator('contractEnd')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('billingStartDate')}
-                >
-                  Billing Start Date {getSortDirectionIndicator('billingStartDate')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('nextBillingMonth')}
-                >
-                  Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('paymentSettings')}
-                >
-                  Payment Settings {getSortDirectionIndicator('paymentSettings')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('numberOfDevices')}
-                >
-                  Number of Device {getSortDirectionIndicator('numberOfDevices')}
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredAndSortedBillings.map((billing, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <span
-                      className="clickable"
-                      onClick={() => {
-                        const tenant = mockTenants.find(t => t.id === billing.tenantId);
-                        if (tenant) {
-                          localStorage.setItem('selectedTenantId', tenant.id);
-                          window.history.pushState({}, '', '/');
-                          const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
-                            detail: { tenant } 
-                          });
-                          window.dispatchEvent(tenantPageEvent);
-                        }
-                      }}
-                      style={{ cursor: 'pointer', color: 'blue', fontWeight: 'medium' }}
-                    >
-                      {billing.tenantName}
-                    </span>
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.billingStartDate || 'N/A'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {renderNumberOfDevices(billing.deviceContract)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      
+      {/* Error message */}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
+      )}
+      
+      {/* Loading indicator */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
+          <CircularProgress />
+        </Box>
       ) : (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-          No billing information available.
-        </Typography>
+        <>
+          {allBillings.length > 0 ? (
+            <TableContainer component={Paper} variant="outlined">
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('tenant')}
+                    >
+                      Tenant {getSortDirectionIndicator('tenant')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('billingId')}
+                    >
+                      Billing ID {getSortDirectionIndicator('billingId')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('contractStart')}
+                    >
+                      Contract Start {getSortDirectionIndicator('contractStart')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('contractEnd')}
+                    >
+                      Contract End {getSortDirectionIndicator('contractEnd')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('billingStartDate')}
+                    >
+                      Billing Start Date {getSortDirectionIndicator('billingStartDate')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('nextBillingMonth')}
+                    >
+                      Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('paymentSettings')}
+                    >
+                      Payment Settings {getSortDirectionIndicator('paymentSettings')}
+                    </TableCell>
+                    <TableCell 
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('numberOfDevices')}
+                    >
+                      Number of Devices {getSortDirectionIndicator('numberOfDevices')}
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {allBillings.map((billing) => (
+                    <TableRow key={`${billing.tenantId}-${billing.billingId}`}>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <span
+                          className="clickable"
+                          onClick={() => {
+                            localStorage.setItem('selectedTenantId', billing.tenantId);
+                            window.history.pushState({}, '', '/');
+                            const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
+                              detail: { tenantId: billing.tenantId } 
+                            });
+                            window.dispatchEvent(tenantPageEvent);
+                          }}
+                          style={{ cursor: 'pointer', color: 'blue' }}
+                        >
+                          {billing.tenantName}
+                        </span>
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.billingStartDate || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Paper sx={{ p: 2, textAlign: 'center' }} variant="outlined">
+              <Typography>No billing records match the filter criteria</Typography>
+            </Paper>
+          )}
+          
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
+            <Pagination 
+              count={pagination.totalPages} 
+              page={pagination.page} 
+              onChange={handlePageChange} 
+              color="primary" 
+            />
+          </Box>
+        </>
       )}
     </div>
   );
