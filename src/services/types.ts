@@ -42,3 +42,8 @@ export interface IBillingService {
   getBillingItems(params: PaginationParams): Promise<PaginatedResponse<any>>;
   getAllBillingItems(): Promise<any[]>;
 }
+
+export interface IUserService {
+  getUsersForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<User>>;
+  getAllUsers(): Promise<any[]>;
+}

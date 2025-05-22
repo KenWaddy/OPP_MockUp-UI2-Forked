@@ -46,11 +46,12 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { Tenant, User, Device, Attribute, DeviceContractItem } from '../mocks/index.js';
-import { TenantService } from '../services/index.js';
+import { TenantService, UserService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 
-// Create service instance
+// Create service instances
 const tenantService = new TenantService();
+const userService = new UserService();
 
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
@@ -291,6 +292,34 @@ export const TenantPage: React.FC = () => {
     }
   };
   
+  const handleExportAllUsers = async () => {
+    try {
+      setLoading(true);
+      const allUsers = await userService.getAllUsers();
+      
+      const usersForExport = allUsers.map(user => {
+        const rolesFormatted = user.roles.join(', ');
+        const ipWhitelistFormatted = user.ipWhitelist.join(', ');
+        
+        return {
+          ...user,
+          roles: rolesFormatted,
+          ipWhitelist: ipWhitelistFormatted
+        };
+      });
+      
+      const headers = [
+        'id', 'tenantName', 'name', 'email', 'roles', 'ipWhitelist', 'mfaEnabled'
+      ];
+      
+      exportToCsv(usersForExport, 'user-list-export.csv', headers);
+    } catch (err) {
+      setError(`Error exporting users: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
@@ -301,6 +330,13 @@ export const TenantPage: React.FC = () => {
       
       {/* Add Tenant Button */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <Button 
+          variant="outlined" 
+          size="small"
+          onClick={handleExportAllUsers}
+        >
+          Export All User List
+        </Button>
         <Button 
           variant="outlined" 
           size="small"
