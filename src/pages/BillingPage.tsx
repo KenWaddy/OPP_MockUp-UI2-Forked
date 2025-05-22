@@ -59,12 +59,12 @@ export const BillingPage: React.FC = () => {
     total: 0,
     totalPages: 0
   });
-  
+
   const getCurrentMonth = (): string => {
     const today = new Date();
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
   };
-  
+
   const [filters, setFilters] = useState<{
     searchText: string;
     contractStartFrom: string;
@@ -86,32 +86,32 @@ export const BillingPage: React.FC = () => {
     paymentType: "",
     deviceType: "",
   });
-  
+
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: 'ascending' | 'descending';
   } | null>(null);
-  
+
   const compareYearMonth = (date1: string, date2: string): number => {
     if (!date1 || !date2) return 0;
-    
+
     const [year1, month1] = date1.split('-').map(Number);
     const [year2, month2] = date2.split('-').map(Number);
-    
+
     if (year1 !== year2) {
       return year1 - year2;
     }
-    
+
     return month1 - month2;
   };
-  
+
   const [deviceTypes, setDeviceTypes] = useState<string[]>([]);
-  
+
   const loadBillings = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Convert filters to the format expected by the service
       const serviceFilters: Record<string, any> = {};
       if (filters.searchText) {
@@ -125,27 +125,27 @@ export const BillingPage: React.FC = () => {
       if (filters.nextBillingTo) serviceFilters.nextBillingTo = filters.nextBillingTo;
       if (filters.paymentType) serviceFilters.paymentType = filters.paymentType;
       if (filters.deviceType) serviceFilters.deviceType = filters.deviceType;
-      
+
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
         field: sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
-      
+
       const response = await billingService.getBillingItems({
         page: pagination.page,
         limit: pagination.limit,
         filters: serviceFilters,
         sort: serviceSort
       });
-      
+
       setAllBillings(response.data as unknown as AggregatedBillingItem[]);
       setPagination({
         ...pagination,
         total: response.meta.total,
         totalPages: response.meta.totalPages
       });
-      
+
       // Extract all device types for the filter dropdown
       const types = new Set<string>();
       response.data.forEach(billing => {
@@ -163,41 +163,41 @@ export const BillingPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   // Load billings when component mounts, pagination changes, or filters/sort changes
   useEffect(() => {
     loadBillings();
   }, [pagination.page, pagination.limit, filters, sortConfig]);
-  
+
   const paymentTypes: ("One-time" | "Monthly" | "Annually")[] = ["One-time", "Monthly", "Annually"];
-  
+
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setPagination({ ...pagination, page });
   };
-  
+
   const requestSort = (key: string) => {
     let direction: 'ascending' | 'descending' = 'ascending';
-    
+
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
     }
-    
+
     setSortConfig({ key, direction });
   };
-  
+
   const getSortDirectionIndicator = (key: string) => {
     if (!sortConfig || sortConfig.key !== key) {
       return null;
     }
-    
-    return sortConfig.direction === 'ascending' 
-      ? <ArrowUpwardIcon fontSize="small" /> 
+
+    return sortConfig.direction === 'ascending'
+      ? <ArrowUpwardIcon fontSize="small" />
       : <ArrowDownwardIcon fontSize="small" />;
   };
 
   const renderNumberOfDevices = (deviceContract: { type: string; quantity: number }[] | undefined) => {
     if (!deviceContract || deviceContract.length === 0) return 'No devices';
-    
+
     const total = deviceContract.reduce((sum, item) => sum + item.quantity, 0);
     const summary = deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
     return `${total} Devices: ${summary}`;
@@ -205,105 +205,105 @@ export const BillingPage: React.FC = () => {
 
   const renderPaymentSettings = (billing: AggregatedBillingItem) => {
     if (!billing) return 'N/A';
-    
+
     let settings = `${billing.paymentType || 'N/A'}`;
-    
+
     if (billing.paymentType === 'One-time' && billing.billingDate) {
       settings += ` | Billing Date: ${billing.billingDate}`;
     }
-    
+
     if ((billing.paymentType === 'Monthly' || billing.paymentType === 'Annually') && billing.dueDay) {
       settings += ` | Due Day: ${billing.dueDay}`;
     }
-    
+
     if (billing.paymentType === 'Annually' && billing.dueMonth) {
       const months = [
-        'January', 'February', 'March', 'April', 'May', 'June', 
+        'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
       ];
-      const month = typeof billing.dueMonth === 'number' && billing.dueMonth >= 1 && billing.dueMonth <= 12 
-        ? months[billing.dueMonth - 1] 
+      const month = typeof billing.dueMonth === 'number' && billing.dueMonth >= 1 && billing.dueMonth <= 12
+        ? months[billing.dueMonth - 1]
         : billing.dueMonth;
-      
+
       settings += ` | Due Month: ${month}`;
     }
-    
+
     return settings;
   };
-  
+
   const calculateNextBillingMonth = (billing: AggregatedBillingItem) => {
     if (!billing) return '—';
-    
+
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth(); // 0-11
-    
+
     if (billing.endDate) {
       try {
         const endDate = new Date(billing.endDate);
         const currentDate = new Date();
-        
+
         if (currentDate > endDate) {
           return 'Ended';
         }
       } catch (e) {
       }
     }
-    
+
     if (billing.paymentType === 'Monthly') {
       let nextBillingYear = currentYear;
       let nextBillingMonth = currentMonth;
-      
+
       return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
-    } 
+    }
     else if (billing.paymentType === 'Annually') {
       if (!billing.endDate) return '—';
-      
+
       try {
         const endDate = new Date(billing.endDate);
         const endYear = endDate.getFullYear();
         const endMonth = endDate.getMonth(); // 0-11
-        
+
         return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
       } catch (e) {
         return '—';
       }
-    } 
+    }
     else if (billing.paymentType === 'One-time') {
       if (!billing.startDate) return '—';
-      
+
       try {
         const startDate = new Date(billing.startDate);
         const startYear = startDate.getFullYear();
         const startMonth = startDate.getMonth(); // 0-11
-        
+
         return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
       } catch (e) {
         return '—';
       }
     }
-    
+
     return '—'; // Default for unknown payment types
   };
-  
+
   return (
     <div className="billing-list">
       <h2>Billing Management</h2>
-      
+
       {/* Filters Section */}
-      <Paper 
+      <Paper
         elevation={2}
-        sx={{ 
-          p: 2, 
-          mb: 2, 
-          border: '1px solid #ddd', 
-          borderRadius: '4px' 
+        sx={{
+          p: 2,
+          mb: 2,
+          border: '1px solid #ddd',
+          borderRadius: '4px'
         }}
       >
         <Typography variant="subtitle1" sx={{ mb: 2 }}>
           Filters
         </Typography>
-        
+
         <Grid container spacing={2}>
           {/* First row: Text-based Filters and Dropdown Filters */}
           <Grid item xs={12} sm={6}>
@@ -321,7 +321,7 @@ export const BillingPage: React.FC = () => {
               }}
             />
           </Grid>
-          
+
           {/* Moved Dropdown Filters to first row */}
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
@@ -340,7 +340,7 @@ export const BillingPage: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Device Type</InputLabel>
@@ -358,7 +358,7 @@ export const BillingPage: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          
+
           {/* Stacked Date-based Range Filters vertically */}
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', gap: 1 }}>
@@ -380,7 +380,7 @@ export const BillingPage: React.FC = () => {
               />
             </Box>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
@@ -401,7 +401,7 @@ export const BillingPage: React.FC = () => {
               />
             </Box>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
@@ -423,11 +423,11 @@ export const BillingPage: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
-        
+
         <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
+          <Button
+            variant="outlined"
+            size="small"
             onClick={() => setFilters({
               searchText: "",
               contractStartFrom: "",
@@ -445,12 +445,11 @@ export const BillingPage: React.FC = () => {
           </Button>
         </Box>
       </Paper>
-      
+
       {/* Error message */}
       {error && (
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
       )}
-      
       {/* Pagination - Moved above the table */}
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
         <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -468,14 +467,14 @@ export const BillingPage: React.FC = () => {
             <MenuItem value={1000}>1000</MenuItem>
           </Select>
         </FormControl>
-        <Pagination 
-          count={pagination.totalPages} 
-          page={pagination.page} 
-          onChange={handlePageChange} 
-          color="primary" 
+        <Pagination
+          count={pagination.totalPages}
+          page={pagination.page}
+          onChange={handlePageChange}
+          color="primary"
         />
       </Box>
-      
+
       {/* Loading indicator */}
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
@@ -488,49 +487,49 @@ export const BillingPage: React.FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('tenant')}
                     >
                       Tenant {getSortDirectionIndicator('tenant')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('billingId')}
                     >
                       Billing ID {getSortDirectionIndicator('billingId')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('contractStart')}
                     >
                       Contract Start {getSortDirectionIndicator('contractStart')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('contractEnd')}
                     >
                       Contract End {getSortDirectionIndicator('contractEnd')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('billingStartDate')}
                     >
                       Billing Start Date {getSortDirectionIndicator('billingStartDate')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('nextBillingMonth')}
                     >
                       Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('paymentSettings')}
                     >
                       Payment Settings {getSortDirectionIndicator('paymentSettings')}
                     </TableCell>
-                    <TableCell 
+                    <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('numberOfDevices')}
                     >
@@ -547,8 +546,8 @@ export const BillingPage: React.FC = () => {
                           onClick={() => {
                             localStorage.setItem('selectedTenantId', billing.tenantId);
                             window.history.pushState({}, '', '/');
-                            const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
-                              detail: { tenantId: billing.tenantId } 
+                            const tenantPageEvent = new CustomEvent('navigate-to-tenant', {
+                              detail: { tenantId: billing.tenantId }
                             });
                             window.dispatchEvent(tenantPageEvent);
                           }}
