@@ -66,8 +66,7 @@ export const BillingPage: React.FC = () => {
   };
   
   const [filters, setFilters] = useState<{
-    tenant: string;
-    billingId: string;
+    searchText: string;
     contractStartFrom: string;
     contractStartTo: string;
     contractEndFrom: string;
@@ -77,8 +76,7 @@ export const BillingPage: React.FC = () => {
     paymentType: string;
     deviceType: string;
   }>({
-    tenant: "",
-    billingId: "",
+    searchText: "",
     contractStartFrom: "",
     contractStartTo: "",
     contractEndFrom: "",
@@ -116,8 +114,9 @@ export const BillingPage: React.FC = () => {
       
       // Convert filters to the format expected by the service
       const serviceFilters: Record<string, any> = {};
-      if (filters.tenant) serviceFilters.tenantId = filters.tenant;
-      if (filters.billingId) serviceFilters.billingId = filters.billingId;
+      if (filters.searchText) {
+        serviceFilters.unifiedSearch = filters.searchText;
+      }
       if (filters.contractStartFrom) serviceFilters.contractStartFrom = filters.contractStartFrom;
       if (filters.contractStartTo) serviceFilters.contractStartTo = filters.contractStartTo;
       if (filters.contractEndFrom) serviceFilters.contractEndFrom = filters.contractEndFrom;
@@ -307,23 +306,19 @@ export const BillingPage: React.FC = () => {
         
         <Grid container spacing={2}>
           {/* First row: Text-based Filters and Dropdown Filters */}
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               size="small"
-              label="Tenant"
-              value={filters.tenant}
-              onChange={(e) => setFilters({ ...filters, tenant: e.target.value })}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Billing ID"
-              value={filters.billingId}
-              onChange={(e) => setFilters({ ...filters, billingId: e.target.value })}
+              label="Text Search"
+              placeholder="Search in Tenant and Billing ID"
+              value={filters.searchText}
+              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
+                ),
+              }}
             />
           </Grid>
           
@@ -434,8 +429,7 @@ export const BillingPage: React.FC = () => {
             variant="outlined" 
             size="small" 
             onClick={() => setFilters({
-              tenant: "",
-              billingId: "",
+              searchText: "",
               contractStartFrom: "",
               contractStartTo: "",
               contractEndFrom: "",

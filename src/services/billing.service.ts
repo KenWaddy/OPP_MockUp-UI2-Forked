@@ -120,9 +120,19 @@ export class BillingService {
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
         if (value) {
-          if (key === 'tenantName') {
+          if (key === 'unifiedSearch') {
+            const searchValue = String(value).toLowerCase();
+            result = result.filter(item => 
+              item.tenantName.toLowerCase().includes(searchValue) || 
+              item.billingId.toLowerCase().includes(searchValue)
+            );
+          } else if (key === 'tenantName') {
             result = result.filter(item => 
               item.tenantName.toLowerCase().includes(String(value).toLowerCase())
+            );
+          } else if (key === 'billingId') {
+            result = result.filter(item => 
+              item.billingId.toLowerCase().includes(String(value).toLowerCase())
             );
           } else if (key === 'paymentType') {
             result = result.filter(item => 
