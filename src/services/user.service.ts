@@ -1,10 +1,10 @@
 import { mockTenants } from '../mocks/index.js';
 import { User } from '../mocks/types.js';
-import { PaginationParams, PaginatedResponse, ItemResponse } from './types.js';
+import { PaginationParams, PaginatedResponse, ItemResponse, IUserService } from './types.js';
 import { delay } from '../utils/delay.js';
 import { flatUsers } from '../mocks/data/index.js';
 
-export class UserService {
+export class UserService implements IUserService {
   /**
    * Get paginated users for a specific tenant
    */
@@ -83,5 +83,25 @@ export class UserService {
         totalPages
       }
     };
+  }
+
+  /**
+   * Get all users without pagination, filtering, or sorting
+   * Used for data export and other bulk operations
+   */
+  async getAllUsers(): Promise<any[]> {
+    await delay();
+    
+    const { flatTenants } = await import('../mocks/data/index.js');
+    
+    const usersWithTenantInfo = flatUsers.map(user => {
+      const tenant = flatTenants.find(t => t.id === user.tenantId);
+      return {
+        ...user,
+        tenantName: tenant ? tenant.name : 'Unknown Tenant'
+      };
+    });
+    
+    return usersWithTenantInfo;
   }
 }
