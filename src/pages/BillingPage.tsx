@@ -246,38 +246,27 @@ export const BillingPage: React.FC = () => {
       return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
     } 
     else if (billing.paymentType === 'Annually') {
-      if (!billing.dueMonth) return '—';
-      
-      const dueMonth = billing.dueMonth - 1; // Convert to 0-11 format
-      
-      let nextBillingYear = currentYear;
-      let nextBillingMonth = dueMonth - 1; // One month before due month
-      
-      if (dueMonth < currentMonth) {
-        nextBillingYear = currentYear + 1;
-      }
-      
-      if (nextBillingMonth < 0) {
-        nextBillingMonth = 11; // December
-        nextBillingYear -= 1;
-      }
-      
-      return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
-    } 
-    else if (billing.paymentType === 'One-time') {
-      if (!billing.billingDate) return '—';
+      if (!billing.endDate) return '—';
       
       try {
-        const billingDate = new Date(billing.billingDate);
-        let priorMonth = billingDate.getMonth() - 1;
-        let priorYear = billingDate.getFullYear();
+        const endDate = new Date(billing.endDate);
+        const endYear = endDate.getFullYear();
+        const endMonth = endDate.getMonth(); // 0-11
         
-        if (priorMonth < 0) {
-          priorMonth = 11; // December
-          priorYear -= 1;
-        }
+        return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
+      } catch (e) {
+        return '—';
+      }
+    } 
+    else if (billing.paymentType === 'One-time') {
+      if (!billing.startDate) return '—';
+      
+      try {
+        const startDate = new Date(billing.startDate);
+        const startYear = startDate.getFullYear();
+        const startMonth = startDate.getMonth(); // 0-11
         
-        return `${priorYear}-${String(priorMonth + 1).padStart(2, '0')}`;
+        return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
       } catch (e) {
         return '—';
       }

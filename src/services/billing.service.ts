@@ -18,6 +18,54 @@ interface BillingItem {
 
 export class BillingService {
   /**
+   * Calculate the next billing month for a billing item
+   * @param item The billing item
+   * @returns The next billing month in YYYY-MM format
+   */
+  private calculateNextBillingMonth(item: BillingItem): string {
+    if (!item) return '—';
+    
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth(); // 0-11
+    
+    if (item.paymentType === 'Monthly') {
+      let nextBillingYear = currentYear;
+      let nextBillingMonth = currentMonth;
+      
+      return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
+    } 
+    else if (item.paymentType === 'Annually') {
+      if (!item.endDate) return '—';
+      
+      try {
+        const endDate = new Date(item.endDate);
+        const endYear = endDate.getFullYear();
+        const endMonth = endDate.getMonth(); // 0-11
+        
+        return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
+      } catch (e) {
+        return '—';
+      }
+    } 
+    else if (item.paymentType === 'One-time') {
+      if (!item.startDate) return '—';
+      
+      try {
+        const startDate = new Date(item.startDate);
+        const startYear = startDate.getFullYear();
+        const startMonth = startDate.getMonth(); // 0-11
+        
+        return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
+      } catch (e) {
+        return '—';
+      }
+    }
+    
+    return '—'; // Default for unknown payment types
+  }
+
+  /**
    * Get paginated billing information
    */
   async getBillingItems(params: PaginationParams): Promise<PaginatedResponse<BillingItem>> {
@@ -70,13 +118,13 @@ export class BillingService {
             );
           } else if (key === 'nextBillingFrom') {
             result = result.filter(item => {
-              const nextBillingMonth = item.nextBillingDate.substring(0, 7); // YYYY-MM format
-              return nextBillingMonth >= String(value);
+              const nextBillingMonth = this.calculateNextBillingMonth(item);
+              return nextBillingMonth !== '—' && nextBillingMonth >= String(value);
             });
           } else if (key === 'nextBillingTo') {
             result = result.filter(item => {
-              const nextBillingMonth = item.nextBillingDate.substring(0, 7); // YYYY-MM format
-              return nextBillingMonth <= String(value);
+              const nextBillingMonth = this.calculateNextBillingMonth(item);
+              return nextBillingMonth !== '—' && nextBillingMonth <= String(value);
             });
           } else {
             result = result.filter(item => 
