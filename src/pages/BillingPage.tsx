@@ -55,7 +55,7 @@ export const BillingPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 200, // Default to 200 rows
     total: 0,
     totalPages: 0
   });
@@ -452,7 +452,22 @@ export const BillingPage: React.FC = () => {
       )}
       
       {/* Pagination - Moved above the table */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel id="rows-per-page-label">Rows</InputLabel>
+          <Select
+            labelId="rows-per-page-label"
+            value={pagination.limit}
+            label="Rows"
+            onChange={(e) => {
+              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
+            }}
+          >
+            <MenuItem value={50}>50</MenuItem>
+            <MenuItem value={200}>200</MenuItem>
+            <MenuItem value={1000}>1000</MenuItem>
+          </Select>
+        </FormControl>
         <Pagination 
           count={pagination.totalPages} 
           page={pagination.page} 
