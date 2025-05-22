@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
-  Grid, 
-  Paper, 
-  Typography, 
-  Box, 
-  Divider, 
-  List, 
-  ListItem, 
-  ListItemText, 
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
   Chip,
   Table,
   TableBody,
@@ -68,13 +68,15 @@ export const TenantPage: React.FC = () => {
   const [selectedUnassignedDevices, setSelectedUnassignedDevices] = useState<string[]>([]);
   const [openUserDialog, setOpenUserDialog] = useState(false);
   const [editableUser, setEditableUser] = useState<User | null>(null);
+  const [openBillingDialog, setOpenBillingDialog] = useState(false);
+  const [editableBilling, setEditableBilling] = useState<NonNullable<Tenant["billingDetails"]>[0] | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 100, // Default to 100 rows
     total: 0,
     totalPages: 0
   });
-  
+
   useEffect(() => {
     const selectedTenantId = localStorage.getItem('selectedTenantId');
     if (selectedTenantId) {
@@ -82,7 +84,7 @@ export const TenantPage: React.FC = () => {
       localStorage.removeItem('selectedTenantId');
     }
   }, []);
-  
+
   const loadTenantById = async (id: string) => {
     try {
       setLoading(true);
@@ -96,7 +98,7 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const [filters, setFilters] = useState<{
     contractType: string;
     billingType: string;
@@ -108,7 +110,7 @@ export const TenantPage: React.FC = () => {
     status: "",
     textSearch: "",
   });
-  
+
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: 'ascending' | 'descending';
@@ -119,30 +121,30 @@ export const TenantPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Convert filters to the format expected by the service
       const serviceFilters: Record<string, any> = {};
       if (filters.contractType) serviceFilters.contract = filters.contractType;
       if (filters.billingType) serviceFilters.billing = filters.billingType;
       if (filters.status) serviceFilters.status = filters.status;
       if (filters.textSearch) serviceFilters.textSearch = filters.textSearch;
-      
+
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
-        field: sortConfig.key === 'tenant' ? 'name' : 
-               sortConfig.key === 'owner' ? 'owner' : 
-               sortConfig.key === 'email' ? 'email' : 
+        field: sortConfig.key === 'tenant' ? 'name' :
+               sortConfig.key === 'owner' ? 'owner' :
+               sortConfig.key === 'email' ? 'email' :
                sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
-      
+
       const response = await tenantService.getTenants({
         page: pagination.page,
         limit: pagination.limit,
         filters: serviceFilters,
         sort: serviceSort
       });
-      
+
       setTenants(response.data);
       setPagination({
         ...pagination,
@@ -155,30 +157,30 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   // Load tenants when component mounts, pagination changes, or filters/sort changes
   useEffect(() => {
     loadTenants();
   }, [pagination.page, pagination.limit, filters, sortConfig]);
-  
+
   const requestSort = (key: string) => {
     let direction: 'ascending' | 'descending' = 'ascending';
-    
+
     if (sortConfig && sortConfig.key === key) {
       direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
     }
-    
+
     setSortConfig({ key, direction });
   };
-  
+
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setPagination({ ...pagination, page });
   };
-  
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
   };
-  
+
   const handleOpenTenantDialog = (tenant?: Tenant) => {
     if (tenant) {
       setSelectedTenant(tenant);
@@ -217,11 +219,11 @@ export const TenantPage: React.FC = () => {
     }
     setOpenTenantDialog(true);
   };
-  
+
   const handleCloseTenantDialog = () => {
     setOpenTenantDialog(false);
   };
-  
+
   const handleSaveTenant = async () => {
     if (editableTenant) {
       try {
@@ -230,9 +232,9 @@ export const TenantPage: React.FC = () => {
         // For now, we'll just update the local state
         if (selectedTenant) {
           // Update existing tenant
-          const updatedTenants = tenants.map(tenant => 
-            tenant.id === selectedTenant.id 
-              ? editableTenant 
+          const updatedTenants = tenants.map(tenant =>
+            tenant.id === selectedTenant.id
+              ? editableTenant
               : tenant
           );
           setTenants(updatedTenants);
@@ -240,7 +242,7 @@ export const TenantPage: React.FC = () => {
           // Add new tenant
           setTenants([...tenants, editableTenant]);
         }
-        
+
         setOpenTenantDialog(false);
         await loadTenants(); // Reload tenants from the service
       } catch (err) {
@@ -250,7 +252,7 @@ export const TenantPage: React.FC = () => {
       }
     }
   };
-  
+
   const handleDeleteTenant = async (tenantId: string) => {
     try {
       setLoading(true);
@@ -258,11 +260,11 @@ export const TenantPage: React.FC = () => {
       // For now, we'll just update the local state
       const updatedTenants = tenants.filter(tenant => tenant.id !== tenantId);
       setTenants(updatedTenants);
-      
+
       if (selectedTenant && selectedTenant.id === tenantId) {
         setSelectedTenant(null);
       }
-      
+
       await loadTenants(); // Reload tenants from the service
     } catch (err) {
       setError(`Error deleting tenant: ${err instanceof Error ? err.message : String(err)}`);
@@ -270,27 +272,27 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const getSortDirectionIndicator = (key: string) => {
     if (!sortConfig || sortConfig.key !== key) {
       return null;
     }
-    return sortConfig.direction === 'ascending' 
+    return sortConfig.direction === 'ascending'
       ? <ArrowUpwardIcon fontSize="small" />
       : <ArrowDownwardIcon fontSize="small" />;
   };
-  
+
   const handleExportAllTenants = async () => {
     try {
       setLoading(true);
       const allTenants = await tenantService.getAllTenants();
-      
+
       const headers = [
-        'id', 'name', 'description', 
+        'id', 'name', 'description',
         'owner.name', 'owner.email', 'owner.phone', 'owner.address', 'owner.country',
         'contract', 'status', 'billing'
       ];
-      
+
       exportToCsv(allTenants, 'tenant-list-export.csv', headers);
     } catch (err) {
       setError(`Error exporting tenants: ${err instanceof Error ? err.message : String(err)}`);
@@ -298,27 +300,27 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const handleExportAllUsers = async () => {
     try {
       setLoading(true);
       const allUsers = await userService.getAllUsers();
-      
+
       const usersForExport = allUsers.map(user => {
         const rolesFormatted = user.roles.join(', ');
         const ipWhitelistFormatted = user.ipWhitelist.join(', ');
-        
+
         return {
           ...user,
           roles: rolesFormatted,
           ipWhitelist: ipWhitelistFormatted
         };
       });
-      
+
       const headers = [
         'id', 'tenantName', 'name', 'email', 'roles', 'ipWhitelist', 'mfaEnabled'
       ];
-      
+
       exportToCsv(usersForExport, 'user-list-export.csv', headers);
     } catch (err) {
       setError(`Error exporting users: ${err instanceof Error ? err.message : String(err)}`);
@@ -326,22 +328,22 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const handleOpenDeviceAssignDialog = async () => {
     if (!selectedTenant) return;
-    
+
     try {
       setLoading(true);
-      
+
       const response = await deviceService.getDevices({
         page: 1,
         limit: 1000,
-        filters: { 
+        filters: {
           isUnregistered: true,
           status: "Registered" // Only show Registered devices
         }
       });
-      
+
       setUnassignedDevices(response.data as UnregisteredDevice[]);
       setSelectedUnassignedDevices([]);
       setOpenDeviceAssignDialog(true);
@@ -351,38 +353,38 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const handleCloseDeviceAssignDialog = () => {
     setOpenDeviceAssignDialog(false);
   };
-  
+
   const handleAssignDevices = async () => {
     if (!selectedTenant || selectedUnassignedDevices.length === 0) return;
-    
+
     try {
       setLoading(true);
-      
+
       // In a real implementation, this would call a service method to assign devices to tenant
       // For now, we'll just update the local state
-      const devicesToAssign = unassignedDevices.filter(device => 
+      const devicesToAssign = unassignedDevices.filter(device =>
         selectedUnassignedDevices.includes(device.id)
       );
-      
+
       const updatedDevices = [
         ...(selectedTenant.devices || []),
-        ...devicesToAssign.map(({ isUnregistered, ...deviceData }) => ({ 
-          ...deviceData, 
+        ...devicesToAssign.map(({ isUnregistered, ...deviceData }) => ({
+          ...deviceData,
           status: "Assigned" as const // Set status to Assigned when device is assigned to a tenant
         })) as Device[]
       ];
-      
+
       setSelectedTenant({
         ...selectedTenant,
         devices: updatedDevices
       });
-      
+
       setOpenDeviceAssignDialog(false);
-      
+
       // In a real implementation, we would reload the tenant data from the server
     } catch (err) {
       setError(`Error assigning devices: ${err instanceof Error ? err.message : String(err)}`);
@@ -390,22 +392,22 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const handleUnassignDevice = async (deviceId: string) => {
     if (!selectedTenant) return;
-    
+
     try {
       setLoading(true);
-      
+
       // In a real implementation, this would call a service method to unassign the device
       // For now, we'll just update the local state
       const updatedDevices = selectedTenant.devices?.filter(device => device.id !== deviceId) || [];
-      
+
       setSelectedTenant({
         ...selectedTenant,
         devices: updatedDevices
       });
-      
+
       // In a real implementation, we would reload the tenant data from the server
     } catch (err) {
       setError(`Error unassigning device: ${err instanceof Error ? err.message : String(err)}`);
@@ -413,10 +415,10 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const handleOpenUserDialog = () => {
     if (!selectedTenant) return;
-    
+
     setEditableUser({
       id: `u-new-${Math.floor(Math.random() * 1000)}`,
       name: '',
@@ -425,32 +427,32 @@ export const TenantPage: React.FC = () => {
       ipWhitelist: [],
       mfaEnabled: false
     });
-    
+
     setOpenUserDialog(true);
   };
-  
+
   const handleCloseUserDialog = () => {
     setOpenUserDialog(false);
   };
-  
+
   const handleSaveUser = () => {
     if (!selectedTenant || !editableUser) return;
-    
+
     try {
       setLoading(true);
-      
+
       // In a real implementation, this would call a service method to add the user
       // For now, we'll just update the local state
       const updatedUsers = [
         ...(selectedTenant.users || []),
         editableUser
       ];
-      
+
       setSelectedTenant({
         ...selectedTenant,
         users: updatedUsers
       });
-      
+
       setOpenUserDialog(false);
     } catch (err) {
       setError(`Error adding user: ${err instanceof Error ? err.message : String(err)}`);
@@ -458,28 +460,73 @@ export const TenantPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
+  const handleOpenBillingDialog = () => {
+    if (!selectedTenant) return;
+
+    setEditableBilling({
+      billingId: `BID-${Math.floor(Math.random() * 1000)}`,
+      paymentType: "Monthly",
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
+      dueDay: 15,
+      deviceContract: []
+    });
+
+    setOpenBillingDialog(true);
+  };
+
+  const handleCloseBillingDialog = () => {
+    setOpenBillingDialog(false);
+  };
+
+  const handleSaveBilling = () => {
+    if (!selectedTenant || !editableBilling) return;
+
+    try {
+      setLoading(true);
+
+      // In a real implementation, this would call a service method to save the billing
+      // For now, we'll just update the local state
+      const updatedBillingDetails = [
+        ...(selectedTenant.billingDetails || []),
+        editableBilling
+      ];
+
+      setSelectedTenant({
+        ...selectedTenant,
+        billingDetails: updatedBillingDetails
+      });
+
+      setOpenBillingDialog(false);
+    } catch (err) {
+      setError(`Error saving billing: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
-  
+
   return (
     <div className="tenant-list">
       <h2>Tenant Management</h2>
-      
+
       {selectedTenant ? (
         <Paper sx={{ p: 2 }} variant="outlined">
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6">{selectedTenant.name}</Typography>
-            <Button 
-              variant="outlined" 
-              size="small" 
+            <Button
+              variant="outlined"
+              size="small"
               onClick={() => setSelectedTenant(null)}
             >
               Back to List
             </Button>
           </Box>
-          
+
           <Tabs
             value={activeTab}
             onChange={handleTabChange}
@@ -491,7 +538,7 @@ export const TenantPage: React.FC = () => {
             <Tab value="devices" label="Devices" />
             <Tab value="billing" label="Billing" />
           </Tabs>
-          
+
           {/* Tenant Info Tab */}
           {activeTab === "info" && (
             <Grid container spacing={2}>
@@ -528,12 +575,12 @@ export const TenantPage: React.FC = () => {
                       <Typography sx={secondaryTypographyStyle}>Status:</Typography>
                     </Grid>
                     <Grid item xs={8}>
-                      <Chip 
-                        label={selectedTenant.status} 
+                      <Chip
+                        label={selectedTenant.status}
                         color={
-                          selectedTenant.status === "Active" ? "success" : 
-                          selectedTenant.status === "Inactive" ? "error" : 
-                          selectedTenant.status === "Pending" ? "warning" : 
+                          selectedTenant.status === "Active" ? "success" :
+                          selectedTenant.status === "Inactive" ? "error" :
+                          selectedTenant.status === "Pending" ? "warning" :
                           "default"
                         }
                         size="small"
@@ -548,7 +595,7 @@ export const TenantPage: React.FC = () => {
                   </Grid>
                 </Paper>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Paper sx={paperStyle} variant="outlined">
                   <Typography sx={primaryTypographyStyle}>Owner Information</Typography>
@@ -587,7 +634,7 @@ export const TenantPage: React.FC = () => {
                   </Grid>
                 </Paper>
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
                   <Typography sx={primaryTypographyStyle}>Subscription</Typography>
@@ -607,11 +654,11 @@ export const TenantPage: React.FC = () => {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={secondaryTypographyStyle}>Status:</Typography>
-                      <Chip 
-                        label={selectedTenant.subscription?.status || 'N/A'} 
+                      <Chip
+                        label={selectedTenant.subscription?.status || 'N/A'}
                         color={
-                          selectedTenant.subscription?.status === "Active" ? "success" : 
-                          selectedTenant.subscription?.status === "Inactive" ? "error" : 
+                          selectedTenant.subscription?.status === "Active" ? "success" :
+                          selectedTenant.subscription?.status === "Inactive" ? "error" :
                           "default"
                         }
                         size="small"
@@ -646,14 +693,14 @@ export const TenantPage: React.FC = () => {
               </Grid>
             </Grid>
           )}
-          
+
           {/* Users Tab */}
           {activeTab === "users" && (
             <>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Button 
-                  variant="outlined" 
-                  size="small" 
+                <Button
+                  variant="outlined"
+                  size="small"
                   startIcon={<AddIcon />}
                   onClick={handleOpenUserDialog}
                 >
@@ -696,8 +743,8 @@ export const TenantPage: React.FC = () => {
                           )}
                         </TableCell>
                         <TableCell sx={tableBodyCellStyle}>
-                          <Chip 
-                            label={user.mfaEnabled ? 'Enabled' : 'Disabled'} 
+                          <Chip
+                            label={user.mfaEnabled ? 'Enabled' : 'Disabled'}
                             color={user.mfaEnabled ? 'success' : 'error'}
                             size="small"
                           />
@@ -714,14 +761,14 @@ export const TenantPage: React.FC = () => {
             </TableContainer>
             </>
           )}
-          
+
           {/* Devices Tab */}
           {activeTab === "devices" && (
             <>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Button 
-                  variant="outlined" 
-                  size="small" 
+                <Button
+                  variant="outlined"
+                  size="small"
                   startIcon={<AddIcon />}
                   onClick={handleOpenDeviceAssignDialog}
                 >
@@ -752,9 +799,9 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>
-                          <Chip 
-                            label={device.status} 
-                            color={device.status === "Activated" ? "success" : 
+                          <Chip
+                            label={device.status}
+                            color={device.status === "Activated" ? "success" :
                                    device.status === "Assigned" ? "info" : "warning"}
                             size="small"
                           />
@@ -775,8 +822,8 @@ export const TenantPage: React.FC = () => {
                           </Tooltip>
                         </TableCell>
                         <TableCell sx={tableBodyCellStyle}>
-                          <IconButton 
-                            size="small" 
+                          <IconButton
+                            size="small"
                             onClick={() => handleUnassignDevice(device.id)}
                             aria-label="unassign"
                           >
@@ -795,115 +842,128 @@ export const TenantPage: React.FC = () => {
             </TableContainer>
             </>
           )}
-          
+
           {/* Billing Tab */}
           {activeTab === "billing" && (
-            <div>
+            <>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenBillingDialog}
+                >
+                  ADD BILLING
+                </Button>
+              </Box>
+
               {selectedTenant.billingDetails && selectedTenant.billingDetails.length > 0 ? (
-                selectedTenant.billingDetails.map((billing, index) => (
-                  <Paper key={index} sx={{ ...paperStyle, mb: 2 }} variant="outlined">
-                    <Typography sx={primaryTypographyStyle}>
-                      Billing ID: {billing.billingId}
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
-                    
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Typography sx={secondaryTypographyStyle}>Payment Type:</Typography>
-                        <Typography>{billing.paymentType}</Typography>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Typography sx={secondaryTypographyStyle}>Start Date:</Typography>
-                        <Typography>{billing.startDate}</Typography>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Typography sx={secondaryTypographyStyle}>End Date:</Typography>
-                        <Typography>{billing.endDate || 'N/A'}</Typography>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Typography sx={secondaryTypographyStyle}>Due Day:</Typography>
-                        <Typography>
-                          {billing.dueDay ? 
-                            (billing.dueDay === "End of Month" ? 
-                              "End of Month" : 
-                              `Day ${billing.dueDay}${billing.dueMonth ? ` of month ${billing.dueMonth}` : ''}`) : 
-                            'N/A'}
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid item xs={12}>
-                        <Typography sx={secondaryTypographyStyle}>Device Contracts:</Typography>
-                        <TableContainer>
-                          <Table size="small">
-                            <TableHead>
-                              <TableRow>
-                                <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
-                                <TableCell sx={tableHeaderCellStyle}>Quantity</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {billing.deviceContract && billing.deviceContract.map((contract, idx) => (
-                                <TableRow key={idx}>
-                                  <TableCell sx={tableBodyCellStyle}>{contract.type}</TableCell>
-                                  <TableCell sx={tableBodyCellStyle}>{contract.quantity}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                ))
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={tableHeaderCellStyle}>Billing ID</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Payment Type</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Start Date</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>End Date</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Due Day</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Device Contracts</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selectedTenant.billingDetails.map((billing, index) => (
+                        <TableRow key={index}>
+                          <TableCell sx={tableBodyCellStyle}>{billing.billingId}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            {billing.dueDay ?
+                              (billing.dueDay === "End of Month" ?
+                                "End of Month" :
+                                `Day ${billing.dueDay}${billing.dueMonth ? ` of month ${billing.dueMonth}` : ''}`) :
+                              'N/A'}
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Tooltip title={
+                              <TableContainer>
+                                <Table size="small">
+                                  <TableHead>
+                                    <TableRow>
+                                      <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
+                                      <TableCell sx={tableHeaderCellStyle}>Quantity</TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {billing.deviceContract && billing.deviceContract.map((contract, idx) => (
+                                      <TableRow key={idx}>
+                                        <TableCell sx={tableBodyCellStyle}>{contract.type}</TableCell>
+                                        <TableCell sx={tableBodyCellStyle}>{contract.quantity}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </TableContainer>
+                            }>
+                              <span style={{ cursor: 'pointer', color: 'blue' }}>
+                                View ({billing.deviceContract?.length || 0})
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               ) : (
                 <Typography align="center">No billing details found</Typography>
               )}
-            </div>
+            </>
           )}
         </Paper>
       ) : (
         <>
           {/* Add Tenant Button */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
-            <Button 
-              variant="outlined" 
-              size="small" 
+            <Button
+              variant="outlined"
+              size="small"
               startIcon={<AddIcon />}
               onClick={() => handleOpenTenantDialog()}
             >
               Add Tenant
             </Button>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               size="small"
               onClick={handleExportAllTenants}
             >
               Export All Tenant List
             </Button>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               size="small"
               onClick={handleExportAllUsers}
             >
               Export All User List
             </Button>
           </Box>
-          
+
           {/* Filter section */}
-          <Paper 
+          <Paper
             elevation={2}
-            sx={{ 
-              p: 2, 
-              mb: 2, 
-              border: '1px solid #ddd', 
-              borderRadius: '4px' 
+            sx={{
+              p: 2,
+              mb: 2,
+              border: '1px solid #ddd',
+              borderRadius: '4px'
             }}
           >
             <Typography variant="body1" gutterBottom>
               Filters
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <Grid container spacing={2}>
               {/* Text input filter */}
               <Grid item xs={12} sm={3}>
@@ -935,7 +995,7 @@ export const TenantPage: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
@@ -953,7 +1013,7 @@ export const TenantPage: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Billing Type</InputLabel>
@@ -972,11 +1032,11 @@ export const TenantPage: React.FC = () => {
             </FormControl>
           </Grid>
         </Grid>
-        
+
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button 
-                variant="outlined" 
-                size="small" 
+              <Button
+                variant="outlined"
+                size="small"
                 onClick={() => setFilters({
                   contractType: "",
                   billingType: "",
@@ -989,12 +1049,12 @@ export const TenantPage: React.FC = () => {
               </Button>
             </Box>
           </Paper>
-      
+
       {/* Error message */}
       {error && (
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
       )}
-      
+
       {/* Pagination - Moved above the table */}
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
         <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -1012,14 +1072,14 @@ export const TenantPage: React.FC = () => {
             <MenuItem value={500}>500</MenuItem>
           </Select>
         </FormControl>
-        <Pagination 
-          count={pagination.totalPages} 
-          page={pagination.page} 
-          onChange={handlePageChange} 
-          color="primary" 
+        <Pagination
+          count={pagination.totalPages}
+          page={pagination.page}
+          onChange={handlePageChange}
+          color="primary"
         />
       </Box>
-      
+
       {/* Loading indicator */}
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
@@ -1032,37 +1092,37 @@ export const TenantPage: React.FC = () => {
             <Table size="small" aria-label="tenant list table">
               <TableHead>
                 <TableRow>
-                  <TableCell 
+                  <TableCell
                     onClick={() => requestSort('tenant')}
                     sx={tableHeaderCellStyle}
                   >
                     Tenant {getSortDirectionIndicator('tenant')}
                   </TableCell>
-                  <TableCell 
+                  <TableCell
                     onClick={() => requestSort('owner')}
                     sx={tableHeaderCellStyle}
                   >
                     Owner {getSortDirectionIndicator('owner')}
                   </TableCell>
-                  <TableCell 
+                  <TableCell
                     onClick={() => requestSort('email')}
                     sx={tableHeaderCellStyle}
                   >
                     Email {getSortDirectionIndicator('email')}
                   </TableCell>
-                  <TableCell 
+                  <TableCell
                     onClick={() => requestSort('contract')}
                     sx={tableHeaderCellStyle}
                   >
                     Contract {getSortDirectionIndicator('contract')}
                   </TableCell>
-                  <TableCell 
+                  <TableCell
                     onClick={() => requestSort('status')}
                     sx={tableHeaderCellStyle}
                   >
                     Status {getSortDirectionIndicator('status')}
                   </TableCell>
-                  <TableCell 
+                  <TableCell
                     onClick={() => requestSort('billing')}
                     sx={tableHeaderCellStyle}
                   >
@@ -1088,12 +1148,12 @@ export const TenantPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
-                        <Chip 
-                          label={tenant.status} 
+                        <Chip
+                          label={tenant.status}
                           color={
-                            tenant.status === "Active" ? "success" : 
-                            tenant.status === "Inactive" ? "error" : 
-                            tenant.status === "Pending" ? "warning" : 
+                            tenant.status === "Active" ? "success" :
+                            tenant.status === "Inactive" ? "error" :
+                            tenant.status === "Pending" ? "warning" :
                             "default"
                           }
                           size="small"
@@ -1101,15 +1161,15 @@ export const TenantPage: React.FC = () => {
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
-                        <IconButton 
-                          size="small" 
+                        <IconButton
+                          size="small"
                           onClick={() => handleOpenTenantDialog(tenant)}
                           aria-label="edit"
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton 
-                          size="small" 
+                        <IconButton
+                          size="small"
                           onClick={() => handleDeleteTenant(tenant.id)}
                           aria-label="delete"
                         >
@@ -1130,10 +1190,10 @@ export const TenantPage: React.FC = () => {
       )}
       </>
       )}
-      
+
       {/* Tenant Dialog */}
-      <Dialog 
-        open={openTenantDialog} 
+      <Dialog
+        open={openTenantDialog}
         onClose={handleCloseTenantDialog}
         maxWidth="md"
         fullWidth
@@ -1313,9 +1373,9 @@ export const TenantPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseTenantDialog}>Cancel</Button>
-          <Button 
-            onClick={handleSaveTenant} 
-            variant="contained" 
+          <Button
+            onClick={handleSaveTenant}
+            variant="contained"
             color="primary"
             disabled={!editableTenant || !editableTenant.name || !editableTenant.owner.name || !editableTenant.owner.email}
           >
@@ -1325,8 +1385,8 @@ export const TenantPage: React.FC = () => {
       </Dialog>
 
       {/* Device Assignment Dialog */}
-      <Dialog 
-        open={openDeviceAssignDialog} 
+      <Dialog
+        open={openDeviceAssignDialog}
         onClose={handleCloseDeviceAssignDialog}
         maxWidth="md"
         fullWidth
@@ -1340,13 +1400,13 @@ export const TenantPage: React.FC = () => {
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
-                    <Checkbox 
+                    <Checkbox
                       indeterminate={
-                        selectedUnassignedDevices.length > 0 && 
+                        selectedUnassignedDevices.length > 0 &&
                         selectedUnassignedDevices.length < unassignedDevices.length
                       }
                       checked={
-                        unassignedDevices.length > 0 && 
+                        unassignedDevices.length > 0 &&
                         selectedUnassignedDevices.length === unassignedDevices.length
                       }
                       onChange={(e) => {
@@ -1370,7 +1430,7 @@ export const TenantPage: React.FC = () => {
                   unassignedDevices.map((device) => (
                     <TableRow key={device.id}>
                       <TableCell padding="checkbox">
-                        <Checkbox 
+                        <Checkbox
                           checked={selectedUnassignedDevices.includes(device.id)}
                           onChange={(e) => {
                             if (e.target.checked) {
@@ -1388,8 +1448,8 @@ export const TenantPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
-                        <Chip 
-                          label={device.status} 
+                        <Chip
+                          label={device.status}
                           color={device.status === "Activated" ? "success" : "warning"}
                           size="small"
                         />
@@ -1407,9 +1467,9 @@ export const TenantPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeviceAssignDialog}>Cancel</Button>
-          <Button 
-            onClick={handleAssignDevices} 
-            variant="contained" 
+          <Button
+            onClick={handleAssignDevices}
+            variant="contained"
             color="primary"
             disabled={selectedUnassignedDevices.length === 0}
           >
@@ -1417,10 +1477,10 @@ export const TenantPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Add User Dialog */}
-      <Dialog 
-        open={openUserDialog} 
+      <Dialog
+        open={openUserDialog}
         onClose={handleCloseUserDialog}
         maxWidth="md"
         fullWidth
@@ -1501,11 +1561,100 @@ export const TenantPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseUserDialog}>Cancel</Button>
-          <Button 
-            onClick={handleSaveUser} 
-            variant="contained" 
+          <Button
+            onClick={handleSaveUser}
+            variant="contained"
             color="primary"
             disabled={!editableUser || !editableUser.name || !editableUser.email}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Billing Dialog */}
+      <Dialog
+        open={openBillingDialog}
+        onClose={handleCloseBillingDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Add Billing</DialogTitle>
+        <DialogContent>
+          {editableBilling && (
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Payment Type</InputLabel>
+                  <Select
+                    value={editableBilling.paymentType || "Monthly"}
+                    onChange={(e) => setEditableBilling({
+                      ...editableBilling,
+                      paymentType: e.target.value as "One-time" | "Monthly" | "Annually"
+                    })}
+                    label="Payment Type"
+                  >
+                    <MenuItem value="One-time">One-time</MenuItem>
+                    <MenuItem value="Monthly">Monthly</MenuItem>
+                    <MenuItem value="Annually">Annually</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Start Date"
+                  type="date"
+                  value={editableBilling.startDate || ''}
+                  onChange={(e) => setEditableBilling({
+                    ...editableBilling,
+                    startDate: e.target.value
+                  })}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="End Date"
+                  type="date"
+                  value={editableBilling.endDate || ''}
+                  onChange={(e) => setEditableBilling({
+                    ...editableBilling,
+                    endDate: e.target.value
+                  })}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Due Day"
+                  type="number"
+                  value={typeof editableBilling.dueDay === 'number' ? editableBilling.dueDay : ''}
+                  onChange={(e) => setEditableBilling({
+                    ...editableBilling,
+                    dueDay: parseInt(e.target.value)
+                  })}
+                  fullWidth
+                  margin="normal"
+                  inputProps={{ min: 1, max: 31 }}
+                />
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseBillingDialog}>Cancel</Button>
+          <Button
+            onClick={handleSaveBilling}
+            variant="contained"
+            color="primary"
+            disabled={!editableBilling}
           >
             Save
           </Button>
