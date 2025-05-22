@@ -47,7 +47,7 @@ export interface FlatDevice {
   deviceId: string;
   serialNo: string;
   description: string;
-  status: "Registered" | "Activated";
+  status: "Registered" | "Assigned" | "Activated";
   attributes: Attribute[];
 }
 
@@ -81,7 +81,7 @@ export interface FlatUnregisteredDevice {
   deviceId: string;
   serialNo: string;
   description: string;
-  status: "Registered" | "Activated";
+  status: "Registered" | "Assigned" | "Activated";
   attributes: Attribute[];
   isUnregistered: true;
 }

@@ -75,7 +75,7 @@ export function generateDevicesForTenant(tenantId: string, count: number): FlatD
       deviceId: `${type.substring(0, 3).toUpperCase()}-${faker.string.alphanumeric(6).toUpperCase()}`,
       serialNo: faker.string.alphanumeric(12).toUpperCase(),
       description: faker.lorem.sentence(),
-      status: faker.helpers.arrayElement(["Registered", "Activated"]),
+      status: faker.helpers.arrayElement(["Registered", "Assigned", "Activated"]),
       attributes
     });
   }

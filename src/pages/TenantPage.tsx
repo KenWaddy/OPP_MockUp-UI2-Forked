@@ -334,7 +334,10 @@ export const TenantPage: React.FC = () => {
       const response = await deviceService.getDevices({
         page: 1,
         limit: 1000,
-        filters: { isUnregistered: true }
+        filters: { 
+          isUnregistered: true,
+          status: "Registered" // Only show Registered devices
+        }
       });
       
       setUnassignedDevices(response.data as UnregisteredDevice[]);
@@ -365,7 +368,10 @@ export const TenantPage: React.FC = () => {
       
       const updatedDevices = [
         ...(selectedTenant.devices || []),
-        ...devicesToAssign.map(({ isUnregistered, ...deviceData }) => deviceData)
+        ...devicesToAssign.map(({ isUnregistered, ...deviceData }) => ({ 
+          ...deviceData, 
+          status: "Assigned" as const // Set status to Assigned when device is assigned to a tenant
+        })) as Device[]
       ];
       
       setSelectedTenant({
@@ -689,7 +695,8 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableBodyCellStyle}>
                           <Chip 
                             label={device.status} 
-                            color={device.status === "Activated" ? "success" : "warning"}
+                            color={device.status === "Activated" ? "success" : 
+                                   device.status === "Assigned" ? "info" : "warning"}
                             size="small"
                           />
                         </TableCell>

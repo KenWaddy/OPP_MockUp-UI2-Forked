@@ -19,7 +19,7 @@ export type Device = {
   deviceId: string;
   serialNo: string;
   description: string;
-  status: "Registered" | "Activated";
+  status: "Registered" | "Assigned" | "Activated";
   attributes: Attribute[];
 };
 
