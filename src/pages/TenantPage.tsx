@@ -130,7 +130,7 @@ export const TenantPage: React.FC = () => {
                sortConfig.key === 'owner' ? 'owner.name' : 
                sortConfig.key === 'email' ? 'owner.email' : 
                sortConfig.key,
-        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc'
+        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
       
       const response = await tenantService.getTenants({

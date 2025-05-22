@@ -68,6 +68,16 @@ export class BillingService {
             result = result.filter(item => 
               item.paymentType === value
             );
+          } else if (key === 'nextBillingFrom') {
+            result = result.filter(item => {
+              const nextBillingMonth = item.nextBillingDate.substring(0, 7); // YYYY-MM format
+              return nextBillingMonth >= String(value);
+            });
+          } else if (key === 'nextBillingTo') {
+            result = result.filter(item => {
+              const nextBillingMonth = item.nextBillingDate.substring(0, 7); // YYYY-MM format
+              return nextBillingMonth <= String(value);
+            });
           } else {
             result = result.filter(item => 
               item[key as keyof BillingItem] === value

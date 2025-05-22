@@ -132,7 +132,7 @@ export const DevicePage: React.FC = () => {
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
         field: sortConfig.key,
-        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc'
+        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
       
       const response = await deviceService.getDevices({
@@ -812,7 +812,7 @@ export const DevicePage: React.FC = () => {
                     label="Type"
                     onChange={(e) => setEditableDevice({
                       ...editableDevice,
-                      type: e.target.value
+                      type: e.target.value as "Server" | "Workstation" | "Mobile" | "IoT" | "Other"
                     })}
                   >
                     {deviceTypes.map((type) => (
@@ -869,7 +869,7 @@ export const DevicePage: React.FC = () => {
                     label="Status"
                     onChange={(e) => setEditableDevice({
                       ...editableDevice,
-                      status: e.target.value
+                      status: e.target.value as "Registered" | "Activated"
                     })}
                   >
                     {statusOptions.map((status) => (
