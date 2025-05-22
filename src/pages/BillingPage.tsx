@@ -437,7 +437,7 @@ export const BillingPage: React.FC = () => {
               contractStartTo: "",
               contractEndFrom: "",
               contractEndTo: "",
-              nextBillingFrom: getCurrentMonth(),
+              nextBillingFrom: "", // Clear the filter on reset
               nextBillingTo: "",
               paymentType: "",
               deviceType: "",
