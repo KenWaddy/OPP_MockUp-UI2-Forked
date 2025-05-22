@@ -92,16 +92,12 @@ export const TenantPage: React.FC = () => {
     contractType: string;
     billingType: string;
     status: string;
-    tenantName: string;
-    ownerName: string;
-    mailAddress: string;
+    textSearch: string;
   }>({
     contractType: "",
     billingType: "",
     status: "",
-    tenantName: "",
-    ownerName: "",
-    mailAddress: "",
+    textSearch: "",
   });
   
   const [sortConfig, setSortConfig] = useState<{
@@ -120,9 +116,7 @@ export const TenantPage: React.FC = () => {
       if (filters.contractType) serviceFilters.contract = filters.contractType;
       if (filters.billingType) serviceFilters.billing = filters.billingType;
       if (filters.status) serviceFilters.status = filters.status;
-      if (filters.tenantName) serviceFilters.tenantName = filters.tenantName;
-      if (filters.ownerName) serviceFilters.ownerName = filters.ownerName;
-      if (filters.mailAddress) serviceFilters.mailAddress = filters.mailAddress;
+      if (filters.textSearch) serviceFilters.textSearch = filters.textSearch;
       
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
@@ -368,34 +362,15 @@ export const TenantPage: React.FC = () => {
             </FormControl>
           </Grid>
           
-          {/* Text input filters */}
-          <Grid item xs={12} sm={4}>
+          {/* Text input filter */}
+          <Grid item xs={12}>
             <TextField
               fullWidth
               size="small"
-              label="Tenant Name"
-              value={filters.tenantName}
-              onChange={(e) => setFilters({ ...filters, tenantName: e.target.value })}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Owner Name"
-              value={filters.ownerName}
-              onChange={(e) => setFilters({ ...filters, ownerName: e.target.value })}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Email Address"
-              value={filters.mailAddress}
-              onChange={(e) => setFilters({ ...filters, mailAddress: e.target.value })}
+              label="Text Search"
+              placeholder="Search by Tenant Name, Owner Name, or Email Address"
+              value={filters.textSearch}
+              onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
             />
           </Grid>
         </Grid>
@@ -408,9 +383,7 @@ export const TenantPage: React.FC = () => {
               contractType: "",
               billingType: "",
               status: "",
-              tenantName: "",
-              ownerName: "",
-              mailAddress: "",
+              textSearch: "",
             })}
             startIcon={<FilterListIcon />}
           >
