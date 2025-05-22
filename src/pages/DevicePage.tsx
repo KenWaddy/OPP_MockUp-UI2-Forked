@@ -78,7 +78,7 @@ export const DevicePage: React.FC = () => {
   } | null>(null);
   
   const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
-  const statusOptions: Device["status"][] = ["Registered", "Activated"];
+  const statusOptions: Device["status"][] = ["Registered", "Assigned", "Activated"];
   
   useEffect(() => {
     const loadData = async () => {
@@ -292,7 +292,8 @@ export const DevicePage: React.FC = () => {
           return {
             ...deviceWithoutFlag,
             tenantId,
-            tenantName
+            tenantName,
+            status: "Assigned" // Set status to Assigned when device is assigned to a tenant
           } as DeviceWithTenant;
         }
         return d;
@@ -614,7 +615,8 @@ export const DevicePage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>
                         <Chip 
                           label={device.status} 
-                          color={device.status === "Activated" ? "success" : "warning"}
+                          color={device.status === "Activated" ? "success" : 
+                                 device.status === "Assigned" ? "info" : "warning"}
                           size="small"
                         />
                       </TableCell>
@@ -871,7 +873,7 @@ export const DevicePage: React.FC = () => {
                     label="Status"
                     onChange={(e) => setEditableDevice({
                       ...editableDevice,
-                      status: e.target.value as "Registered" | "Activated"
+                      status: e.target.value as "Registered" | "Assigned" | "Activated"
                     })}
                   >
                     {statusOptions.map((status) => (
