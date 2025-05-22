@@ -29,9 +29,14 @@ export class DeviceService {
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
         if (value) {
-          if (key === 'name') {
+          if (key === 'searchText') {
+            const searchValue = String(value).toLowerCase();
             allDevices = allDevices.filter(device => 
-              device.name.toLowerCase().includes(String(value).toLowerCase())
+              device.name.toLowerCase().includes(searchValue) ||
+              device.deviceId.toLowerCase().includes(searchValue) ||
+              device.serialNo.toLowerCase().includes(searchValue) ||
+              device.description.toLowerCase().includes(searchValue) ||
+              ('tenantName' in device && device.tenantName.toLowerCase().includes(searchValue))
             );
           } else if (key === 'type') {
             allDevices = allDevices.filter(device => 
