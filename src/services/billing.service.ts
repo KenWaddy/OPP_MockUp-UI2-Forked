@@ -29,6 +29,18 @@ export class BillingService {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth(); // 0-11
     
+    if (item.endDate) {
+      try {
+        const endDate = new Date(item.endDate);
+        const currentDate = new Date();
+        
+        if (currentDate > endDate) {
+          return 'Ended';
+        }
+      } catch (e) {
+      }
+    }
+    
     if (item.paymentType === 'Monthly') {
       let nextBillingYear = currentYear;
       let nextBillingMonth = currentMonth;

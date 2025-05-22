@@ -239,6 +239,18 @@ export const BillingPage: React.FC = () => {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth(); // 0-11
     
+    if (billing.endDate) {
+      try {
+        const endDate = new Date(billing.endDate);
+        const currentDate = new Date();
+        
+        if (currentDate > endDate) {
+          return 'Ended';
+        }
+      } catch (e) {
+      }
+    }
+    
     if (billing.paymentType === 'Monthly') {
       let nextBillingYear = currentYear;
       let nextBillingMonth = currentMonth;
