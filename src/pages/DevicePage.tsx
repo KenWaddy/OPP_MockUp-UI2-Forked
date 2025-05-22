@@ -23,7 +23,10 @@ import {
   Select,
   MenuItem,
   Tooltip,
-  Chip
+  Chip,
+  Pagination,
+  CircularProgress,
+  Alert
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -31,8 +34,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common';
-import { mockTenants, mockUnregisteredDevices, Attribute, Device, DeviceWithTenant, UnregisteredDevice } from '../mocks';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
+import { Attribute, Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/index.js';
+import { DeviceService, TenantService } from '../services/index.js';
+
+// Create service instances
+const deviceService = new DeviceService();
+const tenantService = new TenantService();
 
 export const DevicePage: React.FC = () => {
   const [allDevices, setAllDevices] = useState<(DeviceWithTenant | UnregisteredDevice)[]>([]);
@@ -44,6 +52,14 @@ export const DevicePage: React.FC = () => {
   const [openDeviceDialog, setOpenDeviceDialog] = useState(false);
   const [editableDevice, setEditableDevice] = useState<DeviceWithTenant | UnregisteredDevice | null>(null);
   const [tenantOptions, setTenantOptions] = useState<{id: string, name: string}[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
   
   const [filters, setFilters] = useState<{
     tenant: string;
@@ -72,30 +88,81 @@ export const DevicePage: React.FC = () => {
   const statusOptions: Device["status"][] = ["Registered", "Activated"];
   
   useEffect(() => {
-    const devicesWithTenantInfo: DeviceWithTenant[] = [];
-    const tenants: {id: string, name: string}[] = [];
-    
-    mockTenants.forEach(tenant => {
-      tenants.push({id: tenant.id, name: tenant.name});
-      
-      if (tenant.devices) {
-        tenant.devices.forEach(device => {
-          devicesWithTenantInfo.push({
-            ...device,
-            tenantId: tenant.id,
-            tenantName: tenant.name
-          });
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // Load tenants for the dropdown
+        const tenantsResponse = await tenantService.getTenants({
+          page: 1,
+          limit: 1000 // Load all tenants for the dropdown
         });
+        
+        setTenantOptions(tenantsResponse.data.map(tenant => ({
+          id: tenant.id,
+          name: tenant.name
+        })));
+        
+        // Initial devices load will happen in the loadDevices effect
+      } catch (err) {
+        setError(`Error loading data: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
     
-    setAllDevices([...devicesWithTenantInfo, ...mockUnregisteredDevices]);
-    setTenantOptions(tenants);
+    loadData();
   }, []);
+  
+  const loadDevices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Convert filters to the format expected by the service
+      const serviceFilters: Record<string, any> = {};
+      if (filters.tenant) serviceFilters.tenantId = filters.tenant;
+      if (filters.name) serviceFilters.name = filters.name;
+      if (filters.type) serviceFilters.type = filters.type;
+      if (filters.deviceId) serviceFilters.deviceId = filters.deviceId;
+      if (filters.serialNo) serviceFilters.serialNo = filters.serialNo;
+      if (filters.description) serviceFilters.description = filters.description;
+      if (filters.status) serviceFilters.status = filters.status;
+      
+      // Convert sort config to the format expected by the service
+      const serviceSort = sortConfig ? {
+        field: sortConfig.key,
+        order: sortConfig.direction === 'ascending' ? 'asc' : 'desc'
+      } : undefined;
+      
+      const response = await deviceService.getDevices({
+        page: pagination.page,
+        limit: pagination.limit,
+        filters: serviceFilters,
+        sort: serviceSort
+      });
+      
+      setAllDevices(response.data);
+      setPagination({
+        ...pagination,
+        total: response.meta.total,
+        totalPages: response.meta.totalPages
+      });
+    } catch (err) {
+      setError(`Error loading devices: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Load devices when component mounts, pagination changes, or filters/sort changes
+  useEffect(() => {
+    loadDevices();
+  }, [pagination.page, pagination.limit, filters, sortConfig]);
   
   const handleOpenAttributesDialog = (device: DeviceWithTenant | UnregisteredDevice) => {
     setSelectedDevice(device);
-    setEditableAttributes(device.attributes.map(attr => ({ ...attr })));
+    setEditableAttributes(device.attributes.map((attr: Attribute) => ({ ...attr })));
     setEditMode(false);
     setOpenAttributesDialog(true);
   };
@@ -109,16 +176,27 @@ export const DevicePage: React.FC = () => {
     setEditMode(true);
   };
   
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     if (selectedDevice) {
-      const updatedDevices = allDevices.map(device => 
-        device.id === selectedDevice.id 
-          ? { ...device, attributes: editableAttributes } 
-          : device
-      );
-      setAllDevices(updatedDevices);
-      setSelectedDevice({ ...selectedDevice, attributes: editableAttributes });
-      setEditMode(false);
+      try {
+        setLoading(true);
+        // In a real implementation, this would call a service method to save the device attributes
+        // For now, we'll just update the local state
+        const updatedDevices = allDevices.map(device => 
+          device.id === selectedDevice.id 
+            ? { ...device, attributes: editableAttributes } 
+            : device
+        );
+        setAllDevices(updatedDevices);
+        setSelectedDevice({ ...selectedDevice, attributes: editableAttributes });
+        setEditMode(false);
+        
+        await loadDevices(); // Reload devices from the service
+      } catch (err) {
+        setError(`Error saving attributes: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   
@@ -166,142 +244,78 @@ export const DevicePage: React.FC = () => {
     setOpenDeviceDialog(false);
   };
   
-  const handleSaveDevice = () => {
+  const handleSaveDevice = async () => {
     if (editableDevice) {
-      let updatedDevices;
-      
-      if (selectedDevice) {
-        updatedDevices = allDevices.map(device => 
-          device.id === selectedDevice.id 
-            ? editableDevice 
-            : device
-        );
-      } else {
-        updatedDevices = [...allDevices, editableDevice];
+      try {
+        setLoading(true);
+        // In a real implementation, this would call a service method to save the device
+        // For now, we'll just update the local state
+        let updatedDevices;
+        
+        if (selectedDevice) {
+          // Update existing device
+          updatedDevices = allDevices.map(device => 
+            device.id === selectedDevice.id 
+              ? editableDevice 
+              : device
+          );
+        } else {
+          // Add new device
+          updatedDevices = [...allDevices, editableDevice];
+        }
+        
+        setAllDevices(updatedDevices);
+        setOpenDeviceDialog(false);
+        
+        await loadDevices(); // Reload devices from the service
+      } catch (err) {
+        setError(`Error saving device: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
       }
-      
+    }
+  };
+  
+  const handleDeleteDevice = async (deviceId: string) => {
+    try {
+      setLoading(true);
+      // In a real implementation, this would call a service method to delete the device
+      // For now, we'll just update the local state
+      const updatedDevices = allDevices.filter(device => device.id !== deviceId);
       setAllDevices(updatedDevices);
-      setOpenDeviceDialog(false);
+      
+      await loadDevices(); // Reload devices from the service
+    } catch (err) {
+      setError(`Error deleting device: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
     }
   };
   
-  const handleDeleteDevice = (deviceId: string) => {
-    const updatedDevices = allDevices.filter(device => device.id !== deviceId);
-    setAllDevices(updatedDevices);
-  };
-  
-  const handleAssignToTenant = (device: UnregisteredDevice, tenantId: string, tenantName: string) => {
-    const updatedDevices = allDevices.map(d => {
-      if (d.id === device.id) {
-        const { isUnregistered, ...deviceWithoutFlag } = d as UnregisteredDevice;
-        return {
-          ...deviceWithoutFlag,
-          tenantId,
-          tenantName
-        } as DeviceWithTenant;
-      }
-      return d;
-    });
-    setAllDevices(updatedDevices);
-  };
-  
-  const getFilteredAndSortedDevices = () => {
-    let filteredDevices = [...allDevices];
-    
-    if (filters.tenant) {
-      filteredDevices = filteredDevices.filter(device => {
-        if ('isUnregistered' in device) {
-          return false; // Unregistered devices don't have a tenant
+  const handleAssignToTenant = async (device: UnregisteredDevice, tenantId: string, tenantName: string) => {
+    try {
+      setLoading(true);
+      // In a real implementation, this would call a service method to assign the device to a tenant
+      // For now, we'll just update the local state
+      const updatedDevices = allDevices.map(d => {
+        if (d.id === device.id) {
+          const { isUnregistered, ...deviceWithoutFlag } = d as UnregisteredDevice;
+          return {
+            ...deviceWithoutFlag,
+            tenantId,
+            tenantName
+          } as DeviceWithTenant;
         }
-        return (device as DeviceWithTenant).tenantName.toLowerCase().includes(filters.tenant.toLowerCase());
+        return d;
       });
+      setAllDevices(updatedDevices);
+      
+      await loadDevices(); // Reload devices from the service
+    } catch (err) {
+      setError(`Error assigning device to tenant: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
     }
-    
-    if (filters.name) {
-      filteredDevices = filteredDevices.filter(
-        device => device.name.toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-    
-    if (filters.type) {
-      filteredDevices = filteredDevices.filter(
-        device => device.type === filters.type
-      );
-    }
-    
-    if (filters.deviceId) {
-      filteredDevices = filteredDevices.filter(
-        device => device.deviceId.toLowerCase().includes(filters.deviceId.toLowerCase())
-      );
-    }
-    
-    if (filters.serialNo) {
-      filteredDevices = filteredDevices.filter(
-        device => device.serialNo.toLowerCase().includes(filters.serialNo.toLowerCase())
-      );
-    }
-    
-    if (filters.description) {
-      filteredDevices = filteredDevices.filter(
-        device => device.description.toLowerCase().includes(filters.description.toLowerCase())
-      );
-    }
-    
-    if (filters.status) {
-      filteredDevices = filteredDevices.filter(
-        device => device.status === filters.status
-      );
-    }
-    
-    if (sortConfig) {
-      filteredDevices.sort((a, b) => {
-        let valueA, valueB;
-        
-        switch (sortConfig.key) {
-          case 'tenant':
-            valueA = 'isUnregistered' in a ? '' : (a as DeviceWithTenant).tenantName;
-            valueB = 'isUnregistered' in b ? '' : (b as DeviceWithTenant).tenantName;
-            break;
-          case 'name':
-            valueA = a.name;
-            valueB = b.name;
-            break;
-          case 'type':
-            valueA = a.type;
-            valueB = b.type;
-            break;
-          case 'deviceId':
-            valueA = a.deviceId;
-            valueB = b.deviceId;
-            break;
-          case 'serialNo':
-            valueA = a.serialNo;
-            valueB = b.serialNo;
-            break;
-          case 'description':
-            valueA = a.description;
-            valueB = b.description;
-            break;
-          case 'status':
-            valueA = a.status;
-            valueB = b.status;
-            break;
-          default:
-            valueA = '';
-            valueB = '';
-        }
-        
-        if (valueA < valueB) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (valueA > valueB) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    
-    return filteredDevices;
   };
   
   const requestSort = (key: string) => {
@@ -312,6 +326,10 @@ export const DevicePage: React.FC = () => {
     }
     
     setSortConfig({ key, direction });
+  };
+  
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setPagination({ ...pagination, page });
   };
   
   const getSortDirectionIndicator = (key: string) => {
@@ -327,27 +345,27 @@ export const DevicePage: React.FC = () => {
     <div className="device-list">
       <h2>Device Management</h2>
       
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDeviceDialog()}
-          >
-            Add Device
-          </Button>
-        </Box>
-      
-        {/* Filter section */}
-        <Paper 
-          elevation={2}
-          sx={{ 
-            p: 2, 
-            mb: 2, 
-            border: '1px solid #ddd', 
-            borderRadius: '4px' 
-          }}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenDeviceDialog()}
         >
+          Add Device
+        </Button>
+      </Box>
+      
+      {/* Filter section */}
+      <Paper 
+        elevation={2}
+        sx={{ 
+          p: 2, 
+          mb: 2, 
+          border: '1px solid #ddd', 
+          borderRadius: '4px' 
+        }}
+      >
         <Typography variant="body1" gutterBottom>
           Filters
         </Typography>
@@ -463,152 +481,178 @@ export const DevicePage: React.FC = () => {
         </Box>
       </Paper>
       
-      <TableContainer component={Paper} variant="outlined">
-        <Table size="small" aria-label="device list table">
-          <TableHead>
-            <TableRow>
-              <TableCell 
-                onClick={() => requestSort('tenant')}
-                sx={tableHeaderCellStyle}
-              >
-                Tenant {getSortDirectionIndicator('tenant')}
-              </TableCell>
-              <TableCell 
-                onClick={() => requestSort('name')}
-                sx={tableHeaderCellStyle}
-              >
-                Name {getSortDirectionIndicator('name')}
-              </TableCell>
-              <TableCell 
-                onClick={() => requestSort('type')}
-                sx={tableHeaderCellStyle}
-              >
-                Type {getSortDirectionIndicator('type')}
-              </TableCell>
-              <TableCell 
-                onClick={() => requestSort('deviceId')}
-                sx={tableHeaderCellStyle}
-              >
-                Device ID {getSortDirectionIndicator('deviceId')}
-              </TableCell>
-              <TableCell 
-                onClick={() => requestSort('serialNo')}
-                sx={tableHeaderCellStyle}
-              >
-                Serial No. {getSortDirectionIndicator('serialNo')}
-              </TableCell>
-              <TableCell 
-                onClick={() => requestSort('description')}
-                sx={tableHeaderCellStyle}
-              >
-                Description {getSortDirectionIndicator('description')}
-              </TableCell>
-              <TableCell 
-                onClick={() => requestSort('status')}
-                sx={tableHeaderCellStyle}
-              >
-                Status {getSortDirectionIndicator('status')}
-              </TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {getFilteredAndSortedDevices().length > 0 ? (
-              getFilteredAndSortedDevices().map((device) => (
-                <TableRow key={device.id}>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {'isUnregistered' in device ? (
-                      <FormControl size="small" fullWidth>
-                        <Select
-                          value=""
-                          displayEmpty
-                          onChange={(e) => {
-                            const selectedTenant = tenantOptions.find(t => t.id === e.target.value);
-                            if (selectedTenant) {
-                              handleAssignToTenant(
-                                device as UnregisteredDevice,
-                                selectedTenant.id,
-                                selectedTenant.name
-                              );
-                            }
-                          }}
-                        >
-                          <MenuItem value="" disabled>
-                            <em>Assign to Tenant</em>
-                          </MenuItem>
-                          {tenantOptions.map((tenant) => (
-                            <MenuItem key={tenant.id} value={tenant.id}>
-                              {tenant.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    ) : (
-                      <span
-                        className="clickable"
-                        onClick={() => {
-                          const tenant = mockTenants.find(t => t.id === (device as DeviceWithTenant).tenantId);
-                          if (tenant) {
-                            localStorage.setItem('selectedTenantId', tenant.id);
-                            window.history.pushState({}, '', '/');
-                            const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
-                              detail: { tenant } 
-                            });
-                            window.dispatchEvent(tenantPageEvent);
-                          }
-                        }}
-                        style={{ cursor: 'pointer', color: 'blue' }}
-                      >
-                        {(device as DeviceWithTenant).tenantName}
-                      </span>
-                    )}
+      {/* Error message */}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
+      )}
+      
+      {/* Loading indicator */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* Device Table */}
+          <TableContainer component={Paper} variant="outlined">
+            <Table size="small" aria-label="device list table">
+              <TableHead>
+                <TableRow>
+                  <TableCell 
+                    onClick={() => requestSort('tenant')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Tenant {getSortDirectionIndicator('tenant')}
                   </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {device.type}
+                  <TableCell 
+                    onClick={() => requestSort('name')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Name {getSortDirectionIndicator('name')}
                   </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {device.status}
+                  <TableCell 
+                    onClick={() => requestSort('type')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Type {getSortDirectionIndicator('type')}
                   </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <span
-                      className="clickable"
-                      onClick={() => handleOpenAttributesDialog(device)}
-                      style={{ cursor: 'pointer', color: 'blue' }}
-                    >
-                      View
-                    </span>
+                  <TableCell 
+                    onClick={() => requestSort('deviceId')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Device ID {getSortDirectionIndicator('deviceId')}
                   </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <span
-                      className="clickable"
-                      onClick={() => handleOpenDeviceDialog(device)}
-                      style={{ cursor: 'pointer', color: 'blue', marginRight: '8px' }}
-                    >
-                      Edit
-                    </span>
-                    <span
-                      className="clickable"
-                      onClick={() => handleDeleteDevice(device.id)}
-                      style={{ cursor: 'pointer', color: 'blue' }}
-                    >
-                      Delete
-                    </span>
+                  <TableCell 
+                    onClick={() => requestSort('serialNo')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Serial No. {getSortDirectionIndicator('serialNo')}
                   </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('description')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Description {getSortDirectionIndicator('description')}
+                  </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('status')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Status {getSortDirectionIndicator('status')}
+                  </TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={tableBodyCellStyle}>No devices match the filter criteria</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+                {allDevices.length > 0 ? (
+                  allDevices.map((device) => (
+                    <TableRow key={device.id}>
+                      <TableCell sx={tableBodyCellStyle}>
+                        {'isUnregistered' in device ? (
+                          <FormControl size="small" fullWidth>
+                            <Select
+                              value=""
+                              displayEmpty
+                              onChange={(e) => {
+                                const selectedTenant = tenantOptions.find(t => t.id === e.target.value);
+                                if (selectedTenant) {
+                                  handleAssignToTenant(
+                                    device as UnregisteredDevice,
+                                    selectedTenant.id,
+                                    selectedTenant.name
+                                  );
+                                }
+                              }}
+                            >
+                              <MenuItem value="" disabled>
+                                <em>Assign to Tenant</em>
+                              </MenuItem>
+                              {tenantOptions.map((tenant) => (
+                                <MenuItem key={tenant.id} value={tenant.id}>
+                                  {tenant.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        ) : (
+                          <span
+                            className="clickable"
+                            onClick={() => {
+                              localStorage.setItem('selectedTenantId', (device as DeviceWithTenant).tenantId);
+                              window.history.pushState({}, '', '/');
+                              const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
+                                detail: { tenantId: (device as DeviceWithTenant).tenantId } 
+                              });
+                              window.dispatchEvent(tenantPageEvent);
+                            }}
+                            style={{ cursor: 'pointer', color: 'blue' }}
+                          >
+                            {(device as DeviceWithTenant).tenantName}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        {device.type}
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <Chip 
+                          label={device.status} 
+                          color={device.status === "Activated" ? "success" : "warning"}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <span
+                          className="clickable"
+                          onClick={() => handleOpenAttributesDialog(device)}
+                          style={{ cursor: 'pointer', color: 'blue' }}
+                        >
+                          View ({device.attributes.length})
+                        </span>
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenDeviceDialog(device)}
+                          aria-label="edit"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleDeleteDevice(device.id)}
+                          aria-label="delete"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} align="center" sx={tableBodyCellStyle}>No devices match the filter criteria</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
+            <Pagination 
+              count={pagination.totalPages} 
+              page={pagination.page} 
+              onChange={handlePageChange} 
+              color="primary" 
+            />
+          </Box>
+        </>
+      )}
       
       {/* Attributes Dialog */}
       <Dialog open={openAttributesDialog} onClose={handleCloseAttributesDialog} maxWidth="sm" fullWidth>
@@ -618,125 +662,123 @@ export const DevicePage: React.FC = () => {
         <DialogContent dividers>
           {editMode ? (
             <>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'flex-end' }}>
-                <TextField
-                  label="Key"
-                  value={newAttribute.key}
-                  onChange={(e) => setNewAttribute({ ...newAttribute, key: e.target.value })}
-                  sx={{ mr: 1, flex: 1 }}
-                  size="small"
-                />
-                <TextField
-                  label="Value"
-                  value={newAttribute.value}
-                  onChange={(e) => setNewAttribute({ ...newAttribute, value: e.target.value })}
-                  sx={{ mr: 1, flex: 1 }}
-                  size="small"
-                />
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<AddIcon />}
-                  onClick={handleAddAttribute}
-                  disabled={!newAttribute.key.trim()}
-                >
-                  Add
-                </Button>
-              </Box>
-              {editableAttributes.length > 0 ? (
-                <TableContainer component={Paper} variant="outlined">
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
-                        <TableCell sx={tableHeaderCellStyle} width={50}></TableCell>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {editableAttributes.map((attr, index) => (
+                      <TableRow key={index}>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            value={attr.key}
+                            onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
+                          />
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            value={attr.value}
+                            onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
+                          />
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => handleRemoveAttribute(index)}
+                            aria-label="delete"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {editableAttributes.map((attr, index) => (
-                        <TableRow key={index}>
-                          <TableCell sx={tableBodyCellStyle}>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={attr.key}
-                              onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
-                            />
-                          </TableCell>
-                          <TableCell sx={tableBodyCellStyle}>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={attr.value}
-                              onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
-                            />
-                          </TableCell>
-                          <TableCell sx={tableBodyCellStyle}>
-                            <IconButton
-                              size="small"
-                              edge="end"
-                              onClick={() => handleRemoveAttribute(index)}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No attributes found. Add some using the form above.
-                </Typography>
-              )}
+                    ))}
+                    <TableRow>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          placeholder="New Key"
+                          value={newAttribute.key}
+                          onChange={(e) => setNewAttribute({
+                            ...newAttribute,
+                            key: e.target.value
+                          })}
+                        />
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          placeholder="New Value"
+                          value={newAttribute.value}
+                          onChange={(e) => setNewAttribute({
+                            ...newAttribute,
+                            value: e.target.value
+                          })}
+                        />
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          onClick={handleAddAttribute}
+                          disabled={!newAttribute.key.trim()}
+                        >
+                          Add
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </>
           ) : (
             <>
-              {selectedDevice && selectedDevice.attributes.length > 0 ? (
-                <TableContainer component={Paper} variant="outlined">
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedDevice && selectedDevice.attributes.map((attr, index) => (
+                      <TableRow key={index}>
+                        <TableCell sx={tableBodyCellStyle}>{attr.key}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{attr.value}</TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedDevice.attributes.map((attr, index) => (
-                        <TableRow key={index}>
-                          <TableCell sx={tableBodyCellStyle}>{attr.key}</TableCell>
-                          <TableCell sx={tableBodyCellStyle}>{attr.value}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No attributes found
-                </Typography>
-              )}
+                    ))}
+                    {selectedDevice && selectedDevice.attributes.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={2} align="center" sx={tableBodyCellStyle}>No attributes found</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </>
           )}
         </DialogContent>
         <DialogActions>
           {editMode ? (
             <>
-              <Button onClick={handleSaveClick} color="primary">
-                Save
-              </Button>
-              <Button onClick={() => setEditMode(false)}>
-                Cancel
-              </Button>
+              <Button onClick={handleCloseAttributesDialog}>Cancel</Button>
+              <Button onClick={handleSaveClick} variant="contained" color="primary">Save</Button>
             </>
           ) : (
             <>
-              <Button onClick={handleEditClick} color="primary">
-                Edit
-              </Button>
               <Button onClick={handleCloseAttributesDialog}>Close</Button>
+              <Button onClick={handleEditClick} variant="contained" color="primary">Edit</Button>
             </>
           )}
         </DialogActions>
@@ -745,125 +787,130 @@ export const DevicePage: React.FC = () => {
       {/* Device Dialog */}
       <Dialog open={openDeviceDialog} onClose={handleCloseDeviceDialog} maxWidth="md" fullWidth>
         <DialogTitle>
-          {selectedDevice ? 'Edit Device' : 'Add New Device'}
+          {selectedDevice ? `Edit Device: ${selectedDevice.name}` : 'Add New Device'}
         </DialogTitle>
         <DialogContent dividers>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Name"
-                required
-                value={editableDevice?.name || ''}
-                onChange={(e) => setEditableDevice({...editableDevice!, name: e.target.value})}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={editableDevice?.type || 'Server'}
-                  onChange={(e) => setEditableDevice({...editableDevice!, type: e.target.value as Device["type"]})}
-                  label="Type"
-                >
-                  {deviceTypes.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Device ID"
-                required
-                value={editableDevice?.deviceId || ''}
-                onChange={(e) => setEditableDevice({...editableDevice!, deviceId: e.target.value})}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Serial No."
-                value={editableDevice?.serialNo || ''}
-                onChange={(e) => setEditableDevice({...editableDevice!, serialNo: e.target.value})}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Description"
-                multiline
-                rows={2}
-                value={editableDevice?.description || ''}
-                onChange={(e) => setEditableDevice({...editableDevice!, description: e.target.value})}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={editableDevice?.status || 'Registered'}
-                  onChange={(e) => setEditableDevice({...editableDevice!, status: e.target.value as Device["status"]})}
-                  label="Status"
-                >
-                  {statusOptions.map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {status}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            {'isUnregistered' in (editableDevice || {}) && (
-              <Grid item xs={12} md={6}>
+          {editableDevice && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Device Name"
+                  value={editableDevice.name}
+                  onChange={(e) => setEditableDevice({
+                    ...editableDevice,
+                    name: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth margin="normal">
-                  <InputLabel>Assign to Tenant</InputLabel>
+                  <InputLabel>Type</InputLabel>
                   <Select
-                    value=""
-                    onChange={(e) => {
-                      const selectedTenant = tenantOptions.find(t => t.id === e.target.value);
-                      if (selectedTenant && editableDevice && 'isUnregistered' in editableDevice) {
-                        const { isUnregistered, ...deviceWithoutFlag } = editableDevice as UnregisteredDevice;
-                        setEditableDevice({
-                          ...deviceWithoutFlag,
-                          tenantId: selectedTenant.id,
-                          tenantName: selectedTenant.name
-                        } as DeviceWithTenant);
-                      }
-                    }}
-                    label="Assign to Tenant"
+                    value={editableDevice.type}
+                    label="Type"
+                    onChange={(e) => setEditableDevice({
+                      ...editableDevice,
+                      type: e.target.value
+                    })}
                   >
-                    <MenuItem value="" disabled>
-                      <em>Select a tenant</em>
-                    </MenuItem>
-                    {tenantOptions.map((tenant) => (
-                      <MenuItem key={tenant.id} value={tenant.id}>
-                        {tenant.name}
+                    {deviceTypes.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
-            )}
-          </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Device ID"
+                  value={editableDevice.deviceId}
+                  onChange={(e) => setEditableDevice({
+                    ...editableDevice,
+                    deviceId: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Serial No."
+                  value={editableDevice.serialNo}
+                  onChange={(e) => setEditableDevice({
+                    ...editableDevice,
+                    serialNo: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  value={editableDevice.description}
+                  onChange={(e) => setEditableDevice({
+                    ...editableDevice,
+                    description: e.target.value
+                  })}
+                  margin="normal"
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={editableDevice.status}
+                    label="Status"
+                    onChange={(e) => setEditableDevice({
+                      ...editableDevice,
+                      status: e.target.value
+                    })}
+                  >
+                    {statusOptions.map((status) => (
+                      <MenuItem key={status} value={status}>
+                        {status}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              {'isUnregistered' in editableDevice && (
+                <Grid item xs={12}>
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel>Assign to Tenant</InputLabel>
+                    <Select
+                      value=""
+                      label="Assign to Tenant"
+                      displayEmpty
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Select a tenant after saving</em>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
+            </Grid>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleSaveDevice} color="primary">
+          <Button onClick={handleCloseDeviceDialog}>Cancel</Button>
+          <Button 
+            onClick={handleSaveDevice} 
+            variant="contained" 
+            color="primary"
+            disabled={!editableDevice || !editableDevice.name || !editableDevice.deviceId}
+          >
             Save
-          </Button>
-          <Button onClick={handleCloseDeviceDialog}>
-            Cancel
           </Button>
         </DialogActions>
       </Dialog>
-
     </div>
   );
 };
