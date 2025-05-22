@@ -328,275 +328,8 @@ export const TenantPage: React.FC = () => {
     <div className="tenant-list">
       <h2>Tenant Management</h2>
       
-      {/* Add Tenant Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
-        <Button 
-          variant="outlined" 
-          size="small" 
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenTenantDialog()}
-        >
-          Add Tenant
-        </Button>
-        <Button 
-          variant="outlined" 
-          size="small"
-          onClick={handleExportAllTenants}
-        >
-          Export All Tenant List
-        </Button>
-        <Button 
-          variant="outlined" 
-          size="small"
-          onClick={handleExportAllUsers}
-        >
-          Export All User List
-        </Button>
-      </Box>
-      
-      {/* Filter section */}
-      <Paper 
-        elevation={2}
-        sx={{ 
-          p: 2, 
-          mb: 2, 
-          border: '1px solid #ddd', 
-          borderRadius: '4px' 
-        }}
-      >
-        <Typography variant="body1" gutterBottom>
-          Filters
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        
-        <Grid container spacing={2}>
-          {/* Text input filter */}
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Text Search"
-              placeholder="Search by Tenant Name, Owner Name, or Email Address"
-              value={filters.textSearch}
-              onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
-            />
-          </Grid>
-
-          {/* Dropdown filters */}
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Contract Type</InputLabel>
-              <Select
-                value={filters.contractType}
-                label="Contract Type"
-                onChange={(e) => setFilters({ ...filters, contractType: e.target.value })}
-              >
-                <MenuItem value="">All</MenuItem>
-                {contractTypeOptions.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={filters.status}
-                label="Status"
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              >
-                <MenuItem value="">All</MenuItem>
-                {statusOptions.map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Billing Type</InputLabel>
-              <Select
-                value={filters.billingType}
-                label="Billing Type"
-                onChange={(e) => setFilters({ ...filters, billingType: e.target.value })}
-              >
-                <MenuItem value="">All</MenuItem>
-                {billingTypeOptions.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-        
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={() => setFilters({
-              contractType: "",
-              billingType: "",
-              status: "",
-              textSearch: "",
-            })}
-            startIcon={<FilterListIcon />}
-          >
-            Reset Filters
-          </Button>
-        </Box>
-      </Paper>
-      
-      {/* Error message */}
-      {error && (
-        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
-      )}
-      
-      {/* Pagination - Moved above the table */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel id="rows-per-page-label">Rows</InputLabel>
-          <Select
-            labelId="rows-per-page-label"
-            value={pagination.limit}
-            label="Rows"
-            onChange={(e) => {
-              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
-            }}
-          >
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={100}>100</MenuItem>
-            <MenuItem value={500}>500</MenuItem>
-          </Select>
-        </FormControl>
-        <Pagination 
-          count={pagination.totalPages} 
-          page={pagination.page} 
-          onChange={handlePageChange} 
-          color="primary" 
-        />
-      </Box>
-      
-      {/* Loading indicator */}
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <>
-          {/* Tenant Table */}
-          <TableContainer component={Paper} variant="outlined">
-            <Table size="small" aria-label="tenant list table">
-              <TableHead>
-                <TableRow>
-                  <TableCell 
-                    onClick={() => requestSort('tenant')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Tenant {getSortDirectionIndicator('tenant')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('owner')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Owner {getSortDirectionIndicator('owner')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('email')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Email {getSortDirectionIndicator('email')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('contract')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Contract {getSortDirectionIndicator('contract')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('status')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Status {getSortDirectionIndicator('status')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('billing')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Billing {getSortDirectionIndicator('billing')}
-                  </TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tenants.length > 0 ? (
-                  tenants.map((tenant) => (
-                    <TableRow key={tenant.id}>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <span
-                          className="clickable"
-                          onClick={() => loadTenantById(tenant.id)}
-                          style={{ cursor: 'pointer', color: 'blue' }}
-                        >
-                          {tenant.name}
-                        </span>
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.owner.name}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <Chip 
-                          label={tenant.status} 
-                          color={
-                            tenant.status === "Active" ? "success" : 
-                            tenant.status === "Inactive" ? "error" : 
-                            tenant.status === "Pending" ? "warning" : 
-                            "default"
-                          }
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleOpenTenantDialog(tenant)}
-                          aria-label="edit"
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleDeleteTenant(tenant.id)}
-                          aria-label="delete"
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={tableBodyCellStyle}>No tenants match the filter criteria</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </>
-      )}
-      
-      {/* Tenant Detail View */}
-      {selectedTenant && (
-        <Paper sx={{ mt: 4, p: 2 }} variant="outlined">
+      {selectedTenant ? (
+        <Paper sx={{ p: 2 }} variant="outlined">
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6">{selectedTenant.name}</Typography>
             <Button 
@@ -604,7 +337,7 @@ export const TenantPage: React.FC = () => {
               size="small" 
               onClick={() => setSelectedTenant(null)}
             >
-              Close
+              Back to List
             </Button>
           </Box>
           
@@ -954,6 +687,274 @@ export const TenantPage: React.FC = () => {
             </div>
           )}
         </Paper>
+      ) : (
+        <>
+          {/* Add Tenant Button */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+            <Button 
+              variant="outlined" 
+              size="small" 
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenTenantDialog()}
+            >
+              Add Tenant
+            </Button>
+            <Button 
+              variant="outlined" 
+              size="small"
+              onClick={handleExportAllTenants}
+            >
+              Export All Tenant List
+            </Button>
+            <Button 
+              variant="outlined" 
+              size="small"
+              onClick={handleExportAllUsers}
+            >
+              Export All User List
+            </Button>
+          </Box>
+          
+          {/* Filter section */}
+          <Paper 
+            elevation={2}
+            sx={{ 
+              p: 2, 
+              mb: 2, 
+              border: '1px solid #ddd', 
+              borderRadius: '4px' 
+            }}
+          >
+            <Typography variant="body1" gutterBottom>
+              Filters
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            
+            <Grid container spacing={2}>
+              {/* Text input filter */}
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Text Search"
+                  placeholder="Search by Tenant Name, Owner Name, or Email Address"
+                  value={filters.textSearch}
+                  onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+                />
+              </Grid>
+
+          {/* Dropdown filters */}
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Contract Type</InputLabel>
+              <Select
+                value={filters.contractType}
+                label="Contract Type"
+                onChange={(e) => setFilters({ ...filters, contractType: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                {contractTypeOptions.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={filters.status}
+                label="Status"
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                {statusOptions.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Billing Type</InputLabel>
+              <Select
+                value={filters.billingType}
+                label="Billing Type"
+                onChange={(e) => setFilters({ ...filters, billingType: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                {billingTypeOptions.map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+        
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+              <Button 
+                variant="outlined" 
+                size="small" 
+                onClick={() => setFilters({
+                  contractType: "",
+                  billingType: "",
+                  status: "",
+                  textSearch: "",
+                })}
+                startIcon={<FilterListIcon />}
+              >
+                Reset Filters
+              </Button>
+            </Box>
+          </Paper>
+      
+      {/* Error message */}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
+      )}
+      
+      {/* Pagination - Moved above the table */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel id="rows-per-page-label">Rows</InputLabel>
+          <Select
+            labelId="rows-per-page-label"
+            value={pagination.limit}
+            label="Rows"
+            onChange={(e) => {
+              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
+            }}
+          >
+            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={100}>100</MenuItem>
+            <MenuItem value={500}>500</MenuItem>
+          </Select>
+        </FormControl>
+        <Pagination 
+          count={pagination.totalPages} 
+          page={pagination.page} 
+          onChange={handlePageChange} 
+          color="primary" 
+        />
+      </Box>
+      
+      {/* Loading indicator */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* Tenant Table */}
+          <TableContainer component={Paper} variant="outlined">
+            <Table size="small" aria-label="tenant list table">
+              <TableHead>
+                <TableRow>
+                  <TableCell 
+                    onClick={() => requestSort('tenant')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Tenant {getSortDirectionIndicator('tenant')}
+                  </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('owner')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Owner {getSortDirectionIndicator('owner')}
+                  </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('email')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Email {getSortDirectionIndicator('email')}
+                  </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('contract')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Contract {getSortDirectionIndicator('contract')}
+                  </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('status')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Status {getSortDirectionIndicator('status')}
+                  </TableCell>
+                  <TableCell 
+                    onClick={() => requestSort('billing')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Billing {getSortDirectionIndicator('billing')}
+                  </TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tenants.length > 0 ? (
+                  tenants.map((tenant) => (
+                    <TableRow key={tenant.id}>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <span
+                          className="clickable"
+                          onClick={() => loadTenantById(tenant.id)}
+                          style={{ cursor: 'pointer', color: 'blue' }}
+                        >
+                          {tenant.name}
+                        </span>
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.owner.name}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <Chip 
+                          label={tenant.status} 
+                          color={
+                            tenant.status === "Active" ? "success" : 
+                            tenant.status === "Inactive" ? "error" : 
+                            tenant.status === "Pending" ? "warning" : 
+                            "default"
+                          }
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenTenantDialog(tenant)}
+                          aria-label="edit"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleDeleteTenant(tenant.id)}
+                          aria-label="delete"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={tableBodyCellStyle}>No tenants match the filter criteria</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
+      </>
       )}
       
       {/* Tenant Dialog */}
@@ -964,7 +965,7 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {selectedTenant ? `Edit Tenant: ${selectedTenant.name}` : 'Add New Tenant'}
+          {editableTenant ? (editableTenant.id ? `Edit Tenant: ${editableTenant.name}` : 'Add New Tenant') : 'Tenant'}
         </DialogTitle>
         <DialogContent dividers>
           {editableTenant && (
