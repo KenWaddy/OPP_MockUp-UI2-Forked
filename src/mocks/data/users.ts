@@ -24,11 +24,7 @@ export function generateUsersForTenant(tenantId: string, count: number): FlatUse
   });
   
   for (let i = 1; i < count; i++) {
-    const roles: ("Owner" | "Engineer" | "Member")[] = [];
-    
-    if (i < 3 && faker.datatype.boolean(0.3)) {
-      roles.push("Owner");
-    }
+    const roles: ("Engineer" | "Member")[] = []; // Remove "Owner" from possible roles
     
     if (faker.datatype.boolean(0.4)) {
       roles.push("Engineer");
