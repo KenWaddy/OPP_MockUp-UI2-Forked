@@ -397,6 +397,16 @@ export const TenantPage: React.FC = () => {
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
       )}
       
+      {/* Pagination - Moved above the table */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
+        <Pagination 
+          count={pagination.totalPages} 
+          page={pagination.page} 
+          onChange={handlePageChange} 
+          color="primary" 
+        />
+      </Box>
+      
       {/* Loading indicator */}
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
@@ -503,16 +513,6 @@ export const TenantPage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          
-          {/* Pagination */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
-            <Pagination 
-              count={pagination.totalPages} 
-              page={pagination.page} 
-              onChange={handlePageChange} 
-              color="primary" 
-            />
-          </Box>
         </>
       )}
       
