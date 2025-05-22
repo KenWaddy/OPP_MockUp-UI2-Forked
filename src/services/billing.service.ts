@@ -1,6 +1,6 @@
 import { mockTenants } from '../mocks/index.js';
 import { Tenant, DeviceContractItem } from '../mocks/types.js';
-import { PaginationParams, PaginatedResponse } from './types.js';
+import { PaginationParams, PaginatedResponse, IBillingService } from './types.js';
 import { delay } from '../utils/delay.js';
 import { flatBilling, flatTenants } from '../mocks/data/index.js';
 
@@ -16,7 +16,7 @@ interface BillingItem {
   totalDevices: number;
 }
 
-export class BillingService {
+export class BillingService implements IBillingService {
   /**
    * Calculate the next billing month for a billing item
    * @param item The billing item
@@ -188,5 +188,77 @@ export class BillingService {
         totalPages
       }
     };
+  }
+
+  /**
+   * Get all billing items without pagination, filtering, or sorting
+   * Used for data export and other bulk operations
+   */
+  async getAllBillingItems(): Promise<any[]> {
+    await delay();
+    
+    const billingItems: any[] = [];
+    
+    flatBilling.forEach(billing => {
+      const tenant = flatTenants.find(t => t.id === billing.tenantId);
+      if (!tenant) return;
+      
+      const totalDevices = billing.deviceContract?.reduce(
+        (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
+      ) || 0;
+      
+      const deviceContractFormatted = billing.deviceContract?.map(contract => 
+        `${contract.type}: ${contract.quantity}`
+      ).join(', ') || '';
+      
+      const nextBillingMonth = this.calculateNextBillingMonth({
+        id: `${tenant.id}-${billing.billingId}`,
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        billingId: billing.billingId || '',
+        startDate: billing.startDate || '',
+        endDate: billing.endDate || '',
+        paymentType: billing.paymentType || 'Monthly',
+        nextBillingDate: '',
+        totalDevices
+      });
+      
+      let paymentSettings = billing.paymentType || 'N/A';
+      
+      if (billing.paymentType === 'One-time' && billing.billingDate) {
+        paymentSettings += ` | Billing Date: ${billing.billingDate}`;
+      }
+      
+      if ((billing.paymentType === 'Monthly' || billing.paymentType === 'Annually') && billing.dueDay) {
+        paymentSettings += ` | Due Day: ${billing.dueDay}`;
+      }
+      
+      if (billing.paymentType === 'Annually' && billing.dueMonth) {
+        const months = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const month = typeof billing.dueMonth === 'number' && billing.dueMonth >= 1 && billing.dueMonth <= 12
+          ? months[billing.dueMonth - 1]
+          : billing.dueMonth;
+        
+        paymentSettings += ` | Due Month: ${month}`;
+      }
+      
+      billingItems.push({
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        billingId: billing.billingId || '',
+        startDate: billing.startDate || '',
+        endDate: billing.endDate || '',
+        billingStartDate: billing.billingStartDate || '',
+        nextBillingMonth,
+        paymentSettings,
+        numberOfDevices: totalDevices,
+        deviceContractDetails: deviceContractFormatted
+      });
+    });
+    
+    return billingItems;
   }
 }

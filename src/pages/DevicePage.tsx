@@ -37,6 +37,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { Attribute, Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/index.js';
 import { DeviceService, TenantService } from '../services/index.js';
+import { exportToCsv } from '../utils/exportUtils.js';
 
 // Create service instances
 const deviceService = new DeviceService();
@@ -329,11 +330,47 @@ export const DevicePage: React.FC = () => {
       : <ArrowDownwardIcon fontSize="small" />;
   };
   
+  const handleExportAllDevices = async () => {
+    try {
+      setLoading(true);
+      const allDevices = await deviceService.getAllDevices();
+      
+      const devicesForExport = allDevices.map(device => {
+        const attributesFormatted = device.attributes.map(attr => 
+          `${attr.key}: ${attr.value}`
+        ).join('; ');
+        
+        return {
+          ...device,
+          attributes: attributesFormatted
+        };
+      });
+      
+      const headers = [
+        'tenantName', 'name', 'type', 'deviceId', 'serialNo', 
+        'description', 'status', 'attributes'
+      ];
+      
+      exportToCsv(devicesForExport, 'device-list-export.csv', headers);
+    } catch (err) {
+      setError(`Error exporting devices: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <div className="device-list">
       <h2>Device Management</h2>
       
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+        <Button 
+          variant="outlined" 
+          size="small"
+          onClick={handleExportAllDevices}
+        >
+          Export All Device List
+        </Button>
         <Button 
           variant="outlined" 
           size="small" 

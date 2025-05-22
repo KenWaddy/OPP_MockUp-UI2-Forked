@@ -27,6 +27,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { BillingService, TenantService } from '../services/index.js';
 import { DeviceContractItem } from '../mocks/types.js';
+import { exportToCsv } from '../utils/exportUtils.js';
 
 // Create service instances
 const billingService = new BillingService();
@@ -285,10 +286,39 @@ export const BillingPage: React.FC = () => {
 
     return '—'; // Default for unknown payment types
   };
+  
+  const handleExportAllBillings = async () => {
+    try {
+      setLoading(true);
+      const allBillingItems = await billingService.getAllBillingItems();
+      
+      const headers = [
+        'tenantName', 'billingId', 'startDate', 'endDate', 
+        'billingStartDate', 'nextBillingMonth', 'paymentSettings', 
+        'numberOfDevices', 'deviceContractDetails'
+      ];
+      
+      exportToCsv(allBillingItems, 'billing-list-export.csv', headers);
+    } catch (err) {
+      setError(`Error exporting billing items: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="billing-list">
       <h2>Billing Management</h2>
+      
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button 
+          variant="outlined" 
+          size="small"
+          onClick={handleExportAllBillings}
+        >
+          Export All Billing List
+        </Button>
+      </Box>
 
       {/* Filters Section */}
       <Paper

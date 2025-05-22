@@ -31,3 +31,14 @@ export interface ITenantService {
   getTenantById(id: string, includeUsers?: boolean, includeDevices?: boolean, includeBilling?: boolean): Promise<ItemResponse<Tenant>>;
   getAllTenants(): Promise<Tenant[]>;
 }
+
+export interface IDeviceService {
+  getDevices(params: PaginationParams): Promise<PaginatedResponse<DeviceWithTenant | UnregisteredDevice>>;
+  getDevicesForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<Device>>;
+  getAllDevices(): Promise<(DeviceWithTenant | UnregisteredDevice)[]>;
+}
+
+export interface IBillingService {
+  getBillingItems(params: PaginationParams): Promise<PaginatedResponse<any>>;
+  getAllBillingItems(): Promise<any[]>;
+}

@@ -1,10 +1,10 @@
 import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
 import { Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/types.js';
-import { PaginationParams, PaginatedResponse, ItemResponse } from './types.js';
+import { PaginationParams, PaginatedResponse, ItemResponse, IDeviceService } from './types.js';
 import { delay } from '../utils/delay.js';
 import { flatDevices, flatUnregisteredDevices, flatTenants } from '../mocks/data/index.js';
 
-export class DeviceService {
+export class DeviceService implements IDeviceService {
   /**
    * Get paginated devices with tenant information
    */
@@ -181,5 +181,30 @@ export class DeviceService {
         totalPages
       }
     };
+  }
+
+  /**
+   * Get all devices without pagination, filtering, or sorting
+   * Used for data export and other bulk operations
+   */
+  async getAllDevices(): Promise<(DeviceWithTenant | UnregisteredDevice)[]> {
+    await delay();
+    
+    // Create devices with tenant information
+    const devicesWithTenantInfo: DeviceWithTenant[] = flatDevices.map(device => {
+      const tenant = flatTenants.find(t => t.id === device.tenantId);
+      return {
+        ...device,
+        tenantId: device.tenantId,
+        tenantName: tenant ? tenant.name : 'Unknown Tenant'
+      };
+    });
+    
+    const allDevices: (DeviceWithTenant | UnregisteredDevice)[] = [
+      ...devicesWithTenantInfo,
+      ...flatUnregisteredDevices
+    ];
+    
+    return allDevices;
   }
 }
