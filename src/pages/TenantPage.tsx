@@ -127,8 +127,8 @@ export const TenantPage: React.FC = () => {
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
         field: sortConfig.key === 'tenant' ? 'name' : 
-               sortConfig.key === 'owner' ? 'owner.name' : 
-               sortConfig.key === 'email' ? 'owner.email' : 
+               sortConfig.key === 'owner' ? 'owner' : 
+               sortConfig.key === 'email' ? 'email' : 
                sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
