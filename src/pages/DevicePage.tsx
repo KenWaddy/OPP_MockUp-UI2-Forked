@@ -62,20 +62,12 @@ export const DevicePage: React.FC = () => {
   });
   
   const [filters, setFilters] = useState<{
-    tenant: string;
-    name: string;
+    searchText: string;
     type: string;
-    deviceId: string;
-    serialNo: string;
-    description: string;
     status: string;
   }>({
-    tenant: "",
-    name: "",
+    searchText: "",
     type: "",
-    deviceId: "",
-    serialNo: "",
-    description: "",
     status: "",
   });
   
@@ -121,12 +113,8 @@ export const DevicePage: React.FC = () => {
       
       // Convert filters to the format expected by the service
       const serviceFilters: Record<string, any> = {};
-      if (filters.tenant) serviceFilters.tenantId = filters.tenant;
-      if (filters.name) serviceFilters.name = filters.name;
+      if (filters.searchText) serviceFilters.searchText = filters.searchText;
       if (filters.type) serviceFilters.type = filters.type;
-      if (filters.deviceId) serviceFilters.deviceId = filters.deviceId;
-      if (filters.serialNo) serviceFilters.serialNo = filters.serialNo;
-      if (filters.description) serviceFilters.description = filters.description;
       if (filters.status) serviceFilters.status = filters.status;
       
       // Convert sort config to the format expected by the service
@@ -373,7 +361,7 @@ export const DevicePage: React.FC = () => {
         
         <Grid container spacing={2}>
           {/* Dropdown filters */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <FormControl fullWidth size="small">
               <InputLabel>Type</InputLabel>
               <Select
@@ -391,7 +379,7 @@ export const DevicePage: React.FC = () => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
               <Select
@@ -409,54 +397,20 @@ export const DevicePage: React.FC = () => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Tenant"
-              value={filters.tenant}
-              onChange={(e) => setFilters({ ...filters, tenant: e.target.value })}
-            />
-          </Grid>
-          
-          {/* Text input filters */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Name"
-              value={filters.name}
-              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Device ID"
-              value={filters.deviceId}
-              onChange={(e) => setFilters({ ...filters, deviceId: e.target.value })}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Serial No."
-              value={filters.serialNo}
-              onChange={(e) => setFilters({ ...filters, serialNo: e.target.value })}
-            />
-          </Grid>
-          
+          {/* Unified search text field */}
           <Grid item xs={12}>
             <TextField
               fullWidth
               size="small"
-              label="Description"
-              value={filters.description}
-              onChange={(e) => setFilters({ ...filters, description: e.target.value })}
+              label="Search"
+              placeholder="Search in Tenant, Name, Device ID, Serial No, Description"
+              value={filters.searchText}
+              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
+                ),
+              }}
             />
           </Grid>
         </Grid>
@@ -466,12 +420,8 @@ export const DevicePage: React.FC = () => {
             variant="outlined" 
             size="small" 
             onClick={() => setFilters({
-              tenant: "",
-              name: "",
+              searchText: "",
               type: "",
-              deviceId: "",
-              serialNo: "",
-              description: "",
               status: "",
             })}
             startIcon={<FilterListIcon />}
