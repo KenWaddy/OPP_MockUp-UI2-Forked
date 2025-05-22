@@ -2,6 +2,8 @@ import { mockTenants } from '../mocks/index.js';
 import { Tenant } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ITenantService } from './types.js';
 import { delay } from '../utils/delay.js';
+import { flatTenants, flatUsers, flatDevices, flatBilling } from '../mocks/data/index.js';
+import { findOwnerForTenant } from './utils.js';
 
 export class TenantService implements ITenantService {
   /**
@@ -10,7 +12,26 @@ export class TenantService implements ITenantService {
   async getTenants(params: PaginationParams): Promise<PaginatedResponse<Tenant>> {
     await delay();
     
-    let result = [...mockTenants];
+    let result = await Promise.all(flatTenants.map(async tenant => {
+      const owner = findOwnerForTenant(tenant.id, flatUsers);
+      
+      return {
+        ...tenant,
+        owner: owner ? {
+          name: owner.name,
+          email: owner.email,
+          phone: '',
+          address: '',
+          country: ''
+        } : {
+          name: 'No Owner Assigned',
+          email: 'no-owner@example.com',
+          phone: '',
+          address: '',
+          country: ''
+        }
+      };
+    }));
     
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
@@ -29,7 +50,7 @@ export class TenantService implements ITenantService {
             );
           } else {
             result = result.filter(tenant => 
-              tenant[key as keyof Tenant] === value
+              (tenant as any)[key] === value
             );
           }
         }
@@ -66,8 +87,9 @@ export class TenantService implements ITenantService {
             valueB = b.billing;
             break;
           default:
-            valueA = a[params.sort?.field as keyof Tenant] || '';
-            valueB = b[params.sort?.field as keyof Tenant] || '';
+            const field = params.sort?.field || '';
+            valueA = (a as any)[field] || '';
+            valueB = (b as any)[field] || '';
         }
         
         if (valueA < valueB) {
@@ -104,7 +126,7 @@ export class TenantService implements ITenantService {
   async getTenantById(id: string, includeUsers = false, includeDevices = false, includeBilling = false): Promise<ItemResponse<Tenant>> {
     await delay();
     
-    const tenant = mockTenants.find((t: Tenant) => t.id === id);
+    const tenant = flatTenants.find((t) => t.id === id);
     
     if (!tenant) {
       return {
@@ -114,18 +136,35 @@ export class TenantService implements ITenantService {
       };
     }
     
-    const result = { ...tenant };
+    const owner = findOwnerForTenant(id, flatUsers);
     
-    if (!includeUsers) {
-      delete result.users;
+    const result: any = {
+      ...tenant,
+      owner: owner ? {
+        name: owner.name,
+        email: owner.email,
+        phone: '',
+        address: '',
+        country: ''
+      } : {
+        name: 'No Owner Assigned',
+        email: 'no-owner@example.com',
+        phone: '',
+        address: '',
+        country: ''
+      }
+    };
+    
+    if (includeUsers) {
+      result.users = flatUsers.filter(user => user.tenantId === id);
     }
     
-    if (!includeDevices) {
-      delete result.devices;
+    if (includeDevices) {
+      result.devices = flatDevices.filter(device => device.tenantId === id);
     }
     
-    if (!includeBilling) {
-      delete result.billingDetails;
+    if (includeBilling) {
+      result.billingDetails = flatBilling.filter(billing => billing.tenantId === id);
     }
     
     return {

@@ -2,6 +2,7 @@ import { mockTenants } from '../mocks/index.js';
 import { Tenant, DeviceContractItem } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse } from './types.js';
 import { delay } from '../utils/delay.js';
+import { flatBilling, flatTenants } from '../mocks/data/index.js';
 
 interface BillingItem {
   id: string;
@@ -24,35 +25,34 @@ export class BillingService {
     
     const billingItems: BillingItem[] = [];
     
-    mockTenants.forEach(tenant => {
-      if (tenant.billingDetails && tenant.billingDetails.length > 0) {
-        tenant.billingDetails.forEach((billing: any) => {
-          const totalDevices = billing.deviceContract?.reduce(
-            (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
-          ) || 0;
-          
-          let nextBillingDate = '';
-          if (billing.paymentType === 'Monthly' && billing.dueDay) {
-            nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-          } else if (billing.paymentType === 'Annually' && billing.dueDay && billing.dueMonth) {
-            nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-          } else if (billing.paymentType === 'One-time' && billing.billingDate) {
-            nextBillingDate = billing.billingDate;
-          }
-          
-          billingItems.push({
-            id: `${tenant.id}-${billing.billingId}`,
-            tenantId: tenant.id,
-            tenantName: tenant.name,
-            billingId: billing.billingId || '',
-            startDate: billing.startDate || '',
-            endDate: billing.endDate || '',
-            paymentType: billing.paymentType || 'Monthly',
-            nextBillingDate,
-            totalDevices
-          });
-        });
+    flatBilling.forEach(billing => {
+      const tenant = flatTenants.find(t => t.id === billing.tenantId);
+      if (!tenant) return;
+      
+      const totalDevices = billing.deviceContract?.reduce(
+        (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
+      ) || 0;
+      
+      let nextBillingDate = '';
+      if (billing.paymentType === 'Monthly' && billing.dueDay) {
+        nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
+      } else if (billing.paymentType === 'Annually' && billing.dueDay && billing.dueMonth) {
+        nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
+      } else if (billing.paymentType === 'One-time' && billing.billingDate) {
+        nextBillingDate = billing.billingDate;
       }
+      
+      billingItems.push({
+        id: `${tenant.id}-${billing.billingId}`,
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        billingId: billing.billingId || '',
+        startDate: billing.startDate || '',
+        endDate: billing.endDate || '',
+        paymentType: billing.paymentType || 'Monthly',
+        nextBillingDate,
+        totalDevices
+      });
     });
     
     let result = [...billingItems];

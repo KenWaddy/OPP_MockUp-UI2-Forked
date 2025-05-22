@@ -2,6 +2,7 @@ import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
 import { Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse } from './types.js';
 import { delay } from '../utils/delay.js';
+import { flatDevices, flatUnregisteredDevices, flatTenants } from '../mocks/data/index.js';
 
 export class DeviceService {
   /**
@@ -10,23 +11,19 @@ export class DeviceService {
   async getDevices(params: PaginationParams): Promise<PaginatedResponse<DeviceWithTenant | UnregisteredDevice>> {
     await delay();
     
-    const devicesWithTenantInfo: DeviceWithTenant[] = [];
-    
-    mockTenants.forEach(tenant => {
-      if (tenant.devices) {
-        tenant.devices.forEach((device: Device) => {
-          devicesWithTenantInfo.push({
-            ...device,
-            tenantId: tenant.id,
-            tenantName: tenant.name
-          });
-        });
-      }
+    // Create devices with tenant information
+    const devicesWithTenantInfo: DeviceWithTenant[] = flatDevices.map(device => {
+      const tenant = flatTenants.find(t => t.id === device.tenantId);
+      return {
+        ...device,
+        tenantId: device.tenantId,
+        tenantName: tenant ? tenant.name : 'Unknown Tenant'
+      };
     });
     
     let allDevices: (DeviceWithTenant | UnregisteredDevice)[] = [
       ...devicesWithTenantInfo,
-      ...mockUnregisteredDevices
+      ...flatUnregisteredDevices
     ];
     
     if (params.filters) {
@@ -108,9 +105,9 @@ export class DeviceService {
   async getDevicesForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<Device>> {
     await delay();
     
-    const tenant = mockTenants.find((t: any) => t.id === tenantId);
+    const tenantDevices = flatDevices.filter(device => device.tenantId === tenantId);
     
-    if (!tenant || !tenant.devices) {
+    if (tenantDevices.length === 0) {
       return {
         data: [],
         meta: {
@@ -122,7 +119,7 @@ export class DeviceService {
       };
     }
     
-    let devices = [...tenant.devices];
+    let devices = [...tenantDevices];
     
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
