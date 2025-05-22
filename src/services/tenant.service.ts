@@ -36,18 +36,19 @@ export class TenantService implements ITenantService {
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
         if (value) {
-          if (key === 'tenantName') {
+          if (key === 'textSearch') {
+            const searchValue = String(value).toLowerCase();
             result = result.filter(tenant => 
-              tenant.name.toLowerCase().includes(String(value).toLowerCase())
+              tenant.name.toLowerCase().includes(searchValue) ||
+              tenant.owner.name.toLowerCase().includes(searchValue) ||
+              tenant.owner.email.toLowerCase().includes(searchValue)
             );
-          } else if (key === 'ownerName') {
-            result = result.filter(tenant => 
-              tenant.owner.name.toLowerCase().includes(String(value).toLowerCase())
-            );
-          } else if (key === 'mailAddress') {
-            result = result.filter(tenant => 
-              tenant.owner.email.toLowerCase().includes(String(value).toLowerCase())
-            );
+          } else if (key === 'contract') {
+            result = result.filter(tenant => tenant.contract === value);
+          } else if (key === 'billing') {
+            result = result.filter(tenant => tenant.billing === value);
+          } else if (key === 'status') {
+            result = result.filter(tenant => tenant.status === value);
           } else {
             result = result.filter(tenant => 
               (tenant as any)[key] === value
