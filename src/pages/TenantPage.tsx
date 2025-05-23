@@ -711,12 +711,7 @@ export const TenantPage: React.FC = () => {
                     <Grid item xs={8}>
                       <Typography>{selectedTenant.description}</Typography>
                     </Grid>
-                    <Grid item xs={4}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Contract:</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Typography>{selectedTenant.contract}</Typography>
-                    </Grid>
+
                   </Grid>
                 </Paper>
               </Grid>
@@ -774,6 +769,10 @@ export const TenantPage: React.FC = () => {
                       <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
+                      <Typography>{selectedTenant.contract}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
                       <Chip
                         label={selectedTenant.subscription?.status || 'N/A'}
@@ -785,14 +784,7 @@ export const TenantPage: React.FC = () => {
                         size="small"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Start Date:</Typography>
-                      <Typography>{selectedTenant.subscription?.startDate || 'N/A'}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>End Date:</Typography>
-                      <Typography>{selectedTenant.subscription?.endDate || 'N/A'}</Typography>
-                    </Grid>
+
                     <Grid item xs={12}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
                       <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
@@ -805,10 +797,7 @@ export const TenantPage: React.FC = () => {
                         )) || 'N/A'}
                       </Box>
                     </Grid>
-                    <Grid item xs={12}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Configuration:</Typography>
-                      <Typography>{selectedTenant.subscription?.configs || 'N/A'}</Typography>
-                    </Grid>
+
                   </Grid>
                 </Paper>
               </Grid>
