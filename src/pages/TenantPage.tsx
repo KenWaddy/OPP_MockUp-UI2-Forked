@@ -1783,6 +1783,19 @@ export const TenantPage: React.FC = () => {
           {editableBilling && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
               <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Billing ID"
+                  value={editableBilling.billingId || ''}
+                  onChange={(e) => setEditableBilling({
+                    ...editableBilling,
+                    billingId: e.target.value
+                  })}
+                  fullWidth
+                  margin="normal"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Payment Type</InputLabel>
                   <Select
@@ -1832,16 +1845,20 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Due Day"
+                  label="Number of Devices"
                   type="number"
-                  value={typeof editableBilling.dueDay === 'number' ? editableBilling.dueDay : ''}
-                  onChange={(e) => setEditableBilling({
-                    ...editableBilling,
-                    dueDay: parseInt(e.target.value)
-                  })}
+                  value={editableBilling.deviceContract?.length || 0}
+                  onChange={(e) => {
+                    const count = parseInt(e.target.value);
+                    const deviceContract = Array(count).fill({ type: 'Standard', quantity: 1 });
+                    setEditableBilling({
+                      ...editableBilling,
+                      deviceContract
+                    });
+                  }}
                   fullWidth
                   margin="normal"
-                  inputProps={{ min: 1, max: 31 }}
+                  inputProps={{ min: 0 }}
                 />
               </Grid>
             </Grid>
