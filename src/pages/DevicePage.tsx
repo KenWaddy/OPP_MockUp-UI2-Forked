@@ -409,7 +409,6 @@ export const DevicePage: React.FC = () => {
   
   return (
     <div className="device-list">
-      <h2>Device Management</h2>
       
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
         <Button 

@@ -43,18 +43,21 @@ export default function App() {
         <span
           className={activeTab === "tenant" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("tenant")}
+          style={{ fontSize: '1.2em' }}
         >
           Tenant
         </span>
         <span
           className={activeTab === "device" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("device")}
+          style={{ fontSize: '1.2em' }}
         >
           Device
         </span>
         <span
           className={activeTab === "billing" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("billing")}
+          style={{ fontSize: '1.2em' }}
         >
           Billing
         </span>

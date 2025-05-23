@@ -304,7 +304,6 @@ export const BillingPage: React.FC = () => {
 
   return (
     <div className="billing-list">
-      <h2>Billing Management</h2>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <Button
