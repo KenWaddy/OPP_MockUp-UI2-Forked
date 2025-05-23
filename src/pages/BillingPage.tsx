@@ -343,13 +343,13 @@ export const BillingPage: React.FC = () => {
             />
           </Grid>
 
-          {/* Payment Settings */}
+          {/* Payment Type */}
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
-              <InputLabel>Payment Settings</InputLabel>
+              <InputLabel>Payment Type</InputLabel>
               <Select
                 value={filters.paymentType}
-                label="Payment Settings"
+                label="Payment Type"
                 onChange={(e) => setFilters({ ...filters, paymentType: e.target.value })}
               >
                 <MenuItem value="">All</MenuItem>
@@ -454,6 +454,18 @@ export const BillingPage: React.FC = () => {
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('paymentSettings')}
+                    >
+                      Payment Type {getSortDirectionIndicator('paymentSettings')}
+                    </TableCell>
+                    <TableCell
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('nextBillingMonth')}
+                    >
+                      Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
+                    </TableCell>
+                    <TableCell
+                      sx={tableHeaderCellStyle}
                       onClick={() => requestSort('contractStart')}
                     >
                       Contract Start {getSortDirectionIndicator('contractStart')}
@@ -463,19 +475,6 @@ export const BillingPage: React.FC = () => {
                       onClick={() => requestSort('contractEnd')}
                     >
                       Contract End {getSortDirectionIndicator('contractEnd')}
-                    </TableCell>
-
-                    <TableCell
-                      sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('nextBillingMonth')}
-                    >
-                      Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
-                    </TableCell>
-                    <TableCell
-                      sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('paymentSettings')}
-                    >
-                      Payment Settings {getSortDirectionIndicator('paymentSettings')}
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
@@ -505,11 +504,10 @@ export const BillingPage: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-
-                      <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
                     </TableRow>
                   ))}
