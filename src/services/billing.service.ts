@@ -94,9 +94,9 @@ export class BillingService implements IBillingService {
       ) || 0;
       
       let nextBillingDate = '';
-      if (billing.paymentType === 'Monthly' && billing.dueDay) {
+      if (billing.paymentType === 'Monthly') {
         nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billing.paymentType === 'Annually' && billing.dueDay && billing.dueMonth) {
+      } else if (billing.paymentType === 'Annually' && billing.dueMonth) {
         nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
       } else if (billing.paymentType === 'One-time' && billing.billingDate) {
         nextBillingDate = billing.billingDate;
@@ -229,9 +229,7 @@ export class BillingService implements IBillingService {
         paymentSettings += ` | Billing Date: ${billing.billingDate}`;
       }
       
-      if ((billing.paymentType === 'Monthly' || billing.paymentType === 'Annually') && billing.dueDay) {
-        paymentSettings += ` | Due Day: ${billing.dueDay}`;
-      }
+
       
       if (billing.paymentType === 'Annually' && billing.dueMonth) {
         const months = [
@@ -251,7 +249,6 @@ export class BillingService implements IBillingService {
         billingId: billing.billingId || '',
         startDate: billing.startDate || '',
         endDate: billing.endDate || '',
-        billingStartDate: billing.billingStartDate || '',
         nextBillingMonth,
         paymentSettings,
         numberOfDevices: totalDevices,

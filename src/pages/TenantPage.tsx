@@ -987,7 +987,7 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableHeaderCellStyle}>Payment Type</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Start Date</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>End Date</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Due Day</TableCell>
+
                         <TableCell sx={tableHeaderCellStyle}>Device Contracts</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
@@ -999,13 +999,7 @@ export const TenantPage: React.FC = () => {
                           <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-                          <TableCell sx={tableBodyCellStyle}>
-                            {billing.dueDay ?
-                              (billing.dueDay === "End of Month" ?
-                                "End of Month" :
-                                `Day ${billing.dueDay}${billing.dueMonth ? ` of month ${billing.dueMonth}` : ''}`) :
-                              'N/A'}
-                          </TableCell>
+
                           <TableCell sx={tableBodyCellStyle}>
                             <Tooltip title={
                               <TableContainer>

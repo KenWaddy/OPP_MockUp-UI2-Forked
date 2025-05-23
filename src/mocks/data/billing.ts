@@ -41,16 +41,12 @@ export function generateBillingForTenant(tenantId: string, count: number): FlatB
       deviceContract,
       startDate,
       endDate,
-      paymentType,
-      billingStartDate: startDate
+      paymentType
     };
     
     if (paymentType === "One-time") {
       billing.billingDate = startDate;
-    } else if (paymentType === "Monthly") {
-      billing.dueDay = faker.helpers.arrayElement([1, 5, 10, 15, 20, 25, "End of Month"]);
     } else if (paymentType === "Annually") {
-      billing.dueDay = faker.helpers.arrayElement([1, 15]);
       billing.dueMonth = faker.number.int({ min: 1, max: 12 });
     }
     

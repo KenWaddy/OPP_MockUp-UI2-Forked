@@ -41,9 +41,7 @@ export const BillingPage: React.FC = () => {
     endDate?: string;
     paymentType?: "One-time" | "Monthly" | "Annually";
     billingDate?: string;
-    dueDay?: number | "End of Month";
     dueMonth?: number;
-    billingStartDate?: string;
   };
 
   type AggregatedBillingItem = BillingDetailItem & {
@@ -198,10 +196,6 @@ export const BillingPage: React.FC = () => {
       settings += ` | Billing Date: ${billing.billingDate}`;
     }
 
-    if ((billing.paymentType === 'Monthly' || billing.paymentType === 'Annually') && billing.dueDay) {
-      settings += ` | Due Day: ${billing.dueDay}`;
-    }
-
     if (billing.paymentType === 'Annually' && billing.dueMonth) {
       const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -279,7 +273,7 @@ export const BillingPage: React.FC = () => {
 
       const headers = [
         'tenantName', 'billingId', 'startDate', 'endDate',
-        'billingStartDate', 'nextBillingMonth', 'paymentSettings',
+        'nextBillingMonth', 'paymentSettings',
         'numberOfDevices', 'deviceContractDetails'
       ];
 
@@ -470,12 +464,7 @@ export const BillingPage: React.FC = () => {
                     >
                       Contract End {getSortDirectionIndicator('contractEnd')}
                     </TableCell>
-                    <TableCell
-                      sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('billingStartDate')}
-                    >
-                      Billing Start Date {getSortDirectionIndicator('billingStartDate')}
-                    </TableCell>
+
                     <TableCell
                       sx={tableHeaderCellStyle}
                       onClick={() => requestSort('nextBillingMonth')}
@@ -518,7 +507,7 @@ export const BillingPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.billingStartDate || 'N/A'}</TableCell>
+
                       <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
