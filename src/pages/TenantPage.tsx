@@ -441,21 +441,70 @@ export const TenantPage: React.FC = () => {
     try {
       setLoading(true);
 
-      // In a real implementation, this would call a service method to add the user
+      const existingUserIndex = selectedTenant.users?.findIndex(user => user.id === editableUser.id) ?? -1;
+      
+      if (existingUserIndex >= 0) {
+        // Update existing user
+        const updatedUsers = [...(selectedTenant.users || [])];
+        updatedUsers[existingUserIndex] = editableUser;
+        
+        setSelectedTenant({
+          ...selectedTenant,
+          users: updatedUsers
+        });
+      } else {
+        // Add new user
+        const updatedUsers = [
+          ...(selectedTenant.users || []),
+          editableUser
+        ];
+
+        setSelectedTenant({
+          ...selectedTenant,
+          users: updatedUsers
+        });
+      }
+
+      setOpenUserDialog(false);
+    } catch (err) {
+      setError(`Error saving user: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    if (!selectedTenant) return;
+
+    setEditableUser({
+      ...user
+    });
+
+    setOpenUserDialog(true);
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    if (!selectedTenant) return;
+
+    const userToDelete = selectedTenant.users?.find(user => user.id === userId);
+    
+    if (userToDelete && userToDelete.roles.includes('Owner')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // In a real implementation, this would call a service method to delete the user
       // For now, we'll just update the local state
-      const updatedUsers = [
-        ...(selectedTenant.users || []),
-        editableUser
-      ];
+      const updatedUsers = selectedTenant.users?.filter(user => user.id !== userId) || [];
 
       setSelectedTenant({
         ...selectedTenant,
         users: updatedUsers
       });
-
-      setOpenUserDialog(false);
     } catch (err) {
-      setError(`Error adding user: ${err instanceof Error ? err.message : String(err)}`);
+      setError(`Error deleting user: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
@@ -486,21 +535,64 @@ export const TenantPage: React.FC = () => {
     try {
       setLoading(true);
 
-      // In a real implementation, this would call a service method to save the billing
+      const existingBillingIndex = selectedTenant.billingDetails?.findIndex(billing => billing.billingId === editableBilling.billingId) ?? -1;
+      
+      if (existingBillingIndex >= 0) {
+        // Update existing billing detail
+        const updatedBillingDetails = [...(selectedTenant.billingDetails || [])];
+        updatedBillingDetails[existingBillingIndex] = editableBilling;
+        
+        setSelectedTenant({
+          ...selectedTenant,
+          billingDetails: updatedBillingDetails
+        });
+      } else {
+        // Add new billing detail
+        const updatedBillingDetails = [
+          ...(selectedTenant.billingDetails || []),
+          editableBilling
+        ];
+
+        setSelectedTenant({
+          ...selectedTenant,
+          billingDetails: updatedBillingDetails
+        });
+      }
+
+      setOpenBillingDialog(false);
+    } catch (err) {
+      setError(`Error saving billing: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditBilling = (billing: NonNullable<Tenant["billingDetails"]>[0]) => {
+    if (!selectedTenant) return;
+
+    setEditableBilling({
+      ...billing
+    });
+
+    setOpenBillingDialog(true);
+  };
+
+  const handleDeleteBilling = (billingId: string) => {
+    if (!selectedTenant) return;
+
+    try {
+      setLoading(true);
+
+      // In a real implementation, this would call a service method to delete the billing
       // For now, we'll just update the local state
-      const updatedBillingDetails = [
-        ...(selectedTenant.billingDetails || []),
-        editableBilling
-      ];
+      const updatedBillingDetails = selectedTenant.billingDetails?.filter(billing => billing.billingId !== billingId) || [];
 
       setSelectedTenant({
         ...selectedTenant,
         billingDetails: updatedBillingDetails
       });
-
-      setOpenBillingDialog(false);
     } catch (err) {
-      setError(`Error saving billing: ${err instanceof Error ? err.message : String(err)}`);
+      setError(`Error deleting billing: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
@@ -716,6 +808,7 @@ export const TenantPage: React.FC = () => {
                       <TableCell sx={tableHeaderCellStyle}>Roles</TableCell>
                       <TableCell sx={tableHeaderCellStyle}>IP Whitelist</TableCell>
                       <TableCell sx={tableHeaderCellStyle}>MFA</TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                 <TableBody>
@@ -748,6 +841,27 @@ export const TenantPage: React.FC = () => {
                             color={user.mfaEnabled ? 'success' : 'error'}
                             size="small"
                           />
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEditUser(user)}
+                            aria-label="edit"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <Tooltip title={user.roles.includes('Owner') ? "Owner users cannot be deleted" : ""}>
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleDeleteUser(user.id)}
+                                aria-label="delete"
+                                disabled={user.roles.includes('Owner')}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     ))
@@ -868,6 +982,7 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableHeaderCellStyle}>End Date</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Due Day</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Device Contracts</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -909,6 +1024,22 @@ export const TenantPage: React.FC = () => {
                                 View ({billing.deviceContract?.length || 0})
                               </span>
                             </Tooltip>
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditBilling(billing)}
+                              aria-label="edit"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteBilling(billing.billingId || '')}
+                              aria-label="delete"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -1486,7 +1617,9 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          Add User to {selectedTenant?.name}
+          {editableUser && selectedTenant?.users?.find(user => user.id === editableUser.id) 
+            ? `Edit User: ${editableUser.name}` 
+            : `Add User to ${selectedTenant?.name}`}
         </DialogTitle>
         <DialogContent dividers>
           {editableUser && (
@@ -1579,7 +1712,11 @@ export const TenantPage: React.FC = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Add Billing</DialogTitle>
+        <DialogTitle>
+          {editableBilling && selectedTenant?.billingDetails?.find(billing => billing.billingId === editableBilling.billingId) 
+            ? `Edit Billing: ${editableBilling.billingId}` 
+            : `Add Billing to ${selectedTenant?.name}`}
+        </DialogTitle>
         <DialogContent>
           {editableBilling && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
