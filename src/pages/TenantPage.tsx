@@ -419,11 +419,14 @@ export const TenantPage: React.FC = () => {
   const handleOpenUserDialog = () => {
     if (!selectedTenant) return;
 
+    // Check if this is the first user being added to the tenant
+    const isFirstUser = !selectedTenant.users || selectedTenant.users.length === 0;
+
     setEditableUser({
       id: `u-new-${Math.floor(Math.random() * 1000)}`,
       name: '',
       email: '',
-      roles: ['Member'], // Default role
+      roles: isFirstUser ? ['Owner'] : ['Member'], // Set 'Owner' role for first user, otherwise 'Member'
       ipWhitelist: [],
       mfaEnabled: false
     });
@@ -528,6 +531,7 @@ export const TenantPage: React.FC = () => {
   const handleCloseBillingDialog = () => {
     setOpenBillingDialog(false);
   };
+
 
   const handleSaveBilling = () => {
     if (!selectedTenant || !editableBilling) return;
@@ -822,6 +826,9 @@ export const TenantPage: React.FC = () => {
                             {user.roles.map((role, index) => (
                               <Chip key={index} label={role} size="small" />
                             ))}
+                            <IconButton size="small" onClick={() => handleEditUser(user)} aria-label="edit">
+                              <EditIcon fontSize="small" />
+                            </IconButton>
                           </Box>
                         </TableCell>
                         <TableCell sx={tableBodyCellStyle}>
@@ -1657,10 +1664,16 @@ export const TenantPage: React.FC = () => {
                     multiple
                     value={editableUser.roles}
                     label="Roles"
-                    onChange={(e) => setEditableUser({
-                      ...editableUser,
-                      roles: e.target.value as ("Owner" | "Engineer" | "Member")[]
-                    })}
+                    onChange={(e) => {
+                      const newRoles = e.target.value as ("Owner" | "Engineer" | "Member")[];
+                      const hadOwner = editableUser.roles.includes("Owner");
+                      const hasOwner = newRoles.includes("Owner");
+                      
+                      setEditableUser({
+                        ...editableUser,
+                        roles: newRoles
+                      });
+                    }}
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {(selected as string[]).map((value) => (
