@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { tableHeaderCellStyle, tableBodyCellStyle } from '../styles/common.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common.js';
 
 interface Tenant {
   id: string;
@@ -52,7 +52,7 @@ export const TenantList: React.FC = () => {
 
   return (
     <Box p={3}>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
         <Table>
           <TableHead>
             <TableRow>

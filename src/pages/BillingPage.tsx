@@ -25,7 +25,7 @@ import {
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { BillingService, TenantService } from '../services/index.js';
 import { DeviceContractItem } from '../mocks/types.js';
 import { exportToCsv } from '../utils/exportUtils.js';
@@ -455,7 +455,7 @@ export const BillingPage: React.FC = () => {
       ) : (
         <>
           {allBillings.length > 0 ? (
-            <TableContainer component={Paper} variant="outlined">
+            <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
               <Table size="small">
                 <TableHead>
                   <TableRow>

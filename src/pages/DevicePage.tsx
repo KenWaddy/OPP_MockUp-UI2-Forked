@@ -34,7 +34,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType, defaultDeviceTypes, getDeviceTypeByName } from '../mocks/index.js';
 import { DeviceService, TenantService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
@@ -566,7 +566,7 @@ export const DevicePage: React.FC = () => {
       ) : (
         <>
           {/* Device Table */}
-          <TableContainer component={Paper} variant="outlined">
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
             <Table size="small" aria-label="device list table">
               <TableHead>
                 <TableRow>
@@ -725,7 +725,7 @@ export const DevicePage: React.FC = () => {
         <DialogContent dividers>
           {editMode ? (
             <>
-              <TableContainer>
+              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
@@ -806,7 +806,7 @@ export const DevicePage: React.FC = () => {
             </>
           ) : (
             <>
-              <TableContainer>
+              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
@@ -948,7 +948,7 @@ export const DevicePage: React.FC = () => {
           Device Type Management
         </DialogTitle>
         <DialogContent dividers>
-          <TableContainer>
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
             <Table size="small">
               <TableHead>
                 <TableRow>

@@ -45,7 +45,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
 import { TenantService, UserService, DeviceService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
@@ -820,7 +820,7 @@ export const TenantPage: React.FC = () => {
                   Add User
                 </Button>
               </Box>
-              <TableContainer component={Paper} variant="outlined">
+              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
@@ -920,7 +920,7 @@ export const TenantPage: React.FC = () => {
                   Assign Device
                 </Button>
               </Box>
-              <TableContainer component={Paper} variant="outlined">
+              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
@@ -1004,7 +1004,7 @@ export const TenantPage: React.FC = () => {
               </Box>
 
               {selectedTenant.billingDetails && selectedTenant.billingDetails.length > 0 ? (
-                <TableContainer component={Paper} variant="outlined">
+                <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -1245,7 +1245,7 @@ export const TenantPage: React.FC = () => {
       ) : (
         <>
           {/* Tenant Table */}
-          <TableContainer component={Paper} variant="outlined">
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
             <Table size="small" aria-label="tenant list table">
               <TableHead>
                 <TableRow>
