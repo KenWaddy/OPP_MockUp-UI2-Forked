@@ -19,6 +19,11 @@ export const paperStyle: SxProps<Theme> = {
   padding: 2,
 };
 
+export const tableContainerStyle: SxProps<Theme> = {
+  border: "2px solid",
+  borderColor: "divider",
+};
+
 export const primaryTypographyStyle: SxProps<Theme> = {
   fontWeight: "medium",
   fontSize: "0.875rem",

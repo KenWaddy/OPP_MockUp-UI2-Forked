@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Tabs, Tab, Button, Typography, Table, TableHead, TableRow, TableCell, TableBody, Paper, TableContainer } from "@mui/material";
-import { tableHeaderCellStyle, tableBodyCellStyle } from '../styles/common.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common.js';
 
 export const TenantDetail: React.FC = () => {
   const { id } = useParams();
@@ -25,7 +25,7 @@ export const TenantDetail: React.FC = () => {
       {tab === 0 && <Box mt={2}><Typography>Basic Info Content</Typography></Box>}
       {tab === 1 && (
         <Box mt={2}>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -49,7 +49,7 @@ export const TenantDetail: React.FC = () => {
       )}
       {tab === 2 && (
         <Box mt={2}>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
             <Table>
               <TableHead>
                 <TableRow>
