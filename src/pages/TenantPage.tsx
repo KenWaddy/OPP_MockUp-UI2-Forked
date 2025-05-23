@@ -882,9 +882,6 @@ export const TenantPage: React.FC = () => {
                             {user.roles.map((role, index) => (
                               <Chip key={index} label={role} size="small" />
                             ))}
-                            <IconButton size="small" onClick={() => handleEditUser(user)} aria-label="edit">
-                              <EditIcon fontSize="small" />
-                            </IconButton>
                           </Box>
                         </TableCell>
                         <TableCell sx={tableBodyCellStyle}>
