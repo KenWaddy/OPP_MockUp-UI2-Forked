@@ -186,6 +186,7 @@ export const TenantPage: React.FC = () => {
         field: sortConfig.key === 'tenant' ? 'name' :
                sortConfig.key === 'owner' ? 'owner' :
                sortConfig.key === 'email' ? 'email' :
+               sortConfig.key === 'subscription.status' ? 'status' :
                sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
