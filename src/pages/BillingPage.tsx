@@ -311,6 +311,7 @@ export const BillingPage: React.FC = () => {
           variant="outlined"
           size="small"
           onClick={handleExportAllBillings}
+          sx={{ fontWeight: 'bold' }}
         >
           Export All Billing List
         </Button>
@@ -410,6 +411,7 @@ export const BillingPage: React.FC = () => {
               deviceType: "",
             })}
             startIcon={<FilterListIcon />}
+            sx={{ fontWeight: 'bold' }}
           >
             Reset Filters
           </Button>
