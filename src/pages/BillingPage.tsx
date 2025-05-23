@@ -362,7 +362,7 @@ export const BillingPage: React.FC = () => {
                   <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
                 ),
               }}
- I               sx={{ backgroundColor: "white" }}
+               sx={{ backgroundColor: "white" }}
             />
           </Grid>
 

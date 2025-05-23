@@ -38,6 +38,8 @@ export type Tenant = {
   id: string;
   name: string;
   description?: string;
+  status?: string;
+  billing?: string;
   owner: {
     name: string;
     email: string;
@@ -67,6 +69,7 @@ export type Tenant = {
     startDate?: string;
     endDate?: string;
     configs?: string;
+    termType?: string;
   };
   users?: User[];
   devices?: Device[];
