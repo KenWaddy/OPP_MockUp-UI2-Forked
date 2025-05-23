@@ -55,6 +55,61 @@ const tenantService = new TenantService();
 const userService = new UserService();
 const deviceService = new DeviceService();
 
+const calculateNextBillingMonth = (billing: any) => {
+  if (!billing) return '—';
+
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth(); // 0-11
+
+  if (billing.endDate) {
+    try {
+      const endDate = new Date(billing.endDate);
+      const currentDate = new Date();
+
+      if (currentDate > endDate) {
+        return 'Ended';
+      }
+    } catch (e) {
+    }
+  }
+
+  if (billing.paymentType === 'Monthly') {
+    let nextBillingYear = currentYear;
+    let nextBillingMonth = currentMonth;
+
+    return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
+  }
+  else if (billing.paymentType === 'Annually') {
+    if (!billing.endDate) return '—';
+
+    try {
+      const endDate = new Date(billing.endDate);
+      const endYear = endDate.getFullYear();
+      const endMonth = endDate.getMonth(); // 0-11
+
+      return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
+    } catch (e) {
+      return '—';
+    }
+  }
+  else if (billing.paymentType === 'One-time') {
+    if (!billing.startDate) return '—';
+
+    try {
+      const startDate = new Date(billing.startDate);
+      const startYear = startDate.getFullYear();
+      const startMonth = startDate.getMonth(); // 0-11
+
+      return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
+    } catch (e) {
+      return '—';
+    }
+  }
+
+  return '—'; // Default for unknown payment types
+};
+
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [activeTab, setActiveTab] = useState("info");
@@ -985,10 +1040,10 @@ export const TenantPage: React.FC = () => {
                       <TableRow>
                         <TableCell sx={tableHeaderCellStyle}>Billing ID</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Payment Type</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Start Date</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>End Date</TableCell>
-
-                        <TableCell sx={tableHeaderCellStyle}>Device Contracts</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Next Billing Month</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Contract Start</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Contract End</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
@@ -997,9 +1052,9 @@ export const TenantPage: React.FC = () => {
                         <TableRow key={index}>
                           <TableCell sx={tableBodyCellStyle}>{billing.billingId}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-
                           <TableCell sx={tableBodyCellStyle}>
                             <Tooltip title={
                               <TableContainer>
@@ -1747,7 +1802,7 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Start Date"
+                  label="Contract Start"
                   type="date"
                   value={editableBilling.startDate || ''}
                   onChange={(e) => setEditableBilling({
@@ -1762,7 +1817,7 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="End Date"
+                  label="Contract End"
                   type="date"
                   value={editableBilling.endDate || ''}
                   onChange={(e) => setEditableBilling({
