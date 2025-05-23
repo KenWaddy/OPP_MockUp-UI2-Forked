@@ -447,12 +447,28 @@ export const DevicePage: React.FC = () => {
           p: 2, 
           mb: 2, 
           border: '1px solid #ddd', 
-          borderRadius: '4px' 
+          borderRadius: '4px',
+          bgcolor: '#F2F2F2'
         }}
       >
-        <Typography variant="body1" gutterBottom>
-          Filters
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+            Filters
+          </Typography>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            onClick={() => setFilters({
+              searchText: "",
+              type: "",
+              status: "",
+            })}
+            startIcon={<FilterListIcon />}
+            sx={{ fontWeight: 'bold' }}
+          >
+            Reset Filters
+          </Button>
+        </Box>
         <Divider sx={{ mb: 2 }} />
         
         <Grid container spacing={2}>
@@ -510,22 +526,6 @@ export const DevicePage: React.FC = () => {
             </FormControl>
           </Grid>
         </Grid>
-        
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={() => setFilters({
-              searchText: "",
-              type: "",
-              status: "",
-            })}
-            startIcon={<FilterListIcon />}
-            sx={{ fontWeight: 'bold' }}
-          >
-            Reset Filters
-          </Button>
-        </Box>
       </Paper>
       
       {/* Error message */}

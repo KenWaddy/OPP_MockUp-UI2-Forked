@@ -324,12 +324,29 @@ export const BillingPage: React.FC = () => {
           p: 2,
           mb: 2,
           border: '1px solid #ddd',
-          borderRadius: '4px'
+          borderRadius: '4px',
+          bgcolor: '#F2F2F2'
         }}
       >
-        <Typography variant="subtitle1" sx={{ mb: 2 }}>
-          Filters
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+            Filters
+          </Typography>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setFilters({
+              searchText: "",
+              nextBillingFrom: "", // Clear the filter on reset
+              paymentType: "",
+              deviceType: "",
+            })}
+            startIcon={<FilterListIcon />}
+            sx={{ fontWeight: 'bold' }}
+          >
+            Reset Filters
+          </Button>
+        </Box>
 
         <Grid container spacing={2}>
           {/* Text-based Filter */}
@@ -399,23 +416,6 @@ export const BillingPage: React.FC = () => {
             </FormControl>
           </Grid>
         </Grid>
-
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setFilters({
-              searchText: "",
-              nextBillingFrom: "", // Clear the filter on reset
-              paymentType: "",
-              deviceType: "",
-            })}
-            startIcon={<FilterListIcon />}
-            sx={{ fontWeight: 'bold' }}
-          >
-            Reset Filters
-          </Button>
-        </Box>
       </Paper>
 
       {/* Error message */}
