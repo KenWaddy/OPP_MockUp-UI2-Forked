@@ -363,6 +363,7 @@ export const BillingPage: React.FC = () => {
                   <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
                 ),
               }}
+ I               sx={{ backgroundColor: "white" }}
             />
           </Grid>
 
@@ -375,6 +376,7 @@ export const BillingPage: React.FC = () => {
               value={filters.nextBillingFrom}
               onChange={(e) => setFilters({ ...filters, nextBillingFrom: e.target.value })}
               placeholder="YYYY-MM"
+              sx={{ backgroundColor: "white" }}
             />
           </Grid>
 
@@ -386,6 +388,7 @@ export const BillingPage: React.FC = () => {
                 value={filters.paymentType}
                 label="Payment Type"
                 onChange={(e) => setFilters({ ...filters, paymentType: e.target.value })}
+                sx={{ backgroundColor: "white" }}
               >
                 <MenuItem value="">All</MenuItem>
                 {paymentTypes.map((type) => (
@@ -405,6 +408,7 @@ export const BillingPage: React.FC = () => {
                 value={filters.deviceType}
                 label="Device Type"
                 onChange={(e) => setFilters({ ...filters, deviceType: e.target.value })}
+                sx={{ backgroundColor: "white" }}
               >
                 <MenuItem value="">All</MenuItem>
                 {deviceTypes.map((type) => (
@@ -433,6 +437,7 @@ export const BillingPage: React.FC = () => {
             onChange={(e) => {
               setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
             }}
+            sx={{ backgroundColor: "white" }}
           >
             <MenuItem value={50}>50</MenuItem>
             <MenuItem value={200}>200</MenuItem>

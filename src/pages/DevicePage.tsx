@@ -486,6 +486,7 @@ export const DevicePage: React.FC = () => {
                   <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
                 ),
               }}
+              sx={{ backgroundColor: "white" }}
             />
           </Grid>
           
@@ -497,6 +498,7 @@ export const DevicePage: React.FC = () => {
                 value={filters.type}
                 label="Type"
                 onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                sx={{ backgroundColor: "white" }}
               >
                 <MenuItem value="">All</MenuItem>
                 {deviceTypes.map((type) => (
@@ -515,6 +517,7 @@ export const DevicePage: React.FC = () => {
                 value={filters.status}
                 label="Status"
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                sx={{ backgroundColor: "white" }}
               >
                 <MenuItem value="">All</MenuItem>
                 {statusOptions.map((status) => (
@@ -544,6 +547,7 @@ export const DevicePage: React.FC = () => {
             onChange={(e) => {
               setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
             }}
+            sx={{ backgroundColor: "white" }}
           >
             <MenuItem value={100}>100</MenuItem>
             <MenuItem value={500}>500</MenuItem>
