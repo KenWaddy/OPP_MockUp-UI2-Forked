@@ -80,8 +80,8 @@ export class TenantService implements ITenantService {
             valueB = b.contract;
             break;
           case 'status':
-            valueA = a.status;
-            valueB = b.status;
+            valueA = a.subscription?.status || '';
+            valueB = b.subscription?.status || '';
             break;
           case 'billing':
             valueA = a.billing;
