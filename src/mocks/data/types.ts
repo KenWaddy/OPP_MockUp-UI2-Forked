@@ -43,7 +43,7 @@ export interface FlatDevice {
   id: string;
   tenantId: string; // Reference to parent tenant
   name: string;
-  type: "Server" | "Workstation" | "Mobile" | "IoT" | "Other";
+  type: string; // References DeviceType.name
   deviceId: string;
   serialNo: string;
   description: string;
@@ -59,7 +59,7 @@ export interface FlatBilling {
   tenantId: string; // Reference to parent tenant
   billingId: string;
   deviceContract: {
-    type: FlatDevice["type"];
+    type: string; // References DeviceType.name
     quantity: number;
   }[];
   startDate?: string;
@@ -76,7 +76,7 @@ export interface FlatBilling {
 export interface FlatUnregisteredDevice {
   id: string;
   name: string;
-  type: "Server" | "Workstation" | "Mobile" | "IoT" | "Other";
+  type: string; // References DeviceType.name
   deviceId: string;
   serialNo: string;
   description: string;
