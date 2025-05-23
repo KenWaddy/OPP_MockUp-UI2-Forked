@@ -691,7 +691,16 @@ export const TenantPage: React.FC = () => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Tenant</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Tenant</Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenTenantDialog(selectedTenant)}
+                      aria-label="edit tenant"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
@@ -758,7 +767,16 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Subscription</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Subscription</Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenBillingDialog()}
+                      aria-label="edit subscription"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={3}>
