@@ -473,9 +473,9 @@ export const BillingPage: React.FC = () => {
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('paymentSettings')}
+                      onClick={() => requestSort('paymentType')}
                     >
-                      Payment Type {getSortDirectionIndicator('paymentSettings')}
+                      Payment Type {getSortDirectionIndicator('paymentType')}
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
@@ -485,15 +485,15 @@ export const BillingPage: React.FC = () => {
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('contractStart')}
+                      onClick={() => requestSort('startDate')}
                     >
-                      Contract Start {getSortDirectionIndicator('contractStart')}
+                      Contract Start {getSortDirectionIndicator('startDate')}
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('contractEnd')}
+                      onClick={() => requestSort('endDate')}
                     >
-                      Contract End {getSortDirectionIndicator('contractEnd')}
+                      Contract End {getSortDirectionIndicator('endDate')}
                     </TableCell>
                     <TableCell
                       sx={tableHeaderCellStyle}
