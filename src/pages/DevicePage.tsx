@@ -52,6 +52,9 @@ export const DevicePage: React.FC = () => {
   const [newAttribute, setNewAttribute] = useState<Attribute>({ key: '', value: '' });
   const [openDeviceDialog, setOpenDeviceDialog] = useState(false);
   const [editableDevice, setEditableDevice] = useState<DeviceWithTenant | UnregisteredDevice | null>(null);
+  const [openDeviceTypeDialog, setOpenDeviceTypeDialog] = useState(false);
+  const [editableDeviceTypes, setEditableDeviceTypes] = useState<{name: string, option: string, description: string}[]>([]);
+  const [newDeviceType, setNewDeviceType] = useState<{name: string, option: string, description: string}>({ name: '', option: '', description: '' });
   const [tenantOptions, setTenantOptions] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +108,15 @@ export const DevicePage: React.FC = () => {
     };
     
     loadData();
+    
+    // Initialize editable device types with current device types
+    setEditableDeviceTypes(
+      deviceTypes.map(type => ({
+        name: type,
+        option: '',
+        description: ''
+      }))
+    );
   }, []);
   
   const loadDevices = async () => {
@@ -360,6 +372,46 @@ export const DevicePage: React.FC = () => {
     }
   };
   
+  const handleOpenDeviceTypeDialog = () => {
+    setOpenDeviceTypeDialog(true);
+  };
+  
+  const handleCloseDeviceTypeDialog = () => {
+    setOpenDeviceTypeDialog(false);
+  };
+  
+  const handleAddDeviceType = () => {
+    if (newDeviceType.name.trim() !== '') {
+      setEditableDeviceTypes([...editableDeviceTypes, { ...newDeviceType }]);
+      setNewDeviceType({ name: '', option: '', description: '' });
+      
+      // Update the deviceTypes array for use in other parts of the component
+      const updatedDeviceTypes: Device["type"][] = [
+        ...editableDeviceTypes.map(type => type.name as Device["type"]),
+        newDeviceType.name as Device["type"]
+      ];
+      // In a real implementation, you would update the backend
+      (deviceTypes as any) = updatedDeviceTypes;
+    }
+  };
+  
+  const handleRemoveDeviceType = (index: number) => {
+    const newList = [...editableDeviceTypes];
+    newList.splice(index, 1);
+    setEditableDeviceTypes(newList);
+    
+    // Update the deviceTypes array for use in other parts of the component
+    const updatedDeviceTypes = newList.map(type => type.name as Device["type"]);
+    // In a real implementation, you would update the backend
+    (deviceTypes as any) = updatedDeviceTypes;
+  };
+  
+  const handleDeviceTypeChange = (index: number, field: 'name' | 'option' | 'description', value: string) => {
+    const newTypes = [...editableDeviceTypes];
+    newTypes[index][field] = value;
+    setEditableDeviceTypes(newTypes);
+  };
+  
   return (
     <div className="device-list">
       <h2>Device Management</h2>
@@ -372,6 +424,14 @@ export const DevicePage: React.FC = () => {
           onClick={() => handleOpenDeviceDialog()}
         >
           Add Device
+        </Button>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          startIcon={<AddIcon />}
+          onClick={handleOpenDeviceTypeDialog}
+        >
+          Add Device Type
         </Button>
         <Button 
           variant="outlined" 
@@ -880,6 +940,105 @@ export const DevicePage: React.FC = () => {
           >
             Save
           </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Device Type Dialog */}
+      <Dialog open={openDeviceTypeDialog} onClose={handleCloseDeviceTypeDialog} maxWidth="md" fullWidth>
+        <DialogTitle>
+          Device Type Management
+        </DialogTitle>
+        <DialogContent dividers>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={tableHeaderCellStyle}>Type Name</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Option</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {/* Add new device type row */}
+                <TableRow>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      placeholder="New Type Name"
+                      value={newDeviceType.name}
+                      onChange={(e) => setNewDeviceType({
+                        ...newDeviceType,
+                        name: e.target.value
+                      })}
+                    />
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      placeholder="Option"
+                      value={newDeviceType.option}
+                      onChange={(e) => setNewDeviceType({
+                        ...newDeviceType,
+                        option: e.target.value
+                      })}
+                    />
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      placeholder="Description"
+                      value={newDeviceType.description}
+                      onChange={(e) => setNewDeviceType({
+                        ...newDeviceType,
+                        description: e.target.value
+                      })}
+                    />
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <Button 
+                      variant="outlined" 
+                      size="small" 
+                      onClick={handleAddDeviceType}
+                      disabled={!newDeviceType.name.trim()}
+                    >
+                      Add
+                    </Button>
+                  </TableCell>
+                </TableRow>
+                
+                {/* Existing device types */}
+                {editableDeviceTypes.map((type, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={tableBodyCellStyle}>{type.name}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{type.option}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{type.description}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleRemoveDeviceType(index)}
+                        aria-label="delete"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                
+                {editableDeviceTypes.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center" sx={tableBodyCellStyle}>No device types found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeviceTypeDialog}>Close</Button>
         </DialogActions>
       </Dialog>
     </div>
