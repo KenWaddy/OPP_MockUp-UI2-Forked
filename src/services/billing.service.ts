@@ -159,16 +159,72 @@ export class BillingService implements IBillingService {
     
     if (params.sort) {
       result.sort((a, b) => {
-        const valueA = a[params.sort!.field as keyof BillingItem];
-        const valueB = b[params.sort!.field as keyof BillingItem];
+        let field = params.sort!.field;
+        if (field === 'paymentSettings') field = 'paymentType';
+        if (field === 'contractStart') field = 'startDate';
+        if (field === 'contractEnd') field = 'endDate';
         
-        if (valueA < valueB) {
-          return params.sort!.order === 'asc' ? -1 : 1;
+        if (field === 'nextBillingMonth') {
+          const nextBillingMonthA = this.calculateNextBillingMonth(a);
+          const nextBillingMonthB = this.calculateNextBillingMonth(b);
+          
+          if (nextBillingMonthA === 'Ended' && nextBillingMonthB !== 'Ended') {
+            return params.sort!.order === 'asc' ? 1 : -1;
+          }
+          if (nextBillingMonthA !== 'Ended' && nextBillingMonthB === 'Ended') {
+            return params.sort!.order === 'asc' ? -1 : 1;
+          }
+          if (nextBillingMonthA === '—' && nextBillingMonthB !== '—') {
+            return params.sort!.order === 'asc' ? 1 : -1;
+          }
+          if (nextBillingMonthA !== '—' && nextBillingMonthB === '—') {
+            return params.sort!.order === 'asc' ? -1 : 1;
+          }
+          
+          if (nextBillingMonthA !== '—' && nextBillingMonthA !== 'Ended' && 
+              nextBillingMonthB !== '—' && nextBillingMonthB !== 'Ended') {
+            const [yearA, monthA] = nextBillingMonthA.split('-').map(Number);
+            const [yearB, monthB] = nextBillingMonthB.split('-').map(Number);
+            
+            if (yearA !== yearB) {
+              return (yearA - yearB) * (params.sort!.order === 'asc' ? 1 : -1);
+            }
+            return (monthA - monthB) * (params.sort!.order === 'asc' ? 1 : -1);
+          }
+          
+          if (nextBillingMonthA < nextBillingMonthB) {
+            return params.sort!.order === 'asc' ? -1 : 1;
+          }
+          if (nextBillingMonthA > nextBillingMonthB) {
+            return params.sort!.order === 'asc' ? 1 : -1;
+          }
+          return 0;
         }
-        if (valueA > valueB) {
-          return params.sort!.order === 'asc' ? 1 : -1;
+        else if (field === 'startDate' || field === 'endDate') {
+          const dateA = a[field as keyof BillingItem] ? new Date(a[field as keyof BillingItem] as string).getTime() : 0;
+          const dateB = b[field as keyof BillingItem] ? new Date(b[field as keyof BillingItem] as string).getTime() : 0;
+          
+          if (dateA === 0 && dateB !== 0) {
+            return params.sort!.order === 'asc' ? 1 : -1;
+          }
+          if (dateA !== 0 && dateB === 0) {
+            return params.sort!.order === 'asc' ? -1 : 1;
+          }
+          
+          return (dateA - dateB) * (params.sort!.order === 'asc' ? 1 : -1);
         }
-        return 0;
+        else {
+          const valueA = a[field as keyof BillingItem] || '';
+          const valueB = b[field as keyof BillingItem] || '';
+          
+          if (valueA < valueB) {
+            return params.sort!.order === 'asc' ? -1 : 1;
+          }
+          if (valueA > valueB) {
+            return params.sort!.order === 'asc' ? 1 : -1;
+          }
+          return 0;
+        }
       });
     }
     
