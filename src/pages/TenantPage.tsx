@@ -668,7 +668,7 @@ export const TenantPage: React.FC = () => {
               variant="outlined"
               size="small"
               onClick={() => setSelectedTenant(null)}
-              sx={{ ml: 2 }}
+              sx={{ ml: 2, fontWeight: 'bold' }}
             >
               Back to List
             </Button>
@@ -680,10 +680,10 @@ export const TenantPage: React.FC = () => {
             aria-label="tenant detail tabs"
             sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
           >
-            <Tab value="info" label="Tenant Info" />
-            <Tab value="users" label="Users" />
-            <Tab value="devices" label="Devices" />
-            <Tab value="billing" label="Billing" />
+            <Tab value="info" label="Tenant Info" sx={{ fontWeight: 'bold' }} />
+            <Tab value="users" label="Users" sx={{ fontWeight: 'bold' }} />
+            <Tab value="devices" label="Devices" sx={{ fontWeight: 'bold' }} />
+            <Tab value="billing" label="Billing" sx={{ fontWeight: 'bold' }} />
           </Tabs>
 
           {/* Tenant Info Tab */}
@@ -814,6 +814,7 @@ export const TenantPage: React.FC = () => {
                   size="small"
                   startIcon={<AddIcon />}
                   onClick={handleOpenUserDialog}
+                  sx={{ fontWeight: 'bold' }}
                 >
                   Add User
                 </Button>
@@ -913,6 +914,7 @@ export const TenantPage: React.FC = () => {
                   size="small"
                   startIcon={<AddIcon />}
                   onClick={handleOpenDeviceAssignDialog}
+                  sx={{ fontWeight: 'bold' }}
                 >
                   Assign Device
                 </Button>
@@ -994,6 +996,7 @@ export const TenantPage: React.FC = () => {
                   size="small"
                   startIcon={<AddIcon />}
                   onClick={handleOpenBillingDialog}
+                  sx={{ fontWeight: 'bold' }}
                 >
                   ADD BILLING
                 </Button>
@@ -1098,6 +1101,7 @@ export const TenantPage: React.FC = () => {
               size="small"
               startIcon={<AddIcon />}
               onClick={() => handleOpenTenantDialog()}
+              sx={{ fontWeight: 'bold' }}
             >
               Add Tenant
             </Button>
@@ -1105,6 +1109,7 @@ export const TenantPage: React.FC = () => {
               variant="outlined"
               size="small"
               onClick={handleExportAllTenants}
+              sx={{ fontWeight: 'bold' }}
             >
               Export All Tenant List
             </Button>
@@ -1112,6 +1117,7 @@ export const TenantPage: React.FC = () => {
               variant="outlined"
               size="small"
               onClick={handleExportAllUsers}
+              sx={{ fontWeight: 'bold' }}
             >
               Export All User List
             </Button>
@@ -1193,6 +1199,7 @@ export const TenantPage: React.FC = () => {
                   textSearch: "",
                 })}
                 startIcon={<FilterListIcon />}
+                sx={{ fontWeight: 'bold' }}
               >
                 Reset Filters
               </Button>

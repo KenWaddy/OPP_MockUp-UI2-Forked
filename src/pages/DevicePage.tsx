@@ -417,6 +417,7 @@ export const DevicePage: React.FC = () => {
           size="small" 
           startIcon={<AddIcon />}
           onClick={() => handleOpenDeviceDialog()}
+          sx={{ fontWeight: 'bold' }}
         >
           Add Device
         </Button>
@@ -425,6 +426,7 @@ export const DevicePage: React.FC = () => {
           size="small" 
           startIcon={<AddIcon />}
           onClick={handleOpenDeviceTypeDialog}
+          sx={{ fontWeight: 'bold' }}
         >
           Add Device Type
         </Button>
@@ -432,6 +434,7 @@ export const DevicePage: React.FC = () => {
           variant="outlined" 
           size="small"
           onClick={handleExportAllDevices}
+          sx={{ fontWeight: 'bold' }}
         >
           Export All Device List
         </Button>
@@ -518,6 +521,7 @@ export const DevicePage: React.FC = () => {
               status: "",
             })}
             startIcon={<FilterListIcon />}
+            sx={{ fontWeight: 'bold' }}
           >
             Reset Filters
           </Button>
