@@ -42,6 +42,7 @@ export const BillingPage: React.FC = () => {
     paymentType?: "One-time" | "Monthly" | "Annually";
     billingDate?: string;
     dueMonth?: number;
+    description?: string;
   };
 
   type AggregatedBillingItem = BillingDetailItem & {
@@ -274,7 +275,7 @@ export const BillingPage: React.FC = () => {
       const headers = [
         'tenantName', 'billingId', 'startDate', 'endDate',
         'nextBillingMonth', 'paymentSettings',
-        'numberOfDevices', 'deviceContractDetails'
+        'numberOfDevices', 'deviceContractDetails', 'description'
       ];
 
       exportToCsv(allBillingItems, 'billing-list-export.csv', headers);
@@ -483,6 +484,12 @@ export const BillingPage: React.FC = () => {
                     >
                       Number of Devices {getSortDirectionIndicator('numberOfDevices')}
                     </TableCell>
+                    <TableCell
+                      sx={tableHeaderCellStyle}
+                      onClick={() => requestSort('description')}
+                    >
+                      Description {getSortDirectionIndicator('description')}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -511,6 +518,7 @@ export const BillingPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

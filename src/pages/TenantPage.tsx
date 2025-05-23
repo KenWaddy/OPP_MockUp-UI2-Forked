@@ -522,7 +522,8 @@ export const TenantPage: React.FC = () => {
       startDate: new Date().toISOString().split('T')[0],
       endDate: '',
       dueDay: 15,
-      deviceContract: []
+      deviceContract: [],
+      description: ''
     });
 
     setOpenBillingDialog(true);
@@ -989,6 +990,7 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableHeaderCellStyle}>End Date</TableCell>
 
                         <TableCell sx={tableHeaderCellStyle}>Device Contracts</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
@@ -1025,6 +1027,9 @@ export const TenantPage: React.FC = () => {
                                 View ({billing.deviceContract?.length || 0})
                               </span>
                             </Tooltip>
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            {billing.description || '—'}
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
                             <IconButton
@@ -1787,6 +1792,21 @@ export const TenantPage: React.FC = () => {
                   fullWidth
                   margin="normal"
                   inputProps={{ min: 1, max: 31 }}
+                />
+              </Grid>
+              
+              <Grid item xs={12}>
+                <TextField
+                  label="Description"
+                  value={editableBilling.description || ''}
+                  onChange={(e) => setEditableBilling({
+                    ...editableBilling,
+                    description: e.target.value
+                  })}
+                  fullWidth
+                  margin="normal"
+                  multiline
+                  rows={2}
                 />
               </Grid>
             </Grid>
