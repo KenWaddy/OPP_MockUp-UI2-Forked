@@ -662,12 +662,13 @@ export const TenantPage: React.FC = () => {
 
       {selectedTenant ? (
         <Paper sx={{ p: 2 }} variant="outlined">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6">{selectedTenant.name}</Typography>
             <Button
               variant="outlined"
               size="small"
               onClick={() => setSelectedTenant(null)}
+              sx={{ ml: 2 }}
             >
               Back to List
             </Button>
