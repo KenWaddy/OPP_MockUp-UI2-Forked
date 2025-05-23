@@ -851,13 +851,13 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableBodyCellStyle}>
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {user.roles.map((role, index) => (
-                              <Chip 
-                                key={index} 
-                                label={role} 
-                                size="small" 
+                              <Chip
+                                key={index}
+                                label={role}
+                                size="small"
                                 color={
-                                  role === "Owner" ? "primary" : 
-                                  role === "Engineer" ? "secondary" : 
+                                  role === "Owner" ? "primary" :
+                                  role === "Engineer" ? "secondary" :
                                   "default"
                                 }
                               />
@@ -1301,7 +1301,7 @@ export const TenantPage: React.FC = () => {
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.owner.name}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
-rol                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <Chip
                           label={tenant.subscription?.status || 'N/A'}
@@ -1334,7 +1334,7 @@ rol                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</T
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={tableBodyCellStyle}>No tenants match the filter criteria</TableCell>
+                    <TableCell colSpan={6} align="center" sx={tableBodyCellStyle}>No tenants match the filter criteria</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -1657,13 +1657,13 @@ rol                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</T
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {(selected as string[]).map((value) => (
-                          <Chip 
-                            key={value} 
-                            label={value} 
+                          <Chip
+                            key={value}
+                            label={value}
                             size="small"
                             color={
-                              value === "Owner" ? "primary" : 
-                              value === "Engineer" ? "secondary" : 
+                              value === "Owner" ? "primary" :
+                              value === "Engineer" ? "secondary" :
                               "default"
                             }
                           />
