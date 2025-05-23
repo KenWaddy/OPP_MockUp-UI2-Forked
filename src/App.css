@@ -4,7 +4,9 @@
 
 .nav {
   display: flex;
-  border-bottom: 2px solid #ccc;
+  background-color: #10069F;
+  width: 100%;
+  border-bottom: 2px solid #10069F;
   margin-bottom: 1rem;
   padding: 1rem;
   gap: 2rem;
@@ -13,12 +15,12 @@
 .nav-link {
   cursor: pointer;
   font-weight: bold;
-  color: #444;
+  color: #FFFFFF;
 }
 
 .nav-link.active {
-  border-bottom: 2px solid #007bff;
-  color: #007bff;
+  border-bottom: 2px solid #FFD700;
+  color: #FFD700;
 }
 
 .content {
