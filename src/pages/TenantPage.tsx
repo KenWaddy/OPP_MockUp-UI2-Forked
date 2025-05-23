@@ -55,6 +55,61 @@ const tenantService = new TenantService();
 const userService = new UserService();
 const deviceService = new DeviceService();
 
+const calculateNextBillingMonth = (billing: any) => {
+  if (!billing) return '—';
+
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth(); // 0-11
+
+  if (billing.endDate) {
+    try {
+      const endDate = new Date(billing.endDate);
+      const currentDate = new Date();
+
+      if (currentDate > endDate) {
+        return 'Ended';
+      }
+    } catch (e) {
+    }
+  }
+
+  if (billing.paymentType === 'Monthly') {
+    let nextBillingYear = currentYear;
+    let nextBillingMonth = currentMonth;
+
+    return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
+  }
+  else if (billing.paymentType === 'Annually') {
+    if (!billing.endDate) return '—';
+
+    try {
+      const endDate = new Date(billing.endDate);
+      const endYear = endDate.getFullYear();
+      const endMonth = endDate.getMonth(); // 0-11
+
+      return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
+    } catch (e) {
+      return '—';
+    }
+  }
+  else if (billing.paymentType === 'One-time') {
+    if (!billing.startDate) return '—';
+
+    try {
+      const startDate = new Date(billing.startDate);
+      const startYear = startDate.getFullYear();
+      const startMonth = startDate.getMonth(); // 0-11
+
+      return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
+    } catch (e) {
+      return '—';
+    }
+  }
+
+  return '—'; // Default for unknown payment types
+};
+
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [activeTab, setActiveTab] = useState("info");
@@ -986,10 +1041,10 @@ export const TenantPage: React.FC = () => {
                       <TableRow>
                         <TableCell sx={tableHeaderCellStyle}>Billing ID</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Payment Type</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Start Date</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>End Date</TableCell>
-
-                        <TableCell sx={tableHeaderCellStyle}>Device Contracts</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Next Billing Month</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Contract Start</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Contract End</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
@@ -999,9 +1054,9 @@ export const TenantPage: React.FC = () => {
                         <TableRow key={index}>
                           <TableCell sx={tableBodyCellStyle}>{billing.billingId}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-
                           <TableCell sx={tableBodyCellStyle}>
                             <Tooltip title={
                               <TableContainer>
@@ -1733,6 +1788,19 @@ export const TenantPage: React.FC = () => {
           {editableBilling && (
             <Grid container spacing={2} sx={{ mt: 1 }}>
               <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Billing ID"
+                  value={editableBilling.billingId || ''}
+                  onChange={(e) => setEditableBilling({
+                    ...editableBilling,
+                    billingId: e.target.value
+                  })}
+                  fullWidth
+                  margin="normal"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Payment Type</InputLabel>
                   <Select
@@ -1752,7 +1820,7 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Start Date"
+                  label="Contract Start"
                   type="date"
                   value={editableBilling.startDate || ''}
                   onChange={(e) => setEditableBilling({
@@ -1767,7 +1835,7 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="End Date"
+                  label="Contract End"
                   type="date"
                   value={editableBilling.endDate || ''}
                   onChange={(e) => setEditableBilling({
@@ -1782,16 +1850,20 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Due Day"
+                  label="Number of Devices"
                   type="number"
-                  value={typeof editableBilling.dueDay === 'number' ? editableBilling.dueDay : ''}
-                  onChange={(e) => setEditableBilling({
-                    ...editableBilling,
-                    dueDay: parseInt(e.target.value)
-                  })}
+                  value={editableBilling.deviceContract?.length || 0}
+                  onChange={(e) => {
+                    const count = parseInt(e.target.value);
+                    const deviceContract = Array(count).fill({ type: 'Standard', quantity: 1 });
+                    setEditableBilling({
+                      ...editableBilling,
+                      deviceContract
+                    });
+                  }}
                   fullWidth
                   margin="normal"
-                  inputProps={{ min: 1, max: 31 }}
+                  inputProps={{ min: 0 }}
                 />
               </Grid>
               
