@@ -52,6 +52,7 @@ export type Tenant = {
     dueDay?: number | "End of Month"; // For Monthly/Annually payment
     dueMonth?: number; // For Annually payment
     billingStartDate?: string;
+    description?: string; // Description of the billing
   }[];
   subscription?: {
     name?: string;

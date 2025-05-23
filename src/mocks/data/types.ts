@@ -67,6 +67,7 @@ export interface FlatBilling {
   paymentType: "One-time" | "Monthly" | "Annually";
   billingDate?: string; // For One-time payment
   dueMonth?: number; // For Annually payment
+  description?: string; // Description of the billing
 }
 
 /**
