@@ -659,7 +659,6 @@ export const TenantPage: React.FC = () => {
 
   return (
     <div className="tenant-list">
-      <h2>Tenant Management</h2>
 
       {selectedTenant ? (
         <Paper sx={{ p: 2 }} variant="outlined">
