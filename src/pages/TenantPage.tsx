@@ -419,11 +419,14 @@ export const TenantPage: React.FC = () => {
   const handleOpenUserDialog = () => {
     if (!selectedTenant) return;
 
+    // Check if this is the first user being added to the tenant
+    const isFirstUser = !selectedTenant.users || selectedTenant.users.length === 0;
+
     setEditableUser({
       id: `u-new-${Math.floor(Math.random() * 1000)}`,
       name: '',
       email: '',
-      roles: ['Member'], // Default role
+      roles: isFirstUser ? ['Owner'] : ['Member'], // Set 'Owner' role for first user, otherwise 'Member'
       ipWhitelist: [],
       mfaEnabled: false
     });
@@ -443,10 +446,16 @@ export const TenantPage: React.FC = () => {
 
       // In a real implementation, this would call a service method to add the user
       // For now, we'll just update the local state
-      const updatedUsers = [
-        ...(selectedTenant.users || []),
-        editableUser
-      ];
+      let updatedUsers = [...(selectedTenant.users || [])];
+      
+      if (editableUser.roles.includes("Owner")) {
+        updatedUsers = updatedUsers.map(user => ({
+          ...user,
+          roles: user.roles.filter(role => role !== "Owner")
+        }));
+      }
+      
+      updatedUsers.push(editableUser);
 
       setSelectedTenant({
         ...selectedTenant,
@@ -478,6 +487,12 @@ export const TenantPage: React.FC = () => {
 
   const handleCloseBillingDialog = () => {
     setOpenBillingDialog(false);
+  };
+
+  const handleEditUser = (user: User) => {
+    if (!selectedTenant) return;
+    setEditableUser({...user});
+    setOpenUserDialog(true);
   };
 
   const handleSaveBilling = () => {
@@ -729,6 +744,9 @@ export const TenantPage: React.FC = () => {
                             {user.roles.map((role, index) => (
                               <Chip key={index} label={role} size="small" />
                             ))}
+                            <IconButton size="small" onClick={() => handleEditUser(user)} aria-label="edit">
+                              <EditIcon fontSize="small" />
+                            </IconButton>
                           </Box>
                         </TableCell>
                         <TableCell sx={tableBodyCellStyle}>
@@ -1486,7 +1504,7 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          Add User to {selectedTenant?.name}
+          {editableUser && editableUser.name ? `Edit User: ${editableUser.name}` : `Add User to ${selectedTenant?.name}`}
         </DialogTitle>
         <DialogContent dividers>
           {editableUser && (
@@ -1524,10 +1542,16 @@ export const TenantPage: React.FC = () => {
                     multiple
                     value={editableUser.roles}
                     label="Roles"
-                    onChange={(e) => setEditableUser({
-                      ...editableUser,
-                      roles: e.target.value as ("Owner" | "Engineer" | "Member")[]
-                    })}
+                    onChange={(e) => {
+                      const newRoles = e.target.value as ("Owner" | "Engineer" | "Member")[];
+                      const hadOwner = editableUser.roles.includes("Owner");
+                      const hasOwner = newRoles.includes("Owner");
+                      
+                      setEditableUser({
+                        ...editableUser,
+                        roles: newRoles
+                      });
+                    }}
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {(selected as string[]).map((value) => (
