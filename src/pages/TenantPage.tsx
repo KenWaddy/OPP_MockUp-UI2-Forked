@@ -851,7 +851,16 @@ export const TenantPage: React.FC = () => {
                         <TableCell sx={tableBodyCellStyle}>
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {user.roles.map((role, index) => (
-                              <Chip key={index} label={role} size="small" />
+                              <Chip 
+                                key={index} 
+                                label={role} 
+                                size="small" 
+                                color={
+                                  role === "Owner" ? "primary" : 
+                                  role === "Engineer" ? "secondary" : 
+                                  "default"
+                                }
+                              />
                             ))}
                           </Box>
                         </TableCell>
@@ -1021,7 +1030,18 @@ export const TenantPage: React.FC = () => {
                       {selectedTenant.billingDetails.map((billing, index) => (
                         <TableRow key={index}>
                           <TableCell sx={tableBodyCellStyle}>{billing.billingId}</TableCell>
-                          <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Chip
+                              label={billing.paymentType}
+                              size="small"
+                              color={
+                                billing.paymentType === "Monthly" ? "info" :
+                                billing.paymentType === "Annually" ? "success" :
+                                billing.paymentType === "One-time" ? "warning" :
+                                "default"
+                              }
+                            />
+                          </TableCell>
                           <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
@@ -1637,7 +1657,16 @@ rol                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</T
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {(selected as string[]).map((value) => (
-                          <Chip key={value} label={value} size="small" />
+                          <Chip 
+                            key={value} 
+                            label={value} 
+                            size="small"
+                            color={
+                              value === "Owner" ? "primary" : 
+                              value === "Engineer" ? "secondary" : 
+                              "default"
+                            }
+                          />
                         ))}
                       </Box>
                     )}
