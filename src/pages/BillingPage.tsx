@@ -19,7 +19,8 @@ import {
   Grid,
   Pagination,
   CircularProgress,
-  Alert
+  Alert,
+  Chip
 } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -191,10 +192,11 @@ export const BillingPage: React.FC = () => {
   const renderPaymentSettings = (billing: AggregatedBillingItem) => {
     if (!billing) return 'N/A';
 
-    let settings = `${billing.paymentType || 'N/A'}`;
+    const paymentType = billing.paymentType || 'N/A';
+    let additionalInfo = '';
 
     if (billing.paymentType === 'One-time' && billing.billingDate) {
-      settings += ` | Billing Date: ${billing.billingDate}`;
+      additionalInfo = ` | Billing Date: ${billing.billingDate}`;
     }
 
     if (billing.paymentType === 'Annually' && billing.dueMonth) {
@@ -206,10 +208,24 @@ export const BillingPage: React.FC = () => {
         ? months[billing.dueMonth - 1]
         : billing.dueMonth;
 
-      settings += ` | Due Month: ${month}`;
+      additionalInfo = ` | Due Month: ${month}`;
     }
 
-    return settings;
+    return (
+      <>
+        <Chip
+          label={paymentType}
+          size="small"
+          color={
+            paymentType === "Monthly" ? "info" :
+            paymentType === "Annually" ? "success" :
+            paymentType === "One-time" ? "warning" :
+            "default"
+          }
+        />
+        {additionalInfo && <span style={{ marginLeft: '8px' }}>{additionalInfo}</span>}
+      </>
+    );
   };
 
   const calculateNextBillingMonth = (billing: AggregatedBillingItem) => {
