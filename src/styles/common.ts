@@ -29,6 +29,13 @@ export const primaryTypographyStyle: SxProps<Theme> = {
   fontSize: "0.875rem",
 };
 
+export const groupTitleStyle: SxProps<Theme> = {
+  ...primaryTypographyStyle,
+  backgroundColor: "#DAD7FE",
+  padding: "8px 12px",
+  borderRadius: "4px",
+};
+
 export const secondaryTypographyStyle: SxProps<Theme> = {
   fontSize: "0.75rem",
 };
