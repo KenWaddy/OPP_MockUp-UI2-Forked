@@ -129,7 +129,7 @@ export const DevicePage: React.FC = () => {
       
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
-        field: sortConfig.key,
+        field: sortConfig.key === 'tenant' ? 'tenantName' : sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
       
