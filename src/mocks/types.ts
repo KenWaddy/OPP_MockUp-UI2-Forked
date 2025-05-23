@@ -46,8 +46,6 @@ export type Tenant = {
     country?: string;
   };
   contract: string;
-  status: string;
-  billing: string;
   billingDetails?: {
     billingId?: string;
     deviceContract?: DeviceContractItem[];
@@ -65,7 +63,6 @@ export type Tenant = {
     id?: string;
     description?: string;
     services?: string[];
-    termType?: string;
     status?: string;
     startDate?: string;
     endDate?: string;

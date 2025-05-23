@@ -156,12 +156,10 @@ export const TenantPage: React.FC = () => {
 
   const [filters, setFilters] = useState<{
     contractType: string;
-    billingType: string;
     status: string;
     textSearch: string;
   }>({
     contractType: "",
-    billingType: "",
     status: "",
     textSearch: "",
   });
@@ -180,8 +178,7 @@ export const TenantPage: React.FC = () => {
       // Convert filters to the format expected by the service
       const serviceFilters: Record<string, any> = {};
       if (filters.contractType) serviceFilters.contract = filters.contractType;
-      if (filters.billingType) serviceFilters.billing = filters.billingType;
-      if (filters.status) serviceFilters.status = filters.status;
+      if (filters.status) serviceFilters.subscriptionStatus = filters.status;
       if (filters.textSearch) serviceFilters.textSearch = filters.textSearch;
 
       // Convert sort config to the format expected by the service
@@ -254,15 +251,12 @@ export const TenantPage: React.FC = () => {
           country: ''
         },
         contract: "Evergreen",
-        status: "Active",
-        billing: "Monthly",
         billingDetails: [],
         subscription: {
           name: '',
           id: '',
           description: '',
           services: [],
-          termType: "Annual",
           status: "Active",
           startDate: '',
           endDate: '',
@@ -345,7 +339,7 @@ export const TenantPage: React.FC = () => {
       const headers = [
         'id', 'name', 'description',
         'owner.name', 'owner.email', 'owner.phone', 'owner.address', 'owner.country',
-        'contract', 'status', 'billing'
+        'contract', 'subscription.status'
       ];
 
       exportToCsv(allTenants, 'tenant-list-export.csv', headers);
@@ -500,12 +494,12 @@ export const TenantPage: React.FC = () => {
       setLoading(true);
 
       const existingUserIndex = selectedTenant.users?.findIndex(user => user.id === editableUser.id) ?? -1;
-      
+
       if (existingUserIndex >= 0) {
         // Update existing user
         const updatedUsers = [...(selectedTenant.users || [])];
         updatedUsers[existingUserIndex] = editableUser;
-        
+
         setSelectedTenant({
           ...selectedTenant,
           users: updatedUsers
@@ -545,7 +539,7 @@ export const TenantPage: React.FC = () => {
     if (!selectedTenant) return;
 
     const userToDelete = selectedTenant.users?.find(user => user.id === userId);
-    
+
     if (userToDelete && userToDelete.roles.includes('Owner')) {
       return;
     }
@@ -596,12 +590,12 @@ export const TenantPage: React.FC = () => {
       setLoading(true);
 
       const existingBillingIndex = selectedTenant.billingDetails?.findIndex(billing => billing.billingId === editableBilling.billingId) ?? -1;
-      
+
       if (existingBillingIndex >= 0) {
         // Update existing billing detail
         const updatedBillingDetails = [...(selectedTenant.billingDetails || [])];
         updatedBillingDetails[existingBillingIndex] = editableBilling;
-        
+
         setSelectedTenant({
           ...selectedTenant,
           billingDetails: updatedBillingDetails
@@ -723,27 +717,7 @@ export const TenantPage: React.FC = () => {
                     <Grid item xs={8}>
                       <Typography>{selectedTenant.contract}</Typography>
                     </Grid>
-                    <Grid item xs={4}>
-                      <Typography sx={secondaryTypographyStyle}>Status:</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Chip
-                        label={selectedTenant.status}
-                        color={
-                          selectedTenant.status === "Active" ? "success" :
-                          selectedTenant.status === "Inactive" ? "error" :
-                          selectedTenant.status === "Pending" ? "warning" :
-                          "default"
-                        }
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography sx={secondaryTypographyStyle}>Billing:</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Typography>{selectedTenant.billing}</Typography>
-                    </Grid>
+
                   </Grid>
                 </Paper>
               </Grid>
@@ -800,10 +774,7 @@ export const TenantPage: React.FC = () => {
                       <Typography sx={secondaryTypographyStyle}>ID:</Typography>
                       <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={secondaryTypographyStyle}>Term Type:</Typography>
-                      <Typography>{selectedTenant.subscription?.termType || 'N/A'}</Typography>
-                    </Grid>
+
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={secondaryTypographyStyle}>Status:</Typography>
                       <Chip
@@ -1187,34 +1158,16 @@ export const TenantPage: React.FC = () => {
 
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
-              <InputLabel>Status</InputLabel>
+              <InputLabel>Subscription Status</InputLabel>
               <Select
                 value={filters.status}
-                label="Status"
+                label="Subscription Status"
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               >
                 <MenuItem value="">All</MenuItem>
                 {statusOptions.map((status) => (
                   <MenuItem key={status} value={status}>
                     {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Billing Type</InputLabel>
-              <Select
-                value={filters.billingType}
-                label="Billing Type"
-                onChange={(e) => setFilters({ ...filters, billingType: e.target.value })}
-              >
-                <MenuItem value="">All</MenuItem>
-                {billingTypeOptions.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
                   </MenuItem>
                 ))}
               </Select>
@@ -1228,7 +1181,6 @@ export const TenantPage: React.FC = () => {
                 size="small"
                 onClick={() => setFilters({
                   contractType: "",
-                  billingType: "",
                   status: "",
                   textSearch: "",
                 })}
@@ -1306,16 +1258,10 @@ export const TenantPage: React.FC = () => {
                     Contract {getSortDirectionIndicator('contract')}
                   </TableCell>
                   <TableCell
-                    onClick={() => requestSort('status')}
+                    onClick={() => requestSort('subscription.status')}
                     sx={tableHeaderCellStyle}
                   >
-                    Status {getSortDirectionIndicator('status')}
-                  </TableCell>
-                  <TableCell
-                    onClick={() => requestSort('billing')}
-                    sx={tableHeaderCellStyle}
-                  >
-                    Billing {getSortDirectionIndicator('billing')}
+                    Status {getSortDirectionIndicator('subscription.status')}
                   </TableCell>
                   <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                 </TableRow>
@@ -1335,20 +1281,19 @@ export const TenantPage: React.FC = () => {
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.owner.name}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
+rol                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <Chip
-                          label={tenant.status}
+                          label={tenant.subscription?.status || 'N/A'}
                           color={
-                            tenant.status === "Active" ? "success" :
-                            tenant.status === "Inactive" ? "error" :
-                            tenant.status === "Pending" ? "warning" :
+                            tenant.subscription?.status === "Active" ? "success" :
+                            tenant.subscription?.status === "Inactive" ? "error" :
+                            tenant.subscription?.status === "Pending" ? "warning" :
                             "default"
                           }
                           size="small"
                         />
                       </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <IconButton
                           size="small"
@@ -1405,25 +1350,7 @@ export const TenantPage: React.FC = () => {
                   margin="normal"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={editableTenant.status}
-                    label="Status"
-                    onChange={(e) => setEditableTenant({
-                      ...editableTenant,
-                      status: e.target.value
-                    })}
-                  >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -1457,25 +1384,7 @@ export const TenantPage: React.FC = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Billing Type</InputLabel>
-                  <Select
-                    value={editableTenant.billing}
-                    label="Billing Type"
-                    onChange={(e) => setEditableTenant({
-                      ...editableTenant,
-                      billing: e.target.value
-                    })}
-                  >
-                    {billingTypeOptions.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+
               <Grid item xs={12}>
                 <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                   Owner Information
@@ -1675,8 +1584,8 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {editableUser && selectedTenant?.users?.find(user => user.id === editableUser.id) 
-            ? `Edit User: ${editableUser.name}` 
+          {editableUser && selectedTenant?.users?.find(user => user.id === editableUser.id)
+            ? `Edit User: ${editableUser.name}`
             : `Add User to ${selectedTenant?.name}`}
         </DialogTitle>
         <DialogContent dividers>
@@ -1719,7 +1628,7 @@ export const TenantPage: React.FC = () => {
                       const newRoles = e.target.value as ("Owner" | "Engineer" | "Member")[];
                       const hadOwner = editableUser.roles.includes("Owner");
                       const hasOwner = newRoles.includes("Owner");
-                      
+
                       setEditableUser({
                         ...editableUser,
                         roles: newRoles
@@ -1777,8 +1686,8 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {editableBilling && selectedTenant?.billingDetails?.find(billing => billing.billingId === editableBilling.billingId) 
-            ? `Edit Billing: ${editableBilling.billingId}` 
+          {editableBilling && selectedTenant?.billingDetails?.find(billing => billing.billingId === editableBilling.billingId)
+            ? `Edit Billing: ${editableBilling.billingId}`
             : `Add Billing to ${selectedTenant?.name}`}
         </DialogTitle>
         <DialogContent>
@@ -1898,8 +1807,8 @@ export const TenantPage: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell>
-                            <IconButton 
-                              size="small" 
+                            <IconButton
+                              size="small"
                               onClick={() => {
                                 const newContracts = [...(editableBilling.deviceContract || [])];
                                 newContracts.splice(index, 1);
@@ -1936,7 +1845,7 @@ export const TenantPage: React.FC = () => {
                   </Table>
                 </TableContainer>
               </Grid>
-              
+
               <Grid item xs={12}>
                 <TextField
                   label="Description"
