@@ -1164,6 +1164,7 @@ export const TenantPage: React.FC = () => {
                   placeholder="Search by Tenant Name, Owner Name, or Email Address"
                   value={filters.textSearch}
                   onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
+                  sx={{ backgroundColor: "white" }}
                 />
               </Grid>
 
@@ -1175,6 +1176,7 @@ export const TenantPage: React.FC = () => {
                 value={filters.contractType}
                 label="Contract Type"
                 onChange={(e) => setFilters({ ...filters, contractType: e.target.value })}
+                sx={{ backgroundColor: "white" }}
               >
                 <MenuItem value="">All</MenuItem>
                 {contractTypeOptions.map((type) => (
@@ -1193,6 +1195,7 @@ export const TenantPage: React.FC = () => {
                 value={filters.status}
                 label="Subscription Status"
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                sx={{ backgroundColor: "white" }}
               >
                 <MenuItem value="">All</MenuItem>
                 {statusOptions.map((status) => (
@@ -1222,6 +1225,7 @@ export const TenantPage: React.FC = () => {
             onChange={(e) => {
               setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
             }}
+            sx={{ backgroundColor: "white" }}
           >
             <MenuItem value={20}>20</MenuItem>
             <MenuItem value={100}>100</MenuItem>
