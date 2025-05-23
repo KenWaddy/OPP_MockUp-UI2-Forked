@@ -45,7 +45,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle, groupTitleStyle } from '../styles/common.js';
 import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
 import { TenantService, UserService, DeviceService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
@@ -691,7 +691,7 @@ export const TenantPage: React.FC = () => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...primaryTypographyStyle, fontWeight: "bold", fontSize: "1rem" }}>Tenant</Typography>
+                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Tenant</Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
@@ -719,7 +719,7 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...primaryTypographyStyle, fontWeight: "bold", fontSize: "1rem" }}>Owner</Typography>
+                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Owner</Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
@@ -758,7 +758,7 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...primaryTypographyStyle, fontWeight: "bold", fontSize: "1rem" }}>Subscription</Typography>
+                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Subscription</Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={3}>
