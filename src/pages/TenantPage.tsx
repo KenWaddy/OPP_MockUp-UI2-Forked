@@ -46,7 +46,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
-import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice } from '../mocks/index.js';
+import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
 import { TenantService, UserService, DeviceService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 
@@ -577,7 +577,7 @@ export const TenantPage: React.FC = () => {
       startDate: new Date().toISOString().split('T')[0],
       endDate: '',
       dueDay: 15,
-      deviceContract: [],
+      deviceContract: [{ type: defaultDeviceTypes[0].name, quantity: 1 }],
       description: ''
     });
 
@@ -1845,23 +1845,96 @@ export const TenantPage: React.FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Number of Devices"
-                  type="number"
-                  value={editableBilling.deviceContract?.length || 0}
-                  onChange={(e) => {
-                    const count = parseInt(e.target.value);
-                    const deviceContract = Array(count).fill({ type: 'Standard', quantity: 1 });
-                    setEditableBilling({
-                      ...editableBilling,
-                      deviceContract
-                    });
-                  }}
-                  fullWidth
-                  margin="normal"
-                  inputProps={{ min: 0 }}
-                />
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" gutterBottom>Device Contracts</Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={tableHeaderCellStyle}>Device Type</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Quantity</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Action</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {editableBilling.deviceContract?.map((contract, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <FormControl fullWidth size="small">
+                              <Select
+                                value={contract.type}
+                                onChange={(e) => {
+                                  const newContracts = [...(editableBilling.deviceContract || [])];
+                                  newContracts[index].type = e.target.value;
+                                  setEditableBilling({
+                                    ...editableBilling,
+                                    deviceContract: newContracts
+                                  });
+                                }}
+                              >
+                                {defaultDeviceTypes.map(type => (
+                                  <MenuItem key={type.name} value={type.name}>
+                                    {type.name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              type="number"
+                              size="small"
+                              fullWidth
+                              value={contract.quantity}
+                              onChange={(e) => {
+                                const newContracts = [...(editableBilling.deviceContract || [])];
+                                newContracts[index].quantity = parseInt(e.target.value);
+                                setEditableBilling({
+                                  ...editableBilling,
+                                  deviceContract: newContracts
+                                });
+                              }}
+                              inputProps={{ min: 1 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton 
+                              size="small" 
+                              onClick={() => {
+                                const newContracts = [...(editableBilling.deviceContract || [])];
+                                newContracts.splice(index, 1);
+                                setEditableBilling({
+                                  ...editableBilling,
+                                  deviceContract: newContracts
+                                });
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow>
+                        <TableCell colSpan={3}>
+                          <Button
+                            startIcon={<AddIcon />}
+                            size="small"
+                            onClick={() => {
+                              const newContracts = [...(editableBilling.deviceContract || [])];
+                              newContracts.push({ type: defaultDeviceTypes[0].name, quantity: 1 });
+                              setEditableBilling({
+                                ...editableBilling,
+                                deviceContract: newContracts
+                              });
+                            }}
+                          >
+                            Add Device Contract
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Grid>
               
               <Grid item xs={12}>

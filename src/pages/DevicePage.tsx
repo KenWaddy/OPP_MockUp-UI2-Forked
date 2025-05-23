@@ -35,7 +35,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
-import { Attribute, Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/index.js';
+import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType, defaultDeviceTypes, getDeviceTypeByName } from '../mocks/index.js';
 import { DeviceService, TenantService } from '../services/index.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 
@@ -53,8 +53,8 @@ export const DevicePage: React.FC = () => {
   const [openDeviceDialog, setOpenDeviceDialog] = useState(false);
   const [editableDevice, setEditableDevice] = useState<DeviceWithTenant | UnregisteredDevice | null>(null);
   const [openDeviceTypeDialog, setOpenDeviceTypeDialog] = useState(false);
-  const [editableDeviceTypes, setEditableDeviceTypes] = useState<{name: string, option: string, description: string}[]>([]);
-  const [newDeviceType, setNewDeviceType] = useState<{name: string, option: string, description: string}>({ name: '', option: '', description: '' });
+  const [editableDeviceTypes, setEditableDeviceTypes] = useState<DeviceType[]>([]);
+  const [newDeviceType, setNewDeviceType] = useState<DeviceType>({ name: '', option: '', description: '' });
   const [tenantOptions, setTenantOptions] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +80,7 @@ export const DevicePage: React.FC = () => {
     direction: 'ascending' | 'descending';
   } | null>(null);
   
-  const deviceTypes: Device["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  const [deviceTypes, setDeviceTypes] = useState<string[]>([]);
   const statusOptions: Device["status"][] = ["Registered", "Assigned", "Activated"];
   
   useEffect(() => {
@@ -109,14 +109,11 @@ export const DevicePage: React.FC = () => {
     
     loadData();
     
-    // Initialize editable device types with current device types
-    setEditableDeviceTypes(
-      deviceTypes.map(type => ({
-        name: type,
-        option: '',
-        description: ''
-      }))
-    );
+    // Initialize editable device types with default device types
+    setEditableDeviceTypes([...defaultDeviceTypes]);
+    
+    // Initialize device type names for dropdowns
+    setDeviceTypes(defaultDeviceTypes.map(type => type.name));
   }, []);
   
   const loadDevices = async () => {
@@ -382,16 +379,14 @@ export const DevicePage: React.FC = () => {
   
   const handleAddDeviceType = () => {
     if (newDeviceType.name.trim() !== '') {
-      setEditableDeviceTypes([...editableDeviceTypes, { ...newDeviceType }]);
+      const updatedDeviceTypes = [...editableDeviceTypes, { ...newDeviceType }];
+      setEditableDeviceTypes(updatedDeviceTypes);
       setNewDeviceType({ name: '', option: '', description: '' });
       
       // Update the deviceTypes array for use in other parts of the component
-      const updatedDeviceTypes: Device["type"][] = [
-        ...editableDeviceTypes.map(type => type.name as Device["type"]),
-        newDeviceType.name as Device["type"]
-      ];
+      setDeviceTypes(updatedDeviceTypes.map(type => type.name));
+      
       // In a real implementation, you would update the backend
-      (deviceTypes as any) = updatedDeviceTypes;
     }
   };
   
@@ -401,12 +396,12 @@ export const DevicePage: React.FC = () => {
     setEditableDeviceTypes(newList);
     
     // Update the deviceTypes array for use in other parts of the component
-    const updatedDeviceTypes = newList.map(type => type.name as Device["type"]);
+    setDeviceTypes(newList.map(type => type.name));
+    
     // In a real implementation, you would update the backend
-    (deviceTypes as any) = updatedDeviceTypes;
   };
   
-  const handleDeviceTypeChange = (index: number, field: 'name' | 'option' | 'description', value: string) => {
+  const handleDeviceTypeChange = (index: number, field: keyof DeviceType, value: string) => {
     const newTypes = [...editableDeviceTypes];
     newTypes[index][field] = value;
     setEditableDeviceTypes(newTypes);

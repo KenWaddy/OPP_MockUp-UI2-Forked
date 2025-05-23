@@ -12,10 +12,16 @@ export type Attribute = {
   value: string;
 };
 
+export type DeviceType = {
+  name: string;
+  option: string;
+  description: string;
+};
+
 export type Device = {
   id: string;
   name: string;
-  type: "Server" | "Workstation" | "Mobile" | "IoT" | "Other";
+  type: string; // References DeviceType.name
   deviceId: string;
   serialNo: string;
   description: string;
@@ -24,7 +30,7 @@ export type Device = {
 };
 
 export type DeviceContractItem = {
-  type: Device["type"];
+  type: string; // References DeviceType.name
   quantity: number;
 };
 

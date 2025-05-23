@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
 import { FlatDevice, FlatUnregisteredDevice } from './types.js';
 import { flatTenants } from './tenants.js';
-import { Attribute } from '../types.js';
+import { Attribute, defaultDeviceTypes } from '../index.js';
 
 /**
  * Generate attributes for a specific device type
  * @param type Device type
  * @returns Array of attributes
  */
-function generateAttributesForDeviceType(type: FlatDevice["type"]): Attribute[] {
+function generateAttributesForDeviceType(type: string): Attribute[] {
   const attributes: Attribute[] = [];
   
   if (type === "Server") {
@@ -70,7 +70,7 @@ function generateAttributesForDeviceType(type: FlatDevice["type"]): Attribute[] 
 export function generateDevicesForTenant(tenantId: string, count: number): FlatDevice[] {
   const devices: FlatDevice[] = [];
   
-  const deviceTypes: FlatDevice["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  const deviceTypes: string[] = defaultDeviceTypes.map(type => type.name);
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
@@ -118,7 +118,7 @@ export function generateAllDevices(): FlatDevice[] {
 export function generateRegisteredDevices(count: number = 30): FlatUnregisteredDevice[] {
   const devices: FlatUnregisteredDevice[] = [];
   
-  const deviceTypes: FlatDevice["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  const deviceTypes: string[] = defaultDeviceTypes.map(type => type.name);
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
@@ -150,7 +150,7 @@ export function generateRegisteredDevices(count: number = 30): FlatUnregisteredD
 export function generateUnregisteredDevices(count: number = 20): FlatUnregisteredDevice[] {
   const devices: FlatUnregisteredDevice[] = [];
   
-  const deviceTypes: FlatDevice["type"][] = ["Server", "Workstation", "Mobile", "IoT", "Other"];
+  const deviceTypes: string[] = defaultDeviceTypes.map(type => type.name);
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
