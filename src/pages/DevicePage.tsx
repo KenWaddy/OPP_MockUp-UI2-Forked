@@ -865,41 +865,8 @@ export const DevicePage: React.FC = () => {
                   rows={2}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={editableDevice.status}
-                    label="Status"
-                    onChange={(e) => setEditableDevice({
-                      ...editableDevice,
-                      status: e.target.value as "Registered" | "Assigned" | "Activated"
-                    })}
-                  >
-                    {statusOptions.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              {'isUnregistered' in editableDevice && (
-                <Grid item xs={12}>
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel>Assign to Tenant</InputLabel>
-                    <Select
-                      value=""
-                      label="Assign to Tenant"
-                      displayEmpty
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Select a tenant after saving</em>
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              )}
+              {/* Status field removed as requested */}
+              {/* Select Tenant field removed as requested */}
             </Grid>
           )}
         </DialogContent>
@@ -918,3 +885,5 @@ export const DevicePage: React.FC = () => {
     </div>
   );
 };
+
+export default DevicePage;
