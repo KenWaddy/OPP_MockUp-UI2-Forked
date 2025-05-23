@@ -5,6 +5,7 @@ export const tableHeaderCellStyle: SxProps<Theme> = {
   fontSize: "0.875rem",
   color: "text.primary",
   cursor: "pointer",
+  backgroundColor: "#DAD7FE",
 };
 
 export const tableBodyCellStyle: SxProps<Theme> = {

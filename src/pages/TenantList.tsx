@@ -1,11 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  List,
+  Box,
+  Paper,
   Table,
-  useTable,
-  TableColumn,
-} from "@refinedev/mui";
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import { tableHeaderCellStyle, tableBodyCellStyle } from '../styles/common.js';
 
 interface Tenant {
   id: string;
@@ -17,34 +22,66 @@ interface Tenant {
   billing: string;
 }
 
+const mockTenants: Tenant[] = [
+  {
+    id: "1",
+    name: "Acme Corp",
+    owner: "John Doe",
+    email: "john@acme.com",
+    contract: "Premium",
+    status: "Active",
+    billing: "Monthly"
+  },
+  {
+    id: "2",
+    name: "Globex Inc",
+    owner: "Jane Smith",
+    email: "jane@globex.com",
+    contract: "Standard",
+    status: "Active",
+    billing: "Annually"
+  }
+];
+
 export const TenantList: React.FC = () => {
   const navigate = useNavigate();
-  const { tableQueryResult } = useTable<Tenant>();
 
-  const columns: TableColumn<Tenant>[] = [
-    {
-      field: "name",
-      headerName: "Tenant Name",
-      flex: 1,
-      renderCell: (params) => (
-        <a
-          style={{ cursor: "pointer", color: "blue" }}
-          onClick={() => navigate(`/tenants/${params.row.id}`)}
-        >
-          {params.value}
-        </a>
-      ),
-    },
-    { field: "owner", headerName: "Owner Name", flex: 1 },
-    { field: "email", headerName: "Mail Address", flex: 1 },
-    { field: "contract", headerName: "Contract", flex: 1 },
-    { field: "status", headerName: "Status", flex: 1 },
-    { field: "billing", headerName: "Billing", flex: 1 },
-  ];
+  const handleRowClick = (id: string) => {
+    navigate(`/tenants/${id}`);
+  };
 
   return (
-    <List>
-      <Table columns={columns} {...tableQueryResult} />
-    </List>
+    <Box p={3}>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={tableHeaderCellStyle}>Tenant Name</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Owner</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Email</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Contract</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Billing</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {mockTenants.map((tenant) => (
+              <TableRow 
+                key={tenant.id}
+                onClick={() => handleRowClick(tenant.id)}
+                sx={{ cursor: 'pointer' }}
+              >
+                <TableCell sx={tableBodyCellStyle}>{tenant.name}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.owner}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.email}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.status}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
