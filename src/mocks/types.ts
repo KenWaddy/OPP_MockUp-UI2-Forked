@@ -1,4 +1,4 @@
-export type User = {
+export type UserType = {
   id: string;
   name: string;
   email: string;
@@ -18,11 +18,10 @@ export type DeviceType = {
   description: string;
 };
 
-export type Device = {
+export type DeviceType2 = {
   id: string;
   name: string;
   type: string; // References DeviceType.name
-  deviceId: string;
   serialNo: string;
   description: string;
   status: "Registered" | "Assigned" | "Activated";
@@ -34,7 +33,7 @@ export type DeviceContractItem = {
   quantity: number;
 };
 
-export type Tenant = {
+export type TenantType = {
   id: string;
   name: string;
   description?: string;
@@ -54,7 +53,7 @@ export type Tenant = {
     country: string;
     postal_code: string;
   };
-  corresponding_subscription_id: string;
+  subscriptionId: string;
   subscription?: {
     id: string;
     name: string;
@@ -71,7 +70,7 @@ export type Tenant = {
     config_AIAPP_installer: boolean;
   };
   billingDetails?: {
-    billingId?: string;
+    id?: string;
     deviceContract?: DeviceContractItem[];
     startDate?: string;
     endDate?: string;
@@ -82,15 +81,15 @@ export type Tenant = {
     billingStartDate?: string;
     description?: string; // Description of the billing
   }[];
-  users?: User[];
-  devices?: Device[];
+  users?: UserType[];
+  devices?: DeviceType2[];
 };
 
-export type DeviceWithTenant = Device & {
-  tenantId: string;
+export type DeviceWithTenant = DeviceType2 & {
+  subscriptionId: string;
   tenantName: string;
 };
 
-export type UnregisteredDevice = Omit<DeviceWithTenant, "tenantId" | "tenantName"> & {
+export type UnregisteredDeviceType = Omit<DeviceWithTenant, "subscriptionId" | "tenantName"> & {
   isUnregistered: true;
 };

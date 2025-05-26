@@ -1,9 +1,9 @@
 import { Attribute } from '../types.js';
 
 /**
- * Flat subscription data structure
+ * Subscription data structure
  */
-export interface FlatSubscription {
+export interface Subscription {
   id: string;
   name: string;
   description: string;
@@ -20,9 +20,9 @@ export interface FlatSubscription {
 }
 
 /**
- * Flat tenant data structure with references instead of nesting
+ * Tenant data structure with references instead of nesting
  */
-export interface FlatTenant {
+export interface Tenant {
   id: string;
   name: string;
   description: string;
@@ -40,15 +40,15 @@ export interface FlatTenant {
   contact_state_prefecture: string;
   contact_country: string;
   contact_postal_code: string;
-  corresponding_subscription_id: string;
+  subscriptionId: string;
 }
 
 /**
- * Flat user data structure with tenant reference
+ * User data structure with subscription reference
  */
-export interface FlatUser {
+export interface User {
   id: string;
-  tenantId: string; // Reference to parent tenant
+  subscriptionId: string; // Reference to parent subscription
   name: string;
   email: string;
   roles: ("Owner" | "Engineer" | "Member")[];
@@ -57,14 +57,13 @@ export interface FlatUser {
 }
 
 /**
- * Flat device data structure with tenant reference
+ * Device data structure with subscription reference
  */
-export interface FlatDevice {
+export interface Device {
   id: string;
-  tenantId: string; // Reference to parent tenant
+  subscriptionId: string; // Reference to parent subscription
   name: string;
   type: string; // References DeviceType.name
-  deviceId: string;
   serialNo: string;
   description: string;
   status: "Registered" | "Assigned" | "Activated";
@@ -72,12 +71,11 @@ export interface FlatDevice {
 }
 
 /**
- * Flat billing data structure with tenant reference
+ * Billing data structure with subscription reference
  */
-export interface FlatBilling {
+export interface Billing {
   id: string;
-  tenantId: string; // Reference to parent tenant
-  billingId: string;
+  subscriptionId: string; // Reference to parent subscription
   deviceContract: {
     type: string; // References DeviceType.name
     quantity: number;
@@ -91,13 +89,12 @@ export interface FlatBilling {
 }
 
 /**
- * Flat unregistered device data structure
+ * Unregistered device data structure
  */
-export interface FlatUnregisteredDevice {
+export interface UnregisteredDevice {
   id: string;
   name: string;
   type: string; // References DeviceType.name
-  deviceId: string;
   serialNo: string;
   description: string;
   status: "Registered" | "Assigned" | "Activated";

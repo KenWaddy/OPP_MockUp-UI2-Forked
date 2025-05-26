@@ -1,19 +1,19 @@
 import { mockTenants } from '../mocks/index.js';
-import { Tenant } from '../mocks/types.js';
+import { TenantType } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ITenantService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { flatTenants, flatUsers, flatDevices, flatBilling, flatSubscriptions } from '../mocks/data/index.js';
+import { tenants, users, devices, billing, subscriptions } from '../mocks/data/index.js';
 import { findOwnerForTenant } from './utils.js';
 
 export class TenantService implements ITenantService {
   /**
    * Get paginated list of tenants with filtering and sorting
    */
-  async getTenants(params: PaginationParams): Promise<PaginatedResponse<Tenant>> {
+  async getTenants(params: PaginationParams): Promise<PaginatedResponse<TenantType>> {
     await delay();
     
-    let result = await Promise.all(flatTenants.map(async tenant => {
-      const subscription = flatSubscriptions.find(sub => sub.id === tenant.corresponding_subscription_id);
+    let result = await Promise.all(tenants.map(async (tenant: any) => {
+      const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
       
       const contact = {
         first_name: tenant.contact_person_first_name,
@@ -37,7 +37,7 @@ export class TenantService implements ITenantService {
         name: tenant.name,
         description: tenant.description,
         contact,
-        corresponding_subscription_id: tenant.corresponding_subscription_id,
+        subscriptionId: tenant.subscriptionId,
         subscription: subscription ? {
           id: subscription.id,
           name: subscription.name,
@@ -142,10 +142,10 @@ export class TenantService implements ITenantService {
   /**
    * Get tenant by ID with optional related data
    */
-  async getTenantById(id: string, includeUsers = false, includeDevices = false, includeBilling = false): Promise<ItemResponse<Tenant>> {
+  async getTenantById(id: string, includeUsers = false, includeDevices = false, includeBilling = false): Promise<ItemResponse<TenantType>> {
     await delay();
     
-    const tenant = flatTenants.find((t) => t.id === id);
+    const tenant = tenants.find((t: any) => t.id === id);
     
     if (!tenant) {
       return {
@@ -155,7 +155,7 @@ export class TenantService implements ITenantService {
       };
     }
     
-    const subscription = flatSubscriptions.find(sub => sub.id === tenant.corresponding_subscription_id);
+    const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
     
     const contact = {
       first_name: tenant.contact_person_first_name,
@@ -179,7 +179,7 @@ export class TenantService implements ITenantService {
       name: tenant.name,
       description: tenant.description,
       contact,
-      corresponding_subscription_id: tenant.corresponding_subscription_id,
+      subscriptionId: tenant.subscriptionId,
       subscription: subscription ? {
         id: subscription.id,
         name: subscription.name,
@@ -198,15 +198,15 @@ export class TenantService implements ITenantService {
     };
     
     if (includeUsers) {
-      result.users = flatUsers.filter(user => user.tenantId === id);
+      result.users = users.filter((user: any) => user.subscriptionId === id);
     }
     
     if (includeDevices) {
-      result.devices = flatDevices.filter(device => device.tenantId === id);
+      result.devices = devices.filter((device: any) => device.subscriptionId === id);
     }
     
     if (includeBilling) {
-      result.billingDetails = flatBilling.filter(billing => billing.tenantId === id);
+      result.billingDetails = billing.filter((billing: any) => billing.subscriptionId === id);
     }
     
     return {
@@ -219,11 +219,11 @@ export class TenantService implements ITenantService {
    * Get all tenants without pagination, filtering, or sorting
    * Used for data export and other bulk operations
    */
-  async getAllTenants(): Promise<Tenant[]> {
+  async getAllTenants(): Promise<TenantType[]> {
     await delay();
     
-    const result = await Promise.all(flatTenants.map(async tenant => {
-      const subscription = flatSubscriptions.find(sub => sub.id === tenant.corresponding_subscription_id);
+    const result = await Promise.all(tenants.map(async (tenant: any) => {
+      const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
       
       const contact = {
         first_name: tenant.contact_person_first_name,
@@ -247,7 +247,7 @@ export class TenantService implements ITenantService {
         name: tenant.name,
         description: tenant.description,
         contact,
-        corresponding_subscription_id: tenant.corresponding_subscription_id,
+        subscriptionId: tenant.subscriptionId,
         subscription: subscription ? {
           id: subscription.id,
           name: subscription.name,
