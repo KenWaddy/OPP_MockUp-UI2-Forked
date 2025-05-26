@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Grid,
   Paper,
@@ -728,6 +728,22 @@ export const TenantPage: React.FC = () => {
   const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
+  
+  const sortedUsers = useMemo(() => {
+    if (!selectedTenant?.users || !sortConfig) return selectedTenant?.users || [];
+    return [...selectedTenant.users].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a];
+      const bValue = b[sortConfig.key as keyof typeof b];
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [selectedTenant?.users, sortConfig]);
 
   return (
     <div className="tenant-list">
@@ -1093,8 +1109,8 @@ export const TenantPage: React.FC = () => {
                     </TableRow>
                   </TableHead>
                 <TableBody>
-                  {selectedTenant.users && selectedTenant.users.length > 0 ? (
-                    selectedTenant.users.map((user) => (
+                  {sortedUsers && sortedUsers.length > 0 ? (
+                    sortedUsers.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell sx={tableBodyCellStyle}>{user.name}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>{user.email}</TableCell>
