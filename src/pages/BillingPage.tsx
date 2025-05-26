@@ -36,7 +36,7 @@ const tenantService = new TenantService();
 
 export const BillingPage: React.FC = () => {
   type BillingDetailItem = {
-    billingId?: string;
+    id?: string;
     deviceContract?: { type: string; quantity: number }[];
     startDate?: string;
     endDate?: string;
