@@ -26,7 +26,10 @@ import {
   Chip,
   Pagination,
   CircularProgress,
-  Alert
+  Alert,
+  List,
+  ListItem,
+  ListItemText
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -683,13 +686,25 @@ export const DevicePage: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>
-                        <span
-                          className="clickable"
-                          onClick={() => handleOpenAttributesDialog(device)}
-                          style={{ cursor: 'pointer', color: 'blue' }}
-                        >
-                          View ({device.attributes.length})
-                        </span>
+                        <Tooltip 
+                          leaveDelay={0}
+                          title={
+                            <List dense>
+                              {device.attributes.map((attr, index) => (
+                                <ListItem key={index}>
+                                  <ListItemText primary={`${attr.key}: ${attr.value}`} />
+                                </ListItem>
+                              ))}
+                            </List>
+                          }>
+                          <span
+                            className="clickable"
+                            onClick={() => handleOpenAttributesDialog(device)}
+                            style={{ cursor: 'pointer', color: 'blue' }}
+                          >
+                            View ({device.attributes.length})
+                          </span>
+                        </Tooltip>
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <IconButton 
@@ -1046,5 +1061,3 @@ export const DevicePage: React.FC = () => {
     </div>
   );
 };
-
-export default DevicePage;
