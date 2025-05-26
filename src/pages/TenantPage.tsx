@@ -285,6 +285,7 @@ export const TenantPage: React.FC = () => {
         devices: []
       });
     }
+    setActiveTab("info"); // Reset to first tab when opening dialog
     setOpenTenantDialog(true);
   };
 
@@ -1788,44 +1789,566 @@ export const TenantPage: React.FC = () => {
         </DialogTitle>
         <DialogContent dividers>
           {editableTenant && (
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Tenant Name"
-                  value={editableTenant.name}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    name: e.target.value
-                  })}
-                  margin="normal"
-                />
-              </Grid>
+            <>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                aria-label="tenant dialog tabs"
+                sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+              >
+                <Tab value="info" label="Tenant Info" />
+                <Tab value="contact" label="Contact Info" />
+                <Tab value="subscription" label="Subscription Info" />
+              </Tabs>
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  value={editableTenant.description}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    description: e.target.value
-                  })}
-                  margin="normal"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="ID"
-                  value={editableTenant.id}
-                  disabled
-                  margin="normal"
-                />
-              </Grid>
-            </Grid>
+              {/* Tenant Info Tab */}
+              {activeTab === "info" && editableTenant && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Tenant Name"
+                      value={editableTenant.name}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        name: e.target.value
+                      })}
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Description"
+                      value={editableTenant.description}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        description: e.target.value
+                      })}
+                      margin="normal"
+                      multiline
+                      rows={2}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="ID"
+                      value={editableTenant.id}
+                      disabled
+                      margin="normal"
+                    />
+                  </Grid>
+                </Grid>
+              )}
+
+              {/* Contact Info Tab */}
+              {activeTab === "contact" && editableTenant && editableTenant.contact && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      value={editableTenant.contact.first_name}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          first_name: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      value={editableTenant.contact.last_name}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          last_name: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      value={editableTenant.contact.email}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          email: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth margin="normal">
+                      <InputLabel>Language</InputLabel>
+                      <Select
+                        value={editableTenant.contact.language}
+                        label="Language"
+                        onChange={(e) => setEditableTenant({
+                          ...editableTenant,
+                          contact: {
+                            ...editableTenant.contact,
+                            language: e.target.value as '日本語' | 'English'
+                          }
+                        })}
+                      >
+                        <MenuItem value="日本語">日本語</MenuItem>
+                        <MenuItem value="English">English</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Company"
+                      value={editableTenant.contact.company}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          company: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Department"
+                      value={editableTenant.contact.department}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          department: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Office Phone"
+                      value={editableTenant.contact.phone_office}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          phone_office: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Mobile Phone"
+                      value={editableTenant.contact.phone_mobile}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          phone_mobile: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Address Line 1"
+                      value={editableTenant.contact.address1}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          address1: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Address Line 2"
+                      value={editableTenant.contact.address2}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          address2: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="City"
+                      value={editableTenant.contact.city}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          city: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="State/Prefecture"
+                      value={editableTenant.contact.state_prefecture}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          state_prefecture: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Country"
+                      value={editableTenant.contact.country}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          country: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Postal Code"
+                      value={editableTenant.contact.postal_code}
+                      onChange={(e) => setEditableTenant({
+                        ...editableTenant,
+                        contact: {
+                          ...editableTenant.contact,
+                          postal_code: e.target.value
+                        }
+                      })}
+                      margin="normal"
+                    />
+                  </Grid>
+                </Grid>
+              )}
+
+              {/* Subscription Info Tab */}
+              {activeTab === "subscription" && editableTenant && editableTenant.subscription && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="ID"
+                      value={editableTenant.subscription.id}
+                      disabled
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Name"
+                      value={editableTenant.subscription.name}
+                      onChange={(e) => {
+                        if (editableTenant && editableTenant.subscription) {
+                          setEditableTenant({
+                            ...editableTenant,
+                            subscription: {
+                              ...editableTenant.subscription,
+                              name: e.target.value
+                            } as Tenant["subscription"]
+                          });
+                        }
+                      }}
+                      margin="normal"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Description"
+                      value={editableTenant.subscription.description}
+                      onChange={(e) => {
+                        if (editableTenant && editableTenant.subscription) {
+                          setEditableTenant({
+                            ...editableTenant,
+                            subscription: {
+                              ...editableTenant.subscription,
+                              description: e.target.value
+                            } as Tenant["subscription"]
+                          });
+                        }
+                      }}
+                      margin="normal"
+                      multiline
+                      rows={2}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth margin="normal">
+                      <InputLabel>Type</InputLabel>
+                      <Select
+                        value={editableTenant.subscription.type}
+                        label="Type"
+                        onChange={(e) => {
+                          if (editableTenant && editableTenant.subscription) {
+                            setEditableTenant({
+                              ...editableTenant,
+                              subscription: {
+                                ...editableTenant.subscription,
+                                type: e.target.value as 'Evergreen' | 'Termed'
+                              } as Tenant["subscription"]
+                            });
+                          }
+                        }}
+                      >
+                        <MenuItem value="Evergreen">Evergreen</MenuItem>
+                        <MenuItem value="Termed">Termed</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth margin="normal">
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={editableTenant.subscription.status}
+                        label="Status"
+                        onChange={(e) => {
+                          if (editableTenant && editableTenant.subscription) {
+                            setEditableTenant({
+                              ...editableTenant,
+                              subscription: {
+                                ...editableTenant.subscription,
+                                status: e.target.value as 'Active' | 'Cancelled'
+                              } as Tenant["subscription"]
+                            });
+                          }
+                        }}
+                      >
+                        <MenuItem value="Active">Active</MenuItem>
+                        <MenuItem value="Cancelled">Cancelled</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Start Date"
+                      type="date"
+                      value={editableTenant.subscription.start_date}
+                      onChange={(e) => {
+                        if (editableTenant && editableTenant.subscription) {
+                          setEditableTenant({
+                            ...editableTenant,
+                            subscription: {
+                              ...editableTenant.subscription,
+                              start_date: e.target.value
+                            } as Tenant["subscription"]
+                          });
+                        }
+                      }}
+                      margin="normal"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="End Date"
+                      type="date"
+                      value={editableTenant.subscription.end_date}
+                      onChange={(e) => {
+                        if (editableTenant && editableTenant.subscription) {
+                          setEditableTenant({
+                            ...editableTenant,
+                            subscription: {
+                              ...editableTenant.subscription,
+                              end_date: e.target.value
+                            } as Tenant["subscription"]
+                          });
+                        }
+                      }}
+                      margin="normal"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                      Enabled Applications
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={editableTenant.subscription.enabled_app_DMS}
+                              onChange={(e) => {
+                                if (editableTenant && editableTenant.subscription) {
+                                  setEditableTenant({
+                                    ...editableTenant,
+                                    subscription: {
+                                      ...editableTenant.subscription,
+                                      enabled_app_DMS: e.target.checked
+                                    } as Tenant["subscription"]
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label="DMS"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={editableTenant.subscription.enabled_app_eVMS}
+                              onChange={(e) => {
+                                if (editableTenant && editableTenant.subscription) {
+                                  setEditableTenant({
+                                    ...editableTenant,
+                                    subscription: {
+                                      ...editableTenant.subscription,
+                                      enabled_app_eVMS: e.target.checked
+                                    } as Tenant["subscription"]
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label="eVMS"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={editableTenant.subscription.enabled_app_CVR}
+                              onChange={(e) => {
+                                if (editableTenant && editableTenant.subscription) {
+                                  setEditableTenant({
+                                    ...editableTenant,
+                                    subscription: {
+                                      ...editableTenant.subscription,
+                                      enabled_app_CVR: e.target.checked
+                                    } as Tenant["subscription"]
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label="CVR"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={editableTenant.subscription.enabled_app_AIAMS}
+                              onChange={(e) => {
+                                if (editableTenant && editableTenant.subscription) {
+                                  setEditableTenant({
+                                    ...editableTenant,
+                                    subscription: {
+                                      ...editableTenant.subscription,
+                                      enabled_app_AIAMS: e.target.checked
+                                    } as Tenant["subscription"]
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label="AIAMS"
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Configuration
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={editableTenant.subscription.config_SSH_terminal}
+                              onChange={(e) => {
+                                if (editableTenant && editableTenant.subscription) {
+                                  setEditableTenant({
+                                    ...editableTenant,
+                                    subscription: {
+                                      ...editableTenant.subscription,
+                                      config_SSH_terminal: e.target.checked
+                                    } as Tenant["subscription"]
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label="SSH Terminal"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={editableTenant.subscription.config_AIAPP_installer}
+                              onChange={(e) => {
+                                if (editableTenant && editableTenant.subscription) {
+                                  setEditableTenant({
+                                    ...editableTenant,
+                                    subscription: {
+                                      ...editableTenant.subscription,
+                                      config_AIAPP_installer: e.target.checked
+                                    } as Tenant["subscription"]
+                                  });
+                                }
+                              }}
+                            />
+                          }
+                          label="AIAPP Installer"
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
+            </>
           )}
         </DialogContent>
         <DialogActions>
@@ -1834,7 +2357,8 @@ export const TenantPage: React.FC = () => {
             onClick={handleSaveTenant}
             variant="contained"
             color="primary"
-            disabled={!editableTenant || !editableTenant.name}
+            disabled={!editableTenant || !editableTenant.name || !editableTenant.contact?.first_name || 
+                      !editableTenant.contact?.last_name || !editableTenant.contact?.email}
           >
             Save
           </Button>
