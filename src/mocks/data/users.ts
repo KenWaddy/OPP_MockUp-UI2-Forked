@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { User } from './types.js';
+import { User } from '../../types/models.js';
 import { tenants } from './tenants.js';
 
 /**

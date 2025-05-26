@@ -27,7 +27,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
 import { BillingService, TenantService } from '../services/index.js';
-import { DeviceContractItem } from '../mocks/types.js';
+import { DeviceContractItem } from '../types/models.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 
 // Create service instances

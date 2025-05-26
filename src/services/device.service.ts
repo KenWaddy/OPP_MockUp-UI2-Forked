@@ -1,6 +1,5 @@
 import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
-import { DeviceWithTenant } from '../mocks/types.js';
-import { Device, UnregisteredDevice, Tenant } from '../mocks/data/types.js';
+import { DeviceWithTenant, Device, UnregisteredDevice, Tenant } from '../types/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IDeviceService } from './types.js';
 import { delay } from '../utils/delay.js';
 import { devices, unregisteredDevices, tenants } from '../mocks/data/index.js';

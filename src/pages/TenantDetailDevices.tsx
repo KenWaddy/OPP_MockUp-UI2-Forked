@@ -20,7 +20,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common';
 import { DeviceService } from '../services/index';
-import { Device } from '../mocks/data/types';
+import { Device } from '../types/models.js';
 
 const deviceService = new DeviceService();
 

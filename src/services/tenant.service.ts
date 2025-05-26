@@ -1,5 +1,5 @@
 import { mockTenants } from '../mocks/index.js';
-import { TenantType } from '../mocks/types.js';
+import { TenantType } from '../types/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ITenantService } from './types.js';
 import { delay } from '../utils/delay.js';
 import { tenants, users, devices, billing, subscriptions } from '../mocks/data/index.js';

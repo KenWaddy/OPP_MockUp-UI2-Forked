@@ -1,4 +1,4 @@
-import { User } from '../mocks/data/types.js';
+import { User } from '../types/models.js';
 
 /**
  * Format contact name based on language preference
