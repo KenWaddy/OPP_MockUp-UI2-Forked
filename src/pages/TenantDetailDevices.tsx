@@ -105,6 +105,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
 
   return (
     <Box mt={2}>
+      <h1 style={{color: 'red'}}>PAGINATION TEST - THIS SHOULD BE VISIBLE</h1>
       {/* Error message */}
       {error && (
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
