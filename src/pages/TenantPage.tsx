@@ -768,6 +768,44 @@ export const TenantPage: React.FC = () => {
   const sortedBillingDetails = useMemo(() => {
     if (!selectedTenant?.billingDetails || !sortConfig) return selectedTenant?.billingDetails || [];
     return [...selectedTenant.billingDetails].sort((a, b) => {
+      if (sortConfig.key === 'nextBillingMonth') {
+        const nextBillingMonthA = calculateNextBillingMonth(a);
+        const nextBillingMonthB = calculateNextBillingMonth(b);
+        
+        if (nextBillingMonthA === 'Ended' && nextBillingMonthB !== 'Ended') {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        if (nextBillingMonthA !== 'Ended' && nextBillingMonthB === 'Ended') {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        
+        if (nextBillingMonthA === '—' && nextBillingMonthB !== '—') {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        if (nextBillingMonthA !== '—' && nextBillingMonthB === '—') {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        
+        if (nextBillingMonthA !== '—' && nextBillingMonthA !== 'Ended' && 
+            nextBillingMonthB !== '—' && nextBillingMonthB !== 'Ended') {
+          const [yearA, monthA] = nextBillingMonthA.split('-').map(Number);
+          const [yearB, monthB] = nextBillingMonthB.split('-').map(Number);
+          
+          if (yearA !== yearB) {
+            return (yearA - yearB) * (sortConfig.direction === 'ascending' ? 1 : -1);
+          }
+          return (monthA - monthB) * (sortConfig.direction === 'ascending' ? 1 : -1);
+        }
+        
+        if (nextBillingMonthA < nextBillingMonthB) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (nextBillingMonthA > nextBillingMonthB) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      }
+      
       const aValue = a[sortConfig.key as keyof typeof a];
       const bValue = b[sortConfig.key as keyof typeof b];
       
@@ -783,7 +821,7 @@ export const TenantPage: React.FC = () => {
       }
       return 0;
     });
-  }, [selectedTenant?.billingDetails, sortConfig]);
+  }, [selectedTenant?.billingDetails, sortConfig, calculateNextBillingMonth]);
 
   return (
     <div className="tenant-list">
