@@ -48,6 +48,7 @@ import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle, groupTitleStyle } from '../styles/common.js';
 import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
 import { TenantService, UserService, DeviceService } from '../services/index.js';
+import { formatContactName } from '../services/utils.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 
 // Create service instances
@@ -244,24 +245,37 @@ export const TenantPage: React.FC = () => {
         id: `t-new-${Math.floor(Math.random() * 1000)}`,
         name: '',
         description: '',
-        owner: {
-          name: '',
+        contact: {
+          first_name: '',
+          last_name: '',
+          department: '',
+          language: 'English',
           email: '',
-          phone: '',
-          address: '',
-          country: ''
+          phone_office: '',
+          phone_mobile: '',
+          company: '',
+          address1: '',
+          address2: '',
+          city: '',
+          state_prefecture: '',
+          country: '',
+          postal_code: ''
         },
-        contract: "Evergreen",
-        billingDetails: [],
+        corresponding_subscription_id: '',
         subscription: {
+          id: `sub-new-${Math.floor(Math.random() * 1000)}`,
           name: '',
-          id: '',
           description: '',
-          services: [],
-          status: "Active",
-          startDate: '',
-          endDate: '',
-          configs: ''
+          type: 'Evergreen',
+          status: 'Active',
+          start_date: '',
+          end_date: '',
+          enabled_app_DMS: false,
+          enabled_app_eVMS: false,
+          enabled_app_CVR: false,
+          enabled_app_AIAMS: false,
+          config_SSH_terminal: false,
+          config_AIAPP_installer: false
         },
         users: [],
         devices: []
@@ -728,38 +742,89 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Owner</Typography>
+                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Contact</Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Name:</Typography>
                     </Grid>
                     <Grid item xs={8}>
-                      <Typography>{selectedTenant.owner.name}</Typography>
+                      <Typography>
+                        {formatContactName(
+                          selectedTenant.contact.first_name,
+                          selectedTenant.contact.last_name,
+                          selectedTenant.contact.language
+                        )}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Department:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.department}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Email:</Typography>
                     </Grid>
                     <Grid item xs={8}>
-                      <Typography>{selectedTenant.owner.email}</Typography>
+                      <Typography>{selectedTenant.contact.email}</Typography>
                     </Grid>
                     <Grid item xs={4}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Phone:</Typography>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Office Phone:</Typography>
                     </Grid>
                     <Grid item xs={8}>
-                      <Typography>{selectedTenant.owner.phone || 'N/A'}</Typography>
+                      <Typography>{selectedTenant.contact.phone_office || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Mobile Phone:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.phone_mobile || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Company:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.company || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Address:</Typography>
                     </Grid>
                     <Grid item xs={8}>
-                      <Typography>{selectedTenant.owner.address || 'N/A'}</Typography>
+                      <Typography>
+                        {selectedTenant.contact.address1}
+                        {selectedTenant.contact.address2 && <>, {selectedTenant.contact.address2}</>}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>City:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.city || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>State/Prefecture:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.state_prefecture || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Country:</Typography>
                     </Grid>
                     <Grid item xs={8}>
-                      <Typography>{selectedTenant.owner.country || 'N/A'}</Typography>
+                      <Typography>{selectedTenant.contact.country || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Postal Code:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.postal_code || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Language:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.language || 'N/A'}</Typography>
                     </Grid>
                   </Grid>
                 </Paper>
@@ -784,12 +849,8 @@ export const TenantPage: React.FC = () => {
                       <Typography>{selectedTenant.subscription?.name || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
-                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
-                      <Typography>{selectedTenant.contract}</Typography>
+                      <Typography>{selectedTenant.subscription?.type || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
@@ -797,7 +858,120 @@ export const TenantPage: React.FC = () => {
                         label={selectedTenant.subscription?.status || 'N/A'}
                         color={
                           selectedTenant.subscription?.status === "Active" ? "success" :
-                          selectedTenant.subscription?.status === "Inactive" ? "error" :
+                          selectedTenant.subscription?.status === "Cancelled" ? "error" :
+                          "default"
+                        }
+                        size="small"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
+                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Start Date:</Typography>
+                      <Typography>{selectedTenant.subscription?.start_date || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>End Date:</Typography>
+                      <Typography>{selectedTenant.subscription?.end_date || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
+                      <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold", mb: 1 }}>Enabled Applications:</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                checked={selectedTenant.subscription?.enabled_app_DMS || false} 
+                                disabled 
+                              />
+                            }
+                            label="DMS"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                checked={selectedTenant.subscription?.enabled_app_eVMS || false} 
+                                disabled 
+                              />
+                            }
+                            label="eVMS"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                checked={selectedTenant.subscription?.enabled_app_CVR || false} 
+                                disabled 
+                              />
+                            }
+                            label="CVR"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                checked={selectedTenant.subscription?.enabled_app_AIAMS || false} 
+                                disabled 
+                              />
+                            }
+                            label="AIAMS"
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold", mb: 1 }}>Configuration:</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                checked={selectedTenant.subscription?.config_SSH_terminal || false} 
+                                disabled 
+                              />
+                            }
+                            label="SSH Terminal"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox 
+                                checked={selectedTenant.subscription?.config_AIAPP_installer || false} 
+                                disabled 
+                              />
+                            }
+                            label="AIAPP Installer"
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
+                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
+                      <Typography>{selectedTenant.subscription?.type || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
+                      <Chip
+                        label={selectedTenant.subscription?.status || 'N/A'}
+                        color={
+                          selectedTenant.subscription?.status === "Active" ? "success" :
+                          selectedTenant.subscription?.status === "Cancelled" ? "error" :
                           "default"
                         }
                         size="small"
@@ -808,15 +982,37 @@ export const TenantPage: React.FC = () => {
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
                       <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
                     </Grid>
+                    
                     <Grid item xs={12}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Services:</Typography>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Date Range:</Typography>
+                      <Typography>
+                        {selectedTenant.subscription?.start_date || 'N/A'} - {selectedTenant.subscription?.end_date || 'N/A'}
+                      </Typography>
+                    </Grid>
+                    
+                    <Grid item xs={12}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Enabled Applications:</Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                        {selectedTenant.subscription?.services?.map((service, index) => (
-                          <Chip key={index} label={service} size="small" />
-                        )) || 'N/A'}
+                        {selectedTenant.subscription?.enabled_app_DMS && <Chip label="DMS" size="small" color="primary" />}
+                        {selectedTenant.subscription?.enabled_app_eVMS && <Chip label="eVMS" size="small" color="primary" />}
+                        {selectedTenant.subscription?.enabled_app_CVR && <Chip label="CVR" size="small" color="primary" />}
+                        {selectedTenant.subscription?.enabled_app_AIAMS && <Chip label="AIAMS" size="small" color="primary" />}
+                        {!selectedTenant.subscription?.enabled_app_DMS && 
+                         !selectedTenant.subscription?.enabled_app_eVMS && 
+                         !selectedTenant.subscription?.enabled_app_CVR && 
+                         !selectedTenant.subscription?.enabled_app_AIAMS && 'None'}
                       </Box>
                     </Grid>
-
+                    
+                    <Grid item xs={12}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Configuration:</Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                        {selectedTenant.subscription?.config_SSH_terminal && <Chip label="SSH Terminal" size="small" color="secondary" />}
+                        {selectedTenant.subscription?.config_AIAPP_installer && <Chip label="AIAPP Installer" size="small" color="secondary" />}
+                        {!selectedTenant.subscription?.config_SSH_terminal && 
+                         !selectedTenant.subscription?.config_AIAPP_installer && 'None'}
+                      </Box>
+                    </Grid>
                   </Grid>
                 </Paper>
               </Grid>
@@ -1179,7 +1375,7 @@ export const TenantPage: React.FC = () => {
                   fullWidth
                   size="small"
                   label="Text Search"
-                  placeholder="Search by Tenant Name, Owner Name, or Email Address"
+                  placeholder="Search by Tenant Name, Contact Name, or Email Address"
                   value={filters.textSearch}
                   onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
                   sx={{ backgroundColor: "white" }}
@@ -1189,10 +1385,10 @@ export const TenantPage: React.FC = () => {
           {/* Dropdown filters */}
           <Grid item xs={12} sm={3}>
             <FormControl fullWidth size="small">
-              <InputLabel>Contract Type</InputLabel>
+              <InputLabel>Subscription Type</InputLabel>
               <Select
                 value={filters.contractType}
-                label="Contract Type"
+                label="Subscription Type"
                 onChange={(e) => setFilters({ ...filters, contractType: e.target.value })}
                 sx={{ backgroundColor: "white" }}
               >
@@ -1277,10 +1473,10 @@ export const TenantPage: React.FC = () => {
                     Tenant {getSortDirectionIndicator('tenant')}
                   </TableCell>
                   <TableCell
-                    onClick={() => requestSort('owner')}
+                    onClick={() => requestSort('contact')}
                     sx={tableHeaderCellStyle}
                   >
-                    Owner {getSortDirectionIndicator('owner')}
+                    Contact {getSortDirectionIndicator('contact')}
                   </TableCell>
                   <TableCell
                     onClick={() => requestSort('email')}
@@ -1289,16 +1485,16 @@ export const TenantPage: React.FC = () => {
                     Email {getSortDirectionIndicator('email')}
                   </TableCell>
                   <TableCell
-                    onClick={() => requestSort('contract')}
+                    onClick={() => requestSort('type')}
                     sx={tableHeaderCellStyle}
                   >
-                    Contract {getSortDirectionIndicator('contract')}
+                    Type {getSortDirectionIndicator('type')}
                   </TableCell>
                   <TableCell
-                    onClick={() => requestSort('subscription.status')}
+                    onClick={() => requestSort('status')}
                     sx={tableHeaderCellStyle}
                   >
-                    Status {getSortDirectionIndicator('subscription.status')}
+                    Status {getSortDirectionIndicator('status')}
                   </TableCell>
                   <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                 </TableRow>
@@ -1316,16 +1512,21 @@ export const TenantPage: React.FC = () => {
                           {tenant.name}
                         </span>
                       </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.owner.name}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.owner.email}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        {formatContactName(
+                          tenant.contact.first_name,
+                          tenant.contact.last_name,
+                          tenant.contact.language
+                        )}
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.subscription?.type || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <Chip
                           label={tenant.subscription?.status || 'N/A'}
                           color={
                             tenant.subscription?.status === "Active" ? "success" :
-                            tenant.subscription?.status === "Inactive" ? "error" :
-                            tenant.subscription?.status === "Pending" ? "warning" :
+                            tenant.subscription?.status === "Cancelled" ? "error" :
                             "default"
                           }
                           size="small"
@@ -1404,40 +1605,55 @@ export const TenantPage: React.FC = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth margin="normal">
-                  <InputLabel>Contract Type</InputLabel>
+                  <InputLabel>Subscription Type</InputLabel>
                   <Select
-                    value={editableTenant.contract}
-                    label="Contract Type"
+                    value={editableTenant.subscription?.type || 'Evergreen'}
+                    label="Subscription Type"
                     onChange={(e) => setEditableTenant({
                       ...editableTenant,
-                      contract: e.target.value
+                      subscription: {
+                        ...editableTenant.subscription!,
+                        type: e.target.value as 'Evergreen' | 'Termed'
+                      }
                     })}
                   >
-                    {contractTypeOptions.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
+                    <MenuItem value="Evergreen">Evergreen</MenuItem>
+                    <MenuItem value="Termed">Termed</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
 
               <Grid item xs={12}>
                 <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                  Owner Information
+                  Contact Information
                 </Typography>
                 <Divider />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Owner Name"
-                  value={editableTenant.owner.name}
+                  label="First Name"
+                  value={editableTenant.contact.first_name}
                   onChange={(e) => setEditableTenant({
                     ...editableTenant,
-                    owner: {
-                      ...editableTenant.owner,
-                      name: e.target.value
+                    contact: {
+                      ...editableTenant.contact,
+                      first_name: e.target.value
+                    }
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  value={editableTenant.contact.last_name}
+                  onChange={(e) => setEditableTenant({
+                    ...editableTenant,
+                    contact: {
+                      ...editableTenant.contact,
+                      last_name: e.target.value
                     }
                   })}
                   margin="normal"
@@ -1447,11 +1663,11 @@ export const TenantPage: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Email"
-                  value={editableTenant.owner.email}
+                  value={editableTenant.contact.email}
                   onChange={(e) => setEditableTenant({
                     ...editableTenant,
-                    owner: {
-                      ...editableTenant.owner,
+                    contact: {
+                      ...editableTenant.contact,
                       email: e.target.value
                     }
                   })}
@@ -1459,15 +1675,34 @@ export const TenantPage: React.FC = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Language</InputLabel>
+                  <Select
+                    value={editableTenant.contact.language}
+                    label="Language"
+                    onChange={(e) => setEditableTenant({
+                      ...editableTenant,
+                      contact: {
+                        ...editableTenant.contact,
+                        language: e.target.value as '日本語' | 'English'
+                      }
+                    })}
+                  >
+                    <MenuItem value="日本語">日本語</MenuItem>
+                    <MenuItem value="English">English</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Phone"
-                  value={editableTenant.owner.phone}
+                  label="Office Phone"
+                  value={editableTenant.contact.phone_office}
                   onChange={(e) => setEditableTenant({
                     ...editableTenant,
-                    owner: {
-                      ...editableTenant.owner,
-                      phone: e.target.value
+                    contact: {
+                      ...editableTenant.contact,
+                      phone_office: e.target.value
                     }
                   })}
                   margin="normal"
@@ -1476,28 +1711,58 @@ export const TenantPage: React.FC = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Country"
-                  value={editableTenant.owner.country}
+                  label="Mobile Phone"
+                  value={editableTenant.contact.phone_mobile}
                   onChange={(e) => setEditableTenant({
                     ...editableTenant,
-                    owner: {
-                      ...editableTenant.owner,
-                      country: e.target.value
+                    contact: {
+                      ...editableTenant.contact,
+                      phone_mobile: e.target.value
                     }
                   })}
                   margin="normal"
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Address"
-                  value={editableTenant.owner.address}
+                  label="Company"
+                  value={editableTenant.contact.company}
                   onChange={(e) => setEditableTenant({
                     ...editableTenant,
-                    owner: {
-                      ...editableTenant.owner,
-                      address: e.target.value
+                    contact: {
+                      ...editableTenant.contact,
+                      company: e.target.value
+                    }
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Department"
+                  value={editableTenant.contact.department}
+                  onChange={(e) => setEditableTenant({
+                    ...editableTenant,
+                    contact: {
+                      ...editableTenant.contact,
+                      department: e.target.value
+                    }
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Address Line 1"
+                  value={editableTenant.contact.address1}
+                  onChange={(e) => setEditableTenant({
+                    ...editableTenant,
+                    contact: {
+                      ...editableTenant.contact,
+                      address1: e.target.value
                     }
                   })}
                   margin="normal"
@@ -1512,7 +1777,7 @@ export const TenantPage: React.FC = () => {
             onClick={handleSaveTenant}
             variant="contained"
             color="primary"
-            disabled={!editableTenant || !editableTenant.name || !editableTenant.owner.name || !editableTenant.owner.email}
+            disabled={!editableTenant || !editableTenant.name || !editableTenant.contact.first_name || !editableTenant.contact.email}
           >
             Save
           </Button>
