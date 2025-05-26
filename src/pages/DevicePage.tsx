@@ -290,7 +290,7 @@ export const DevicePage: React.FC = () => {
     }
   };
   
-  const handleAssignToTenant = async (device: UnregisteredDevice, tenantId: string, tenantName: string) => {
+  const handleAssignToTenant = async (device: UnregisteredDevice, subscriptionId: string, tenantName: string) => {
     try {
       setLoading(true);
       // In a real implementation, this would call a service method to assign the device to a tenant
@@ -300,7 +300,7 @@ export const DevicePage: React.FC = () => {
           const { isUnregistered, ...deviceWithoutFlag } = d as UnregisteredDevice;
           return {
             ...deviceWithoutFlag,
-            tenantId,
+            subscriptionId,
             tenantName,
             status: "Assigned" // Set status to Assigned when device is assigned to a tenant
           } as DeviceWithTenant;
@@ -654,10 +654,10 @@ export const DevicePage: React.FC = () => {
                           <span
                             className="clickable"
                             onClick={() => {
-                              localStorage.setItem('selectedTenantId', (device as DeviceWithTenant).tenantId);
+                              localStorage.setItem('selectedTenantId', (device as DeviceWithTenant).subscriptionId);
                               window.history.pushState({}, '', '/');
                               const tenantPageEvent = new CustomEvent('navigate-to-tenant', { 
-                                detail: { tenantId: (device as DeviceWithTenant).tenantId } 
+                                detail: { subscriptionId: (device as DeviceWithTenant).subscriptionId } 
                               });
                               window.dispatchEvent(tenantPageEvent);
                             }}
@@ -671,7 +671,7 @@ export const DevicePage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>
                         {device.type}
                       </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
@@ -893,10 +893,10 @@ export const DevicePage: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Device ID"
-                  value={editableDevice.deviceId}
+                  value={editableDevice.id}
                   onChange={(e) => setEditableDevice({
                     ...editableDevice,
-                    deviceId: e.target.value
+                    id: e.target.value
                   })}
                   margin="normal"
                 />
@@ -938,7 +938,7 @@ export const DevicePage: React.FC = () => {
             onClick={handleSaveDevice} 
             variant="contained" 
             color="primary"
-            disabled={!editableDevice || !editableDevice.name || !editableDevice.deviceId}
+            disabled={!editableDevice || !editableDevice.name || !editableDevice.id}
           >
             Save
           </Button>

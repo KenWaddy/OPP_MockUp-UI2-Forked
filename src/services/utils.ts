@@ -1,4 +1,4 @@
-import { FlatUser } from '../mocks/data/types.js';
+import { User } from '../mocks/data/types.js';
 
 /**
  * Format contact name based on language preference
@@ -13,13 +13,13 @@ export function formatContactName(firstName: string, lastName: string, language:
 
 /**
  * Find the owner user for a tenant
- * @param tenantId ID of the tenant
+ * @param subscriptionId ID of the subscription
  * @param users Array of users to search
  * @returns Owner user or undefined if not found
  */
-export function findOwnerForTenant(tenantId: string, users: FlatUser[]): FlatUser | undefined {
+export function findOwnerForTenant(subscriptionId: string, users: User[]): User | undefined {
   const tenantOwners = users.filter(user => 
-    user.tenantId === tenantId && user.roles.includes('Owner')
+    user.subscriptionId === subscriptionId && user.roles.includes('Owner')
   );
   
   return tenantOwners.length > 0 ? tenantOwners[0] : undefined;
