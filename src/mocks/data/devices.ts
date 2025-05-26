@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Device, UnregisteredDevice } from './types.js';
+import { Device, UnregisteredDevice } from '../../types/models.js';
 import { tenants } from './tenants.js';
 import { Attribute, defaultDeviceTypes } from '../index.js';
 

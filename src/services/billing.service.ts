@@ -1,9 +1,9 @@
 import { mockTenants } from '../mocks/index.js';
-import { TenantType, DeviceContractItem } from '../mocks/types.js';
+import { TenantType, DeviceContractItem } from '../types/models.js';
 import { PaginationParams, PaginatedResponse, IBillingService } from './types.js';
 import { delay } from '../utils/delay.js';
 import { billing, tenants } from '../mocks/data/index.js';
-import { Billing } from '../mocks/data/types.js';
+import { Billing } from '../types/models.js';
 
 interface BillingWithTenant extends Billing {
   tenantName: string;

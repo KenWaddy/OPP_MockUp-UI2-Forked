@@ -1,4 +1,27 @@
-import { Attribute } from '../types.js';
+export type UserType = {
+  id: string;
+  name: string;
+  email: string;
+  roles: ("Owner" | "Engineer" | "Member")[];
+  ipWhitelist: string[];
+  mfaEnabled: boolean;
+};
+
+export type Attribute = {
+  key: string;
+  value: string;
+};
+
+export type DeviceType = {
+  name: string;
+  option: string;
+  description: string;
+};
+
+export type DeviceContractItem = {
+  type: string; // References DeviceType.name
+  quantity: number;
+};
 
 /**
  * Subscription data structure
@@ -20,7 +43,8 @@ export interface Subscription {
 }
 
 /**
- * Tenant data structure with references instead of nesting
+ * Tenant data structure with flattened contact fields
+ * @note Consolidated from TenantType (nested) and Tenant (flat) - using flat structure to match mock data
  */
 export interface Tenant {
   id: string;
@@ -45,6 +69,7 @@ export interface Tenant {
 
 /**
  * User data structure with subscription reference
+ * @note Merged from UserType - added subscriptionId to match data usage
  */
 export interface User {
   id: string;
@@ -58,6 +83,7 @@ export interface User {
 
 /**
  * Device data structure with subscription reference
+ * @note Consolidated from DeviceType2 - using flat structure with subscriptionId
  */
 export interface Device {
   id: string;
@@ -89,7 +115,16 @@ export interface Billing {
 }
 
 /**
+ * Device with tenant information for display purposes
+ */
+export type DeviceWithTenant = Device & {
+  tenantId: string;
+  tenantName: string;
+};
+
+/**
  * Unregistered device data structure
+ * @note Consolidated from UnregisteredDeviceType - using interface matching data usage
  */
 export interface UnregisteredDevice {
   id: string;
@@ -101,3 +136,10 @@ export interface UnregisteredDevice {
   attributes: Attribute[];
   isUnregistered: true;
 }
+
+/** @deprecated Use Tenant instead */
+export type TenantType = Tenant;
+/** @deprecated Use Device instead */
+export type DeviceType2 = Device;
+/** @deprecated Use UnregisteredDevice instead */
+export type UnregisteredDeviceType = UnregisteredDevice;

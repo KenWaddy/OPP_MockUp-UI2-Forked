@@ -1,4 +1,4 @@
-export * from './types.js';
+export * from '../types/models.js';
 export * from './tenants.js';
 export * from './unregisteredDevices.js';
 export * from './deviceTypes.js';

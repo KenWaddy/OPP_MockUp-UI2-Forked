@@ -1,5 +1,5 @@
 import { tenants, users } from '../mocks/data/index.js';
-import { Tenant, User } from '../mocks/data/types.js';
+import { Tenant, User } from '../types/models.js';
 
 /**
  * Set up test data for edge cases

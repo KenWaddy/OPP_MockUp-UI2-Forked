@@ -1,5 +1,4 @@
-import { TenantType, UserType, DeviceType2, DeviceWithTenant, DeviceContractItem, UnregisteredDeviceType } from '../mocks/types.js';
-import { Tenant, User, Device, Billing, UnregisteredDevice } from '../mocks/data/types.js';
+import { TenantType, UserType, DeviceType2, DeviceWithTenant, DeviceContractItem, UnregisteredDeviceType, Tenant, User, Device, Billing, UnregisteredDevice } from '../types/models.js';
 
 export interface PaginationParams {
   page: number;
