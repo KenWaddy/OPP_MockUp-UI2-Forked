@@ -515,7 +515,7 @@ export const BillingPage: React.FC = () => {
                 </TableHead>
                 <TableBody>
                   {allBillings.map((billing) => (
-                    <TableRow key={`${billing.tenantId}-${billing.billingId}`}>
+                    <TableRow key={`${billing.tenantId}-${billing.id}`}>
                       <TableCell sx={tableBodyCellStyle}>
                         <span
                           className="clickable"
@@ -532,7 +532,7 @@ export const BillingPage: React.FC = () => {
                           {billing.tenantName}
                         </span>
                       </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.billingId || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.id || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
