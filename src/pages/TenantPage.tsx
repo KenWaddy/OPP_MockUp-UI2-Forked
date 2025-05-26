@@ -136,6 +136,15 @@ export const TenantPage: React.FC = () => {
     total: 0,
     totalPages: 0
   });
+  
+  const [devicePagination, setDevicePagination] = useState({
+    page: 1,
+    limit: 500, // Default to 500 rows as requested
+    total: 0,
+    totalPages: 0
+  });
+  
+  const [loadingDevices, setLoadingDevices] = useState(false);
 
   useEffect(() => {
     const selectedTenantId = localStorage.getItem('selectedTenantId');
@@ -233,6 +242,10 @@ export const TenantPage: React.FC = () => {
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setPagination({ ...pagination, page });
+  };
+  
+  const handleDevicePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setDevicePagination({ ...devicePagination, page });
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
@@ -766,6 +779,27 @@ export const TenantPage: React.FC = () => {
     });
   }, [selectedTenant?.devices, sortConfig]);
   
+  const paginatedDevices = useMemo(() => {
+    if (!sortedDevices) return [];
+    
+    const totalDevices = sortedDevices.length;
+    const totalPages = Math.ceil(totalDevices / devicePagination.limit);
+    
+    // Update pagination state with calculated values if they've changed
+    if (totalDevices !== devicePagination.total || totalPages !== devicePagination.totalPages) {
+      setDevicePagination(prev => ({
+        ...prev,
+        total: totalDevices,
+        totalPages: totalPages
+      }));
+    }
+    
+    const startIndex = (devicePagination.page - 1) * devicePagination.limit;
+    const endIndex = Math.min(startIndex + devicePagination.limit, totalDevices);
+    
+    return sortedDevices.slice(startIndex, endIndex);
+  }, [sortedDevices, devicePagination.page, devicePagination.limit]);
+  
   const sortedBillingDetails = useMemo(() => {
     if (!selectedTenant?.billingDetails || !sortConfig) return selectedTenant?.billingDetails || [];
     return [...selectedTenant.billingDetails].sort((a, b) => {
@@ -1264,7 +1298,31 @@ export const TenantPage: React.FC = () => {
           {/* Devices Tab */}
           {activeTab === "devices" && (
             <>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel id="device-rows-per-page-label">Rows</InputLabel>
+                    <Select
+                      labelId="device-rows-per-page-label"
+                      value={devicePagination.limit}
+                      label="Rows"
+                      onChange={(e) => {
+                        setDevicePagination({ ...devicePagination, page: 1, limit: Number(e.target.value) });
+                      }}
+                      sx={{ backgroundColor: "white" }}
+                    >
+                      <MenuItem value={100}>100</MenuItem>
+                      <MenuItem value={500}>500</MenuItem>
+                      <MenuItem value={2000}>2000</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Pagination 
+                    count={devicePagination.totalPages} 
+                    page={devicePagination.page} 
+                    onChange={handleDevicePageChange} 
+                    color="primary" 
+                  />
+                </Box>
                 <Button
                   variant="outlined"
                   size="small"
@@ -1275,109 +1333,116 @@ export const TenantPage: React.FC = () => {
                   Assign Device
                 </Button>
               </Box>
-              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('name')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Name {getSortDirectionIndicator('name')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('type')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Type {getSortDirectionIndicator('type')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('id')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Device ID {getSortDirectionIndicator('id')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('serialNo')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Serial No. {getSortDirectionIndicator('serialNo')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('description')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Description {getSortDirectionIndicator('description')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('status')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Status {getSortDirectionIndicator('status')}
-                      </TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                <TableBody>
-                  {sortedDevices && sortedDevices.length > 0 ? (
-                    sortedDevices.map((device) => (
-                      <TableRow key={device.id}>
-                        <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <Chip
-                            label={device.status}
-                            color={device.status === "Activated" ? "success" :
-                                   device.status === "Assigned" ? "info" : "warning"}
-                            size="small"
-                          />
+              
+              {loadingDevices ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('name')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Name {getSortDirectionIndicator('name')}
                         </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <Tooltip 
-                            leaveDelay={0}
-                            title={
-                            <List dense>
-                              {device.attributes.map((attr, index) => (
-                                <ListItem key={index}>
-                                  <ListItemText primary={`${attr.key}: ${attr.value}`} />
-                                </ListItem>
-                              ))}
-                            </List>
-                          }>
-                            <span style={{ cursor: 'pointer', color: 'blue' }}>
-                              View ({device.attributes.length})
-                            </span>
-                          </Tooltip>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('type')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Type {getSortDirectionIndicator('type')}
                         </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleUnassignDevice(device.id)}
-                            aria-label="unassign"
-                          >
-                            <LinkOffIcon fontSize="small" />
-                          </IconButton>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('id')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Device ID {getSortDirectionIndicator('id')}
                         </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('serialNo')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Serial No. {getSortDirectionIndicator('serialNo')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('description')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Description {getSortDirectionIndicator('description')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('status')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Status {getSortDirectionIndicator('status')}
+                        </TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={8} align="center" sx={tableBodyCellStyle}>No devices found</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    </TableHead>
+                  <TableBody>
+                    {paginatedDevices && paginatedDevices.length > 0 ? (
+                      paginatedDevices.map((device: any) => (
+                        <TableRow key={device.id}>
+                          <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Chip
+                              label={device.status}
+                              color={device.status === "Activated" ? "success" :
+                                    device.status === "Assigned" ? "info" : "warning"}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Tooltip 
+                              leaveDelay={0}
+                              title={
+                              <List dense>
+                                {device.attributes.map((attr: { key: string, value: string }, index: number) => (
+                                  <ListItem key={index}>
+                                    <ListItemText primary={`${attr.key}: ${attr.value}`} />
+                                  </ListItem>
+                                ))}
+                              </List>
+                            }>
+                              <span style={{ cursor: 'pointer', color: 'blue' }}>
+                                View ({device.attributes.length})
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleUnassignDevice(device.id)}
+                              aria-label="unassign"
+                            >
+                              <LinkOffIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={8} align="center" sx={tableBodyCellStyle}>No devices found</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              )}
             </>
           )}
 
