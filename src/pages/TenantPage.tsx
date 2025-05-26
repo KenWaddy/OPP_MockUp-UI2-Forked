@@ -744,6 +744,46 @@ export const TenantPage: React.FC = () => {
       return 0;
     });
   }, [selectedTenant?.users, sortConfig]);
+  
+  const sortedDevices = useMemo(() => {
+    if (!selectedTenant?.devices || !sortConfig) return selectedTenant?.devices || [];
+    return [...selectedTenant.devices].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a];
+      const bValue = b[sortConfig.key as keyof typeof b];
+      
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [selectedTenant?.devices, sortConfig]);
+  
+  const sortedBillingDetails = useMemo(() => {
+    if (!selectedTenant?.billingDetails || !sortConfig) return selectedTenant?.billingDetails || [];
+    return [...selectedTenant.billingDetails].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a];
+      const bValue = b[sortConfig.key as keyof typeof b];
+      
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [selectedTenant?.billingDetails, sortConfig]);
 
   return (
     <div className="tenant-list">
@@ -1247,8 +1287,8 @@ export const TenantPage: React.FC = () => {
                     </TableRow>
                   </TableHead>
                 <TableBody>
-                  {selectedTenant.devices && selectedTenant.devices.length > 0 ? (
-                    selectedTenant.devices.map((device) => (
+                  {sortedDevices && sortedDevices.length > 0 ? (
+                    sortedDevices.map((device) => (
                       <TableRow key={device.id}>
                         <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
@@ -1367,7 +1407,7 @@ export const TenantPage: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {selectedTenant.billingDetails.map((billing, index) => (
+                      {sortedBillingDetails.map((billing, index) => (
                         <TableRow key={index}>
                           <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>
