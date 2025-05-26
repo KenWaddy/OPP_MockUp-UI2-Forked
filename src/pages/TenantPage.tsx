@@ -758,6 +758,12 @@ export const TenantPage: React.FC = () => {
                       </Typography>
                     </Grid>
                     <Grid item xs={4}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Company:</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedTenant.contact.company || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Department:</Typography>
                     </Grid>
                     <Grid item xs={8}>
@@ -849,8 +855,12 @@ export const TenantPage: React.FC = () => {
                       <Typography>{selectedTenant.subscription?.name || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
-                      <Typography>{selectedTenant.subscription?.type || 'N/A'}</Typography>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
+                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
+                      <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
@@ -865,8 +875,8 @@ export const TenantPage: React.FC = () => {
                       />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
-                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
+                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
+                      <Typography>{selectedTenant.subscription?.type || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Start Date:</Typography>
@@ -875,10 +885,6 @@ export const TenantPage: React.FC = () => {
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>End Date:</Typography>
                       <Typography>{selectedTenant.subscription?.end_date || 'N/A'}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
-                      <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12}>
                       <Divider sx={{ my: 2 }} />
@@ -956,62 +962,6 @@ export const TenantPage: React.FC = () => {
                           />
                         </Grid>
                       </Grid>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
-                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
-                      <Typography>{selectedTenant.subscription?.type || 'N/A'}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
-                      <Chip
-                        label={selectedTenant.subscription?.status || 'N/A'}
-                        color={
-                          selectedTenant.subscription?.status === "Active" ? "success" :
-                          selectedTenant.subscription?.status === "Cancelled" ? "error" :
-                          "default"
-                        }
-                        size="small"
-                      />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
-                      <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Date Range:</Typography>
-                      <Typography>
-                        {selectedTenant.subscription?.start_date || 'N/A'} - {selectedTenant.subscription?.end_date || 'N/A'}
-                      </Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Enabled Applications:</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                        {selectedTenant.subscription?.enabled_app_DMS && <Chip label="DMS" size="small" color="primary" />}
-                        {selectedTenant.subscription?.enabled_app_eVMS && <Chip label="eVMS" size="small" color="primary" />}
-                        {selectedTenant.subscription?.enabled_app_CVR && <Chip label="CVR" size="small" color="primary" />}
-                        {selectedTenant.subscription?.enabled_app_AIAMS && <Chip label="AIAMS" size="small" color="primary" />}
-                        {!selectedTenant.subscription?.enabled_app_DMS && 
-                         !selectedTenant.subscription?.enabled_app_eVMS && 
-                         !selectedTenant.subscription?.enabled_app_CVR && 
-                         !selectedTenant.subscription?.enabled_app_AIAMS && 'None'}
-                      </Box>
-                    </Grid>
-                    
-                    <Grid item xs={12}>
-                      <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Configuration:</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                        {selectedTenant.subscription?.config_SSH_terminal && <Chip label="SSH Terminal" size="small" color="secondary" />}
-                        {selectedTenant.subscription?.config_AIAPP_installer && <Chip label="AIAPP Installer" size="small" color="secondary" />}
-                        {!selectedTenant.subscription?.config_SSH_terminal && 
-                         !selectedTenant.subscription?.config_AIAPP_installer && 'None'}
-                      </Box>
                     </Grid>
                   </Grid>
                 </Paper>

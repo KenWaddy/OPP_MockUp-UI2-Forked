@@ -90,8 +90,8 @@ export class TenantService implements ITenantService {
             valueB = b.name;
             break;
           case 'contact':
-            valueA = `${a.contact.first_name} ${a.contact.last_name}`;
-            valueB = `${b.contact.first_name} ${b.contact.last_name}`;
+            valueA = a.contact.last_name;
+            valueB = b.contact.last_name;
             break;
           case 'email':
             valueA = a.contact.email;
