@@ -38,16 +38,38 @@ export type Tenant = {
   id: string;
   name: string;
   description?: string;
-  status?: string;
-  billing?: string;
-  owner: {
-    name: string;
+  contact: {
+    first_name: string;
+    last_name: string;
+    department: string;
+    language: '日本語' | 'English';
     email: string;
-    phone?: string;
-    address?: string;
-    country?: string;
+    phone_office: string;
+    phone_mobile: string;
+    company: string;
+    address1: string;
+    address2: string;
+    city: string;
+    state_prefecture: string;
+    country: string;
+    postal_code: string;
   };
-  contract: string;
+  corresponding_subscription_id: string;
+  subscription?: {
+    id: string;
+    name: string;
+    description: string;
+    type: 'Evergreen' | 'Termed';
+    status: 'Active' | 'Cancelled';
+    start_date: string;
+    end_date: string;
+    enabled_app_DMS: boolean;
+    enabled_app_eVMS: boolean;
+    enabled_app_CVR: boolean;
+    enabled_app_AIAMS: boolean;
+    config_SSH_terminal: boolean;
+    config_AIAPP_installer: boolean;
+  };
   billingDetails?: {
     billingId?: string;
     deviceContract?: DeviceContractItem[];
@@ -60,17 +82,6 @@ export type Tenant = {
     billingStartDate?: string;
     description?: string; // Description of the billing
   }[];
-  subscription?: {
-    name?: string;
-    id?: string;
-    description?: string;
-    services?: string[];
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    configs?: string;
-    termType?: string;
-  };
   users?: User[];
   devices?: Device[];
 };

@@ -1,26 +1,46 @@
 import { Attribute } from '../types.js';
 
 /**
+ * Flat subscription data structure
+ */
+export interface FlatSubscription {
+  id: string;
+  name: string;
+  description: string;
+  type: 'Evergreen' | 'Termed';
+  status: 'Active' | 'Cancelled';
+  start_date: string;
+  end_date: string;
+  enabled_app_DMS: boolean;
+  enabled_app_eVMS: boolean;
+  enabled_app_CVR: boolean;
+  enabled_app_AIAMS: boolean;
+  config_SSH_terminal: boolean;
+  config_AIAPP_installer: boolean;
+}
+
+/**
  * Flat tenant data structure with references instead of nesting
  */
 export interface FlatTenant {
   id: string;
   name: string;
-  description?: string;
-  contract: string;
-  status: string;
-  billing: string;
-  subscription?: {
-    name?: string;
-    id?: string;
-    description?: string;
-    services?: string[];
-    termType?: string;
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    configs?: string;
-  };
+  description: string;
+  contact_person_first_name: string;
+  contact_person_last_name: string;
+  contact_department: string;
+  language: '日本語' | 'English';
+  contact_person_email: string;
+  contact_phone_office: string;
+  contact_phone_mobile: string;
+  contact_company: string;
+  contact_address1: string;
+  contact_address2: string;
+  contact_city: string;
+  contact_state_prefecture: string;
+  contact_country: string;
+  contact_postal_code: string;
+  corresponding_subscription_id: string;
 }
 
 /**

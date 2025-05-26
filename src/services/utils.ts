@@ -1,6 +1,17 @@
 import { FlatUser } from '../mocks/data/types.js';
 
 /**
+ * Format contact name based on language preference
+ * @param firstName First name
+ * @param lastName Last name
+ * @param language Language preference ('日本語' or 'English')
+ * @returns Formatted name string
+ */
+export function formatContactName(firstName: string, lastName: string, language: '日本語' | 'English'): string {
+  return language === '日本語' ? `${lastName} ${firstName}` : `${firstName} ${lastName}`;
+}
+
+/**
  * Find the owner user for a tenant
  * @param tenantId ID of the tenant
  * @param users Array of users to search

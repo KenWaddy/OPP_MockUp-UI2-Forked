@@ -11,35 +11,51 @@ import {
   TableRow,
 } from "@mui/material";
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common.js';
+import { formatContactName } from '../services/utils.js';
 
 interface Tenant {
   id: string;
   name: string;
-  owner: string;
-  email: string;
-  contract: string;
-  status: string;
-  billing: string;
+  contact: {
+    first_name: string;
+    last_name: string;
+    language: '日本語' | 'English';
+    email: string;
+  };
+  subscription?: {
+    type: 'Evergreen' | 'Termed';
+    status: 'Active' | 'Cancelled';
+  };
 }
 
 const mockTenants: Tenant[] = [
   {
     id: "1",
     name: "Acme Corp",
-    owner: "John Doe",
-    email: "john@acme.com",
-    contract: "Premium",
-    status: "Active",
-    billing: "Monthly"
+    contact: {
+      first_name: "John",
+      last_name: "Doe",
+      language: "English",
+      email: "john@acme.com"
+    },
+    subscription: {
+      type: "Evergreen",
+      status: "Active"
+    }
   },
   {
     id: "2",
     name: "Globex Inc",
-    owner: "Jane Smith",
-    email: "jane@globex.com",
-    contract: "Standard",
-    status: "Active",
-    billing: "Annually"
+    contact: {
+      first_name: "Jane",
+      last_name: "Smith",
+      language: "English",
+      email: "jane@globex.com"
+    },
+    subscription: {
+      type: "Termed",
+      status: "Active"
+    }
   }
 ];
 
@@ -56,12 +72,12 @@ export const TenantList: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={tableHeaderCellStyle}>Tenant Name</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Owner</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Tenant</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Contact</TableCell>
               <TableCell sx={tableHeaderCellStyle}>Email</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Contract</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
               <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Billing</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -72,11 +88,13 @@ export const TenantList: React.FC = () => {
                 sx={{ cursor: 'pointer' }}
               >
                 <TableCell sx={tableBodyCellStyle}>{tenant.name}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.owner}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.email}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.contract}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.status}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.billing}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>
+                  {formatContactName(tenant.contact.first_name, tenant.contact.last_name, tenant.contact.language)}
+                </TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.subscription?.type || '-'}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>{tenant.subscription?.status || '-'}</TableCell>
+                <TableCell sx={tableBodyCellStyle}>Edit/Delete</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -2,7 +2,7 @@ import { mockTenants } from '../mocks/index.js';
 import { Tenant } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ITenantService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { flatTenants, flatUsers, flatDevices, flatBilling } from '../mocks/data/index.js';
+import { flatTenants, flatUsers, flatDevices, flatBilling, flatSubscriptions } from '../mocks/data/index.js';
 import { findOwnerForTenant } from './utils.js';
 
 export class TenantService implements ITenantService {
@@ -13,23 +13,46 @@ export class TenantService implements ITenantService {
     await delay();
     
     let result = await Promise.all(flatTenants.map(async tenant => {
-      const owner = findOwnerForTenant(tenant.id, flatUsers);
+      const subscription = flatSubscriptions.find(sub => sub.id === tenant.corresponding_subscription_id);
+      
+      const contact = {
+        first_name: tenant.contact_person_first_name,
+        last_name: tenant.contact_person_last_name,
+        department: tenant.contact_department,
+        language: tenant.language,
+        email: tenant.contact_person_email,
+        phone_office: tenant.contact_phone_office,
+        phone_mobile: tenant.contact_phone_mobile,
+        company: tenant.contact_company,
+        address1: tenant.contact_address1,
+        address2: tenant.contact_address2,
+        city: tenant.contact_city,
+        state_prefecture: tenant.contact_state_prefecture,
+        country: tenant.contact_country,
+        postal_code: tenant.contact_postal_code
+      };
       
       return {
-        ...tenant,
-        owner: owner ? {
-          name: owner.name,
-          email: owner.email,
-          phone: '',
-          address: '',
-          country: ''
-        } : {
-          name: 'No Owner Assigned',
-          email: 'no-owner@example.com',
-          phone: '',
-          address: '',
-          country: ''
-        }
+        id: tenant.id,
+        name: tenant.name,
+        description: tenant.description,
+        contact,
+        corresponding_subscription_id: tenant.corresponding_subscription_id,
+        subscription: subscription ? {
+          id: subscription.id,
+          name: subscription.name,
+          description: subscription.description,
+          type: subscription.type,
+          status: subscription.status,
+          start_date: subscription.start_date,
+          end_date: subscription.end_date,
+          enabled_app_DMS: subscription.enabled_app_DMS,
+          enabled_app_eVMS: subscription.enabled_app_eVMS,
+          enabled_app_CVR: subscription.enabled_app_CVR,
+          enabled_app_AIAMS: subscription.enabled_app_AIAMS,
+          config_SSH_terminal: subscription.config_SSH_terminal,
+          config_AIAPP_installer: subscription.config_AIAPP_installer
+        } : undefined
       };
     }));
     
@@ -40,15 +63,14 @@ export class TenantService implements ITenantService {
             const searchValue = String(value).toLowerCase();
             result = result.filter(tenant => 
               tenant.name.toLowerCase().includes(searchValue) ||
-              tenant.owner.name.toLowerCase().includes(searchValue) ||
-              tenant.owner.email.toLowerCase().includes(searchValue)
+              tenant.contact.first_name.toLowerCase().includes(searchValue) ||
+              tenant.contact.last_name.toLowerCase().includes(searchValue) ||
+              tenant.contact.email.toLowerCase().includes(searchValue)
             );
-          } else if (key === 'contract') {
-            result = result.filter(tenant => tenant.contract === value);
-          } else if (key === 'billing') {
-            result = result.filter(tenant => tenant.billing === value);
+          } else if (key === 'type') {
+            result = result.filter(tenant => tenant.subscription?.type === value);
           } else if (key === 'status') {
-            result = result.filter(tenant => tenant.status === value);
+            result = result.filter(tenant => tenant.subscription?.status === value);
           } else {
             result = result.filter(tenant => 
               (tenant as any)[key] === value
@@ -67,25 +89,21 @@ export class TenantService implements ITenantService {
             valueA = a.name;
             valueB = b.name;
             break;
-          case 'owner':
-            valueA = a.owner.name;
-            valueB = b.owner.name;
+          case 'contact':
+            valueA = `${a.contact.first_name} ${a.contact.last_name}`;
+            valueB = `${b.contact.first_name} ${b.contact.last_name}`;
             break;
           case 'email':
-            valueA = a.owner.email;
-            valueB = b.owner.email;
+            valueA = a.contact.email;
+            valueB = b.contact.email;
             break;
-          case 'contract':
-            valueA = a.contract;
-            valueB = b.contract;
+          case 'type':
+            valueA = a.subscription?.type || '';
+            valueB = b.subscription?.type || '';
             break;
           case 'status':
             valueA = a.subscription?.status || '';
             valueB = b.subscription?.status || '';
-            break;
-          case 'billing':
-            valueA = a.billing;
-            valueB = b.billing;
             break;
           default:
             const field = params.sort?.field || '';
@@ -137,23 +155,46 @@ export class TenantService implements ITenantService {
       };
     }
     
-    const owner = findOwnerForTenant(id, flatUsers);
+    const subscription = flatSubscriptions.find(sub => sub.id === tenant.corresponding_subscription_id);
+    
+    const contact = {
+      first_name: tenant.contact_person_first_name,
+      last_name: tenant.contact_person_last_name,
+      department: tenant.contact_department,
+      language: tenant.language,
+      email: tenant.contact_person_email,
+      phone_office: tenant.contact_phone_office,
+      phone_mobile: tenant.contact_phone_mobile,
+      company: tenant.contact_company,
+      address1: tenant.contact_address1,
+      address2: tenant.contact_address2,
+      city: tenant.contact_city,
+      state_prefecture: tenant.contact_state_prefecture,
+      country: tenant.contact_country,
+      postal_code: tenant.contact_postal_code
+    };
     
     const result: any = {
-      ...tenant,
-      owner: owner ? {
-        name: owner.name,
-        email: owner.email,
-        phone: '',
-        address: '',
-        country: ''
-      } : {
-        name: 'No Owner Assigned',
-        email: 'no-owner@example.com',
-        phone: '',
-        address: '',
-        country: ''
-      }
+      id: tenant.id,
+      name: tenant.name,
+      description: tenant.description,
+      contact,
+      corresponding_subscription_id: tenant.corresponding_subscription_id,
+      subscription: subscription ? {
+        id: subscription.id,
+        name: subscription.name,
+        description: subscription.description,
+        type: subscription.type,
+        status: subscription.status,
+        start_date: subscription.start_date,
+        end_date: subscription.end_date,
+        enabled_app_DMS: subscription.enabled_app_DMS,
+        enabled_app_eVMS: subscription.enabled_app_eVMS,
+        enabled_app_CVR: subscription.enabled_app_CVR,
+        enabled_app_AIAMS: subscription.enabled_app_AIAMS,
+        config_SSH_terminal: subscription.config_SSH_terminal,
+        config_AIAPP_installer: subscription.config_AIAPP_installer
+      } : undefined
     };
     
     if (includeUsers) {
@@ -182,23 +223,46 @@ export class TenantService implements ITenantService {
     await delay();
     
     const result = await Promise.all(flatTenants.map(async tenant => {
-      const owner = findOwnerForTenant(tenant.id, flatUsers);
+      const subscription = flatSubscriptions.find(sub => sub.id === tenant.corresponding_subscription_id);
+      
+      const contact = {
+        first_name: tenant.contact_person_first_name,
+        last_name: tenant.contact_person_last_name,
+        department: tenant.contact_department,
+        language: tenant.language,
+        email: tenant.contact_person_email,
+        phone_office: tenant.contact_phone_office,
+        phone_mobile: tenant.contact_phone_mobile,
+        company: tenant.contact_company,
+        address1: tenant.contact_address1,
+        address2: tenant.contact_address2,
+        city: tenant.contact_city,
+        state_prefecture: tenant.contact_state_prefecture,
+        country: tenant.contact_country,
+        postal_code: tenant.contact_postal_code
+      };
       
       return {
-        ...tenant,
-        owner: owner ? {
-          name: owner.name,
-          email: owner.email,
-          phone: '',
-          address: '',
-          country: ''
-        } : {
-          name: 'No Owner Assigned',
-          email: 'no-owner@example.com',
-          phone: '',
-          address: '',
-          country: ''
-        }
+        id: tenant.id,
+        name: tenant.name,
+        description: tenant.description,
+        contact,
+        corresponding_subscription_id: tenant.corresponding_subscription_id,
+        subscription: subscription ? {
+          id: subscription.id,
+          name: subscription.name,
+          description: subscription.description,
+          type: subscription.type,
+          status: subscription.status,
+          start_date: subscription.start_date,
+          end_date: subscription.end_date,
+          enabled_app_DMS: subscription.enabled_app_DMS,
+          enabled_app_eVMS: subscription.enabled_app_eVMS,
+          enabled_app_CVR: subscription.enabled_app_CVR,
+          enabled_app_AIAMS: subscription.enabled_app_AIAMS,
+          config_SSH_terminal: subscription.config_SSH_terminal,
+          config_AIAPP_installer: subscription.config_AIAPP_installer
+        } : undefined
       };
     }));
     
