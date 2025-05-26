@@ -585,7 +585,7 @@ export const TenantPage: React.FC = () => {
     if (!selectedTenant) return;
 
     setEditableBilling({
-      billingId: `BID-${Math.floor(Math.random() * 1000)}`,
+      id: `BID-${Math.floor(Math.random() * 1000)}`,
       paymentType: "Monthly",
       startDate: new Date().toISOString().split('T')[0],
       endDate: '',
@@ -662,7 +662,7 @@ export const TenantPage: React.FC = () => {
     try {
       setLoading(true);
 
-      const existingBillingIndex = selectedTenant.billingDetails?.findIndex(billing => billing.billingId === editableBilling.billingId) ?? -1;
+      const existingBillingIndex = selectedTenant.billingDetails?.findIndex(billing => billing.id === editableBilling.id) ?? -1;
 
       if (existingBillingIndex >= 0) {
         // Update existing billing detail
@@ -712,7 +712,7 @@ export const TenantPage: React.FC = () => {
 
       // In a real implementation, this would call a service method to delete the billing
       // For now, we'll just update the local state
-      const updatedBillingDetails = selectedTenant.billingDetails?.filter(billing => billing.billingId !== billingId) || [];
+      const updatedBillingDetails = selectedTenant.billingDetails?.filter(billing => billing.id !== billingId) || [];
 
       setSelectedTenant({
         ...selectedTenant,
@@ -1054,11 +1054,41 @@ export const TenantPage: React.FC = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Email</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Roles</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>IP Whitelist</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>MFA</TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('name')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Name {getSortDirectionIndicator('name')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('email')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Email {getSortDirectionIndicator('email')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('roles')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Roles {getSortDirectionIndicator('roles')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('ipWhitelist')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        IP Whitelist {getSortDirectionIndicator('ipWhitelist')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('mfa')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        MFA {getSortDirectionIndicator('mfa')}
+                      </TableCell>
                       <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -1154,12 +1184,48 @@ export const TenantPage: React.FC = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Device ID</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Serial No.</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('name')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Name {getSortDirectionIndicator('name')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('type')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Type {getSortDirectionIndicator('type')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('id')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Device ID {getSortDirectionIndicator('id')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('serialNo')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Serial No. {getSortDirectionIndicator('serialNo')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('description')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Description {getSortDirectionIndicator('description')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('status')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Status {getSortDirectionIndicator('status')}
+                      </TableCell>
                       <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
                       <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                     </TableRow>
@@ -1170,7 +1236,7 @@ export const TenantPage: React.FC = () => {
                       <TableRow key={device.id}>
                         <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
                         <TableCell sx={tableBodyCellStyle}>
@@ -1238,20 +1304,56 @@ export const TenantPage: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={tableHeaderCellStyle}>Billing ID</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Payment Type</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Next Billing Month</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Contract Start</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Contract End</TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('id')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Billing ID {getSortDirectionIndicator('id')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('paymentType')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Payment Type {getSortDirectionIndicator('paymentType')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('nextBillingMonth')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('startDate')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Contract Start {getSortDirectionIndicator('startDate')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('endDate')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Contract End {getSortDirectionIndicator('endDate')}
+                        </TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('description')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Description {getSortDirectionIndicator('description')}
+                        </TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {selectedTenant.billingDetails.map((billing, index) => (
                         <TableRow key={index}>
-                          <TableCell sx={tableBodyCellStyle}>{billing.billingId}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>
                             <Chip
                               label={billing.paymentType}
@@ -1306,7 +1408,7 @@ export const TenantPage: React.FC = () => {
                             </IconButton>
                             <IconButton
                               size="small"
-                              onClick={() => handleDeleteBilling(billing.billingId || '')}
+                              onClick={() => handleDeleteBilling(billing.id || '')}
                               aria-label="delete"
                             >
                               <DeleteIcon fontSize="small" />
@@ -1706,7 +1808,7 @@ export const TenantPage: React.FC = () => {
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{device.deviceId}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <Chip
@@ -1858,8 +1960,8 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {editableBilling && selectedTenant?.billingDetails?.find(billing => billing.billingId === editableBilling.billingId)
-            ? `Edit Billing: ${editableBilling.billingId}`
+          {editableBilling && selectedTenant?.billingDetails?.find(billing => billing.id === editableBilling.id)
+            ? `Edit Billing: ${editableBilling.id}`
             : `Add Billing to ${selectedTenant?.name}`}
         </DialogTitle>
         <DialogContent>
@@ -1868,10 +1970,10 @@ export const TenantPage: React.FC = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   label="Billing ID"
-                  value={editableBilling.billingId || ''}
+                  value={editableBilling.id || ''}
                   onChange={(e) => setEditableBilling({
                     ...editableBilling,
-                    billingId: e.target.value
+                    id: e.target.value
                   })}
                   fullWidth
                   margin="normal"
