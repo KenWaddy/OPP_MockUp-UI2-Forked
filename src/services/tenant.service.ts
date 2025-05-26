@@ -13,8 +13,6 @@ export class TenantService implements ITenantService {
     await delay();
     
     let result = await Promise.all(tenants.map(async (tenant: any) => {
-      const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
-      
       const contact = {
         first_name: tenant.contact_person_first_name,
         last_name: tenant.contact_person_last_name,
@@ -37,22 +35,7 @@ export class TenantService implements ITenantService {
         name: tenant.name,
         description: tenant.description,
         contact,
-        subscriptionId: tenant.subscriptionId,
-        subscription: subscription ? {
-          id: subscription.id,
-          name: subscription.name,
-          description: subscription.description,
-          type: subscription.type,
-          status: subscription.status,
-          start_date: subscription.start_date,
-          end_date: subscription.end_date,
-          enabled_app_DMS: subscription.enabled_app_DMS,
-          enabled_app_eVMS: subscription.enabled_app_eVMS,
-          enabled_app_CVR: subscription.enabled_app_CVR,
-          enabled_app_AIAMS: subscription.enabled_app_AIAMS,
-          config_SSH_terminal: subscription.config_SSH_terminal,
-          config_AIAPP_installer: subscription.config_AIAPP_installer
-        } : undefined
+        subscriptionId: tenant.subscriptionId
       };
     }));
     
@@ -67,10 +50,7 @@ export class TenantService implements ITenantService {
               tenant.contact.last_name.toLowerCase().includes(searchValue) ||
               tenant.contact.email.toLowerCase().includes(searchValue)
             );
-          } else if (key === 'type') {
-            result = result.filter(tenant => tenant.subscription?.type === value);
-          } else if (key === 'status') {
-            result = result.filter(tenant => tenant.subscription?.status === value);
+          } else if (key === 'type' || key === 'status') {
           } else {
             result = result.filter(tenant => 
               (tenant as any)[key] === value
@@ -98,12 +78,9 @@ export class TenantService implements ITenantService {
             valueB = b.contact.email;
             break;
           case 'type':
-            valueA = a.subscription?.type || '';
-            valueB = b.subscription?.type || '';
-            break;
           case 'status':
-            valueA = a.subscription?.status || '';
-            valueB = b.subscription?.status || '';
+            valueA = '';
+            valueB = '';
             break;
           default:
             const field = params.sort?.field || '';
@@ -155,8 +132,6 @@ export class TenantService implements ITenantService {
       };
     }
     
-    const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
-    
     const contact = {
       first_name: tenant.contact_person_first_name,
       last_name: tenant.contact_person_last_name,
@@ -179,22 +154,7 @@ export class TenantService implements ITenantService {
       name: tenant.name,
       description: tenant.description,
       contact,
-      subscriptionId: tenant.subscriptionId,
-      subscription: subscription ? {
-        id: subscription.id,
-        name: subscription.name,
-        description: subscription.description,
-        type: subscription.type,
-        status: subscription.status,
-        start_date: subscription.start_date,
-        end_date: subscription.end_date,
-        enabled_app_DMS: subscription.enabled_app_DMS,
-        enabled_app_eVMS: subscription.enabled_app_eVMS,
-        enabled_app_CVR: subscription.enabled_app_CVR,
-        enabled_app_AIAMS: subscription.enabled_app_AIAMS,
-        config_SSH_terminal: subscription.config_SSH_terminal,
-        config_AIAPP_installer: subscription.config_AIAPP_installer
-      } : undefined
+      subscriptionId: tenant.subscriptionId
     };
     
     if (includeUsers) {
@@ -223,8 +183,6 @@ export class TenantService implements ITenantService {
     await delay();
     
     const result = await Promise.all(tenants.map(async (tenant: any) => {
-      const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
-      
       const contact = {
         first_name: tenant.contact_person_first_name,
         last_name: tenant.contact_person_last_name,
@@ -247,22 +205,7 @@ export class TenantService implements ITenantService {
         name: tenant.name,
         description: tenant.description,
         contact,
-        subscriptionId: tenant.subscriptionId,
-        subscription: subscription ? {
-          id: subscription.id,
-          name: subscription.name,
-          description: subscription.description,
-          type: subscription.type,
-          status: subscription.status,
-          start_date: subscription.start_date,
-          end_date: subscription.end_date,
-          enabled_app_DMS: subscription.enabled_app_DMS,
-          enabled_app_eVMS: subscription.enabled_app_eVMS,
-          enabled_app_CVR: subscription.enabled_app_CVR,
-          enabled_app_AIAMS: subscription.enabled_app_AIAMS,
-          config_SSH_terminal: subscription.config_SSH_terminal,
-          config_AIAPP_installer: subscription.config_AIAPP_installer
-        } : undefined
+        subscriptionId: tenant.subscriptionId
       };
     }));
     

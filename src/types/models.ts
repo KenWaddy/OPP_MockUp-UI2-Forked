@@ -137,8 +137,31 @@ export interface UnregisteredDevice {
   isUnregistered: true;
 }
 
-/** @deprecated Use Tenant instead */
-export type TenantType = Tenant;
+/**
+ * TenantType with nested contact information for UI display
+ */
+export interface TenantType {
+  id: string;
+  name: string;
+  description: string;
+  contact: {
+    first_name: string;
+    last_name: string;
+    department: string;
+    language: '日本語' | 'English';
+    email: string;
+    phone_office: string;
+    phone_mobile: string;
+    company: string;
+    address1: string;
+    address2: string;
+    city: string;
+    state_prefecture: string;
+    country: string;
+    postal_code: string;
+  };
+  subscriptionId: string;
+}
 /** @deprecated Use Device instead */
 export type DeviceType2 = Device;
 /** @deprecated Use UnregisteredDevice instead */
