@@ -40,6 +40,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
   requestSort,
   getSortDirectionIndicator
 }) => {
+  console.log('TenantDetailDevices rendering with tenantId:', tenantId);
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
