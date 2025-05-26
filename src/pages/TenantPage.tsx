@@ -1343,7 +1343,9 @@ export const TenantPage: React.FC = () => {
                           />
                         </TableCell>
                         <TableCell sx={tableBodyCellStyle}>
-                          <Tooltip title={
+                          <Tooltip 
+                            leaveDelay={0}
+                            title={
                             <List dense>
                               {device.attributes.map((attr, index) => (
                                 <ListItem key={index}>
