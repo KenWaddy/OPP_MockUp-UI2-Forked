@@ -30,7 +30,7 @@ export function exportToCsv<T>(data: T[], filename: string, headers?: string[]):
   
   const csvContent = csvRows.join('\n');
   
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   
   const link = document.createElement('a');
