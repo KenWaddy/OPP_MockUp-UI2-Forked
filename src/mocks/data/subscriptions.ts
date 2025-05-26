@@ -1,13 +1,13 @@
 import { faker } from '@faker-js/faker';
-import { FlatSubscription } from './types.js';
+import { Subscription } from './types.js';
 
 /**
  * Generate a list of subscriptions
  * @param count Number of subscriptions to generate
- * @returns Array of flat subscription objects
+ * @returns Array of subscription objects
  */
-export function generateSubscriptions(count: number = 100): FlatSubscription[] {
-  const subscriptions: FlatSubscription[] = [];
+export function generateSubscriptions(count: number = 100): Subscription[] {
+  const subscriptions: Subscription[] = [];
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(['Evergreen', 'Termed']);
@@ -35,4 +35,4 @@ export function generateSubscriptions(count: number = 100): FlatSubscription[] {
   return subscriptions;
 }
 
-export const flatSubscriptions = generateSubscriptions(100);
+export const subscriptions = generateSubscriptions(100);

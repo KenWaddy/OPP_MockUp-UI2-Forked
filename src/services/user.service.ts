@@ -1,17 +1,17 @@
 import { mockTenants } from '../mocks/index.js';
-import { User } from '../mocks/types.js';
+import { User } from '../mocks/data/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IUserService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { flatUsers } from '../mocks/data/index.js';
+import { users, tenants } from '../mocks/data/index.js';
 
 export class UserService implements IUserService {
   /**
    * Get paginated users for a specific tenant
    */
-  async getUsersForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<User>> {
+  async getUsersForTenant(subscriptionId: string, params: PaginationParams): Promise<PaginatedResponse<User>> {
     await delay();
     
-    const tenantUsers = flatUsers.filter(user => user.tenantId === tenantId);
+    const tenantUsers = users.filter((user: User) => user.subscriptionId === subscriptionId);
     
     if (tenantUsers.length === 0) {
       return {
@@ -89,13 +89,11 @@ export class UserService implements IUserService {
    * Get all users without pagination, filtering, or sorting
    * Used for data export and other bulk operations
    */
-  async getAllUsers(): Promise<any[]> {
+  async getAllUsers(): Promise<User[]> {
     await delay();
     
-    const { flatTenants } = await import('../mocks/data/index.js');
-    
-    const usersWithTenantInfo = flatUsers.map(user => {
-      const tenant = flatTenants.find(t => t.id === user.tenantId);
+    const usersWithTenantInfo = users.map((user: User) => {
+      const tenant = tenants.find((t: any) => t.id === user.subscriptionId);
       return {
         ...user,
         tenantName: tenant ? tenant.name : 'Unknown Tenant'

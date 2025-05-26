@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { FlatDevice, FlatUnregisteredDevice } from './types.js';
-import { flatTenants } from './tenants.js';
+import { Device, UnregisteredDevice } from './types.js';
+import { tenants } from './tenants.js';
 import { Attribute, defaultDeviceTypes } from '../index.js';
 
 /**
@@ -62,28 +62,27 @@ function generateAttributesForDeviceType(type: string): Attribute[] {
 }
 
 /**
- * Generate a list of devices for a specific tenant
- * @param tenantId ID of the tenant to generate devices for
+ * Generate a list of devices for a specific subscription
+ * @param subscriptionId ID of the subscription to generate devices for
  * @param count Number of devices to generate
- * @returns Array of flat device objects
+ * @returns Array of device objects
  */
-export function generateDevicesForTenant(tenantId: string, count: number): FlatDevice[] {
-  const devices: FlatDevice[] = [];
+export function generateDevicesForTenant(subscriptionId: string, count: number): Device[] {
+  const devices: Device[] = [];
   
   const deviceTypes: string[] = defaultDeviceTypes.map(type => type.name);
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
-    const id = `device-${tenantId}-${i}`;
+    const id = `device-${subscriptionId}-${i}`;
     
     const attributes: Attribute[] = generateAttributesForDeviceType(type);
     
     devices.push({
       id,
-      tenantId,
+      subscriptionId,
       name: `${type} ${faker.string.alphanumeric(4).toUpperCase()}`,
       type,
-      deviceId: `${type.substring(0, 3).toUpperCase()}-${faker.string.alphanumeric(6).toUpperCase()}`,
       serialNo: faker.string.alphanumeric(12).toUpperCase(),
       description: faker.lorem.sentence(),
       status: faker.helpers.arrayElement(["Assigned", "Activated"]), // Remove "Registered" from possible statuses
@@ -96,12 +95,12 @@ export function generateDevicesForTenant(tenantId: string, count: number): FlatD
 
 /**
  * Generate all devices for all tenants
- * @returns Array of all flat device objects
+ * @returns Array of all device objects
  */
-export function generateAllDevices(): FlatDevice[] {
-  const allDevices: FlatDevice[] = [];
+export function generateAllDevices(): Device[] {
+  const allDevices: Device[] = [];
   
-  flatTenants.forEach(tenant => {
+  tenants.forEach(tenant => {
     const deviceCount = faker.number.int({ min: 10, max: 100 });
     const tenantDevices = generateDevicesForTenant(tenant.id, deviceCount);
     allDevices.push(...tenantDevices);
@@ -113,10 +112,10 @@ export function generateAllDevices(): FlatDevice[] {
 /**
  * Generate devices with "Registered" status (not belonging to any tenant)
  * @param count Number of devices to generate
- * @returns Array of flat unregistered device objects
+ * @returns Array of unregistered device objects
  */
-export function generateRegisteredDevices(count: number = 30): FlatUnregisteredDevice[] {
-  const devices: FlatUnregisteredDevice[] = [];
+export function generateRegisteredDevices(count: number = 30): UnregisteredDevice[] {
+  const devices: UnregisteredDevice[] = [];
   
   const deviceTypes: string[] = defaultDeviceTypes.map(type => type.name);
   
@@ -130,7 +129,6 @@ export function generateRegisteredDevices(count: number = 30): FlatUnregisteredD
       id,
       name: `${type} ${faker.string.alphanumeric(4).toUpperCase()}`,
       type,
-      deviceId: `${type.substring(0, 3).toUpperCase()}-${faker.string.alphanumeric(6).toUpperCase()}`,
       serialNo: faker.string.alphanumeric(12).toUpperCase(),
       description: faker.lorem.sentence(),
       status: "Registered",
@@ -145,10 +143,10 @@ export function generateRegisteredDevices(count: number = 30): FlatUnregisteredD
 /**
  * Generate unregistered devices
  * @param count Number of unregistered devices to generate
- * @returns Array of flat unregistered device objects
+ * @returns Array of unregistered device objects
  */
-export function generateUnregisteredDevices(count: number = 20): FlatUnregisteredDevice[] {
-  const devices: FlatUnregisteredDevice[] = [];
+export function generateUnregisteredDevices(count: number = 20): UnregisteredDevice[] {
+  const devices: UnregisteredDevice[] = [];
   
   const deviceTypes: string[] = defaultDeviceTypes.map(type => type.name);
   
@@ -162,7 +160,6 @@ export function generateUnregisteredDevices(count: number = 20): FlatUnregistere
       id,
       name: `New ${type} ${faker.string.alphanumeric(4).toUpperCase()}`,
       type,
-      deviceId: `${type.substring(0, 3).toUpperCase()}-NEW-${faker.string.alphanumeric(4).toUpperCase()}`,
       serialNo: `NEW${faker.string.alphanumeric(10).toUpperCase()}`,
       description: `New ${type.toLowerCase()} awaiting registration`,
       status: "Registered",
@@ -174,8 +171,8 @@ export function generateUnregisteredDevices(count: number = 20): FlatUnregistere
   return devices;
 }
 
-export const flatDevices = generateAllDevices();
+export const devices = generateAllDevices();
 
-export const flatRegisteredDevices = generateRegisteredDevices(30);
+export const registeredDevices = generateRegisteredDevices(30);
 
-export const flatUnregisteredDevices = [...generateUnregisteredDevices(20), ...flatRegisteredDevices];
+export const unregisteredDevices = [...generateUnregisteredDevices(20), ...registeredDevices];

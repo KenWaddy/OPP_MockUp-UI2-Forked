@@ -1,8 +1,9 @@
 import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
-import { Device, DeviceWithTenant, UnregisteredDevice } from '../mocks/types.js';
+import { DeviceWithTenant } from '../mocks/types.js';
+import { Device, UnregisteredDevice, Tenant } from '../mocks/data/types.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IDeviceService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { flatDevices, flatUnregisteredDevices, flatTenants } from '../mocks/data/index.js';
+import { devices, unregisteredDevices, tenants } from '../mocks/data/index.js';
 
 export class DeviceService implements IDeviceService {
   /**
@@ -12,18 +13,18 @@ export class DeviceService implements IDeviceService {
     await delay();
     
     // Create devices with tenant information
-    const devicesWithTenantInfo: DeviceWithTenant[] = flatDevices.map(device => {
-      const tenant = flatTenants.find(t => t.id === device.tenantId);
+    const devicesWithTenantInfo: DeviceWithTenant[] = devices.map((device: Device) => {
+      const tenant = tenants.find((t: Tenant) => t.id === device.subscriptionId);
       return {
         ...device,
-        tenantId: device.tenantId,
+        tenantId: device.subscriptionId, // Keep tenantId for DeviceWithTenant interface compatibility
         tenantName: tenant ? tenant.name : 'Unknown Tenant'
       };
     });
     
     let allDevices: (DeviceWithTenant | UnregisteredDevice)[] = [
       ...devicesWithTenantInfo,
-      ...flatUnregisteredDevices
+      ...unregisteredDevices
     ];
     
     if (params.filters) {
@@ -33,7 +34,6 @@ export class DeviceService implements IDeviceService {
             const searchValue = String(value).toLowerCase();
             allDevices = allDevices.filter(device => 
               device.name.toLowerCase().includes(searchValue) ||
-              device.deviceId.toLowerCase().includes(searchValue) ||
               device.serialNo.toLowerCase().includes(searchValue) ||
               device.description.toLowerCase().includes(searchValue) ||
               ('tenantName' in device && device.tenantName.toLowerCase().includes(searchValue))
@@ -56,7 +56,7 @@ export class DeviceService implements IDeviceService {
             );
           } else {
             allDevices = allDevices.filter(device => 
-              device[key as keyof Device] === value
+              (device as any)[key] === value
             );
           }
         }
@@ -72,8 +72,8 @@ export class DeviceService implements IDeviceService {
           valueA = 'tenantName' in a ? a.tenantName : '';
           valueB = 'tenantName' in b ? b.tenantName : '';
         } else {
-          valueA = a[params.sort!.field as keyof Device] || '';
-          valueB = b[params.sort!.field as keyof Device] || '';
+          valueA = (a as any)[params.sort!.field] || '';
+          valueB = (b as any)[params.sort!.field] || '';
         }
         
         if (valueA < valueB) {
@@ -105,14 +105,14 @@ export class DeviceService implements IDeviceService {
   }
 
   /**
-   * Get devices for a specific tenant with pagination
+   * Get devices for a specific subscription with pagination
    */
-  async getDevicesForTenant(tenantId: string, params: PaginationParams): Promise<PaginatedResponse<Device>> {
+  async getDevicesForTenant(subscriptionId: string, params: PaginationParams): Promise<PaginatedResponse<Device>> {
     await delay();
     
-    const tenantDevices = flatDevices.filter(device => device.tenantId === tenantId);
+    const subscriptionDevices = devices.filter((device: Device) => device.subscriptionId === subscriptionId);
     
-    if (tenantDevices.length === 0) {
+    if (subscriptionDevices.length === 0) {
       return {
         data: [],
         meta: {
@@ -124,25 +124,25 @@ export class DeviceService implements IDeviceService {
       };
     }
     
-    let devices = [...tenantDevices];
+    let filteredDevices = [...subscriptionDevices];
     
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
         if (value) {
           if (key === 'name') {
-            devices = devices.filter(device => 
+            filteredDevices = filteredDevices.filter(device => 
               device.name.toLowerCase().includes(String(value).toLowerCase())
             );
           } else if (key === 'type') {
-            devices = devices.filter(device => 
+            filteredDevices = filteredDevices.filter(device => 
               device.type === value
             );
           } else if (key === 'status') {
-            devices = devices.filter(device => 
+            filteredDevices = filteredDevices.filter(device => 
               device.status === value
             );
           } else {
-            devices = devices.filter(device => 
+            filteredDevices = filteredDevices.filter(device => 
               device[key as keyof Device] === value
             );
           }
@@ -151,7 +151,7 @@ export class DeviceService implements IDeviceService {
     }
     
     if (params.sort) {
-      devices.sort((a, b) => {
+      filteredDevices.sort((a, b) => {
         const valueA = a[params.sort!.field as keyof Device] || '';
         const valueB = b[params.sort!.field as keyof Device] || '';
         
@@ -165,12 +165,12 @@ export class DeviceService implements IDeviceService {
       });
     }
     
-    const total = devices.length;
+    const total = filteredDevices.length;
     const totalPages = Math.ceil(total / params.limit);
     
     const startIndex = (params.page - 1) * params.limit;
     const endIndex = startIndex + params.limit;
-    const paginatedData = devices.slice(startIndex, endIndex);
+    const paginatedData = filteredDevices.slice(startIndex, endIndex);
     
     return {
       data: paginatedData,
@@ -191,18 +191,18 @@ export class DeviceService implements IDeviceService {
     await delay();
     
     // Create devices with tenant information
-    const devicesWithTenantInfo: DeviceWithTenant[] = flatDevices.map(device => {
-      const tenant = flatTenants.find(t => t.id === device.tenantId);
+    const devicesWithTenantInfo: DeviceWithTenant[] = devices.map((device: Device) => {
+      const tenant = tenants.find((t: Tenant) => t.id === device.subscriptionId);
       return {
         ...device,
-        tenantId: device.tenantId,
+        tenantId: device.subscriptionId, // Keep tenantId for DeviceWithTenant interface compatibility
         tenantName: tenant ? tenant.name : 'Unknown Tenant'
       };
     });
     
     const allDevices: (DeviceWithTenant | UnregisteredDevice)[] = [
       ...devicesWithTenantInfo,
-      ...flatUnregisteredDevices
+      ...unregisteredDevices
     ];
     
     return allDevices;

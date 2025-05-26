@@ -1,19 +1,19 @@
 import { faker } from '@faker-js/faker';
-import { FlatUser } from './types.js';
-import { flatTenants } from './tenants.js';
+import { User } from './types.js';
+import { tenants } from './tenants.js';
 
 /**
- * Generate a list of users for a specific tenant
- * @param tenantId ID of the tenant to generate users for
+ * Generate a list of users for a specific subscription
+ * @param subscriptionId ID of the subscription to generate users for
  * @param count Number of users to generate
- * @returns Array of flat user objects
+ * @returns Array of user objects
  */
-export function generateUsersForTenant(tenantId: string, count: number): FlatUser[] {
-  const users: FlatUser[] = [];
+export function generateUsersForTenant(subscriptionId: string, count: number): User[] {
+  const users: User[] = [];
   
   users.push({
-    id: `user-${tenantId}-owner`,
-    tenantId,
+    id: `user-${subscriptionId}-owner`,
+    subscriptionId,
     name: faker.person.fullName(),
     email: faker.internet.email(),
     roles: ["Owner"],
@@ -35,8 +35,8 @@ export function generateUsersForTenant(tenantId: string, count: number): FlatUse
     }
     
     users.push({
-      id: `user-${tenantId}-${i}`,
-      tenantId,
+      id: `user-${subscriptionId}-${i}`,
+      subscriptionId,
       name: faker.person.fullName(),
       email: faker.internet.email(),
       roles,
@@ -52,12 +52,12 @@ export function generateUsersForTenant(tenantId: string, count: number): FlatUse
 
 /**
  * Generate all users for all tenants
- * @returns Array of all flat user objects
+ * @returns Array of all user objects
  */
-export function generateAllUsers(): FlatUser[] {
-  const allUsers: FlatUser[] = [];
+export function generateAllUsers(): User[] {
+  const allUsers: User[] = [];
   
-  flatTenants.forEach(tenant => {
+  tenants.forEach(tenant => {
     const userCount = faker.number.int({ min: 5, max: 20 });
     const tenantUsers = generateUsersForTenant(tenant.id, userCount);
     allUsers.push(...tenantUsers);
@@ -66,4 +66,4 @@ export function generateAllUsers(): FlatUser[] {
   return allUsers;
 }
 
-export const flatUsers = generateAllUsers();
+export const users = generateAllUsers();

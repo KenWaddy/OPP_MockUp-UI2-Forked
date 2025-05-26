@@ -1,17 +1,12 @@
 import { mockTenants } from '../mocks/index.js';
-import { Tenant, DeviceContractItem } from '../mocks/types.js';
+import { TenantType, DeviceContractItem } from '../mocks/types.js';
 import { PaginationParams, PaginatedResponse, IBillingService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { flatBilling, flatTenants } from '../mocks/data/index.js';
+import { billing, tenants } from '../mocks/data/index.js';
+import { Billing } from '../mocks/data/types.js';
 
-interface BillingItem {
-  id: string;
-  tenantId: string;
+interface BillingWithTenant extends Billing {
   tenantName: string;
-  billingId: string;
-  startDate: string;
-  endDate: string;
-  paymentType: string;
   nextBillingDate: string;
   totalDevices: number;
 }
@@ -22,7 +17,7 @@ export class BillingService implements IBillingService {
    * @param item The billing item
    * @returns The next billing month in YYYY-MM format
    */
-  private calculateNextBillingMonth(item: BillingItem): string {
+  private calculateNextBillingMonth(item: BillingWithTenant): string {
     if (!item) return '—';
     
     const today = new Date();
@@ -80,36 +75,39 @@ export class BillingService implements IBillingService {
   /**
    * Get paginated billing information
    */
-  async getBillingItems(params: PaginationParams): Promise<PaginatedResponse<BillingItem>> {
+  async getBillingItems(params: PaginationParams): Promise<PaginatedResponse<Billing>> {
     await delay();
     
-    const billingItems: BillingItem[] = [];
+    const billingItems: BillingWithTenant[] = [];
     
-    flatBilling.forEach(billing => {
-      const tenant = flatTenants.find(t => t.id === billing.tenantId);
+    billing.forEach((billingItem: any) => {
+      const tenant = tenants.find((t: any) => t.id === billingItem.subscriptionId);
       if (!tenant) return;
       
-      const totalDevices = billing.deviceContract?.reduce(
+      const totalDevices = billingItem.deviceContract?.reduce(
         (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
       ) || 0;
       
       let nextBillingDate = '';
-      if (billing.paymentType === 'Monthly') {
+      if (billingItem.paymentType === 'Monthly') {
         nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billing.paymentType === 'Annually' && billing.dueMonth) {
+      } else if (billingItem.paymentType === 'Annually' && billingItem.dueMonth) {
         nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billing.paymentType === 'One-time' && billing.billingDate) {
-        nextBillingDate = billing.billingDate;
+      } else if (billingItem.paymentType === 'One-time' && billingItem.billingDate) {
+        nextBillingDate = billingItem.billingDate;
       }
       
       billingItems.push({
-        id: `${tenant.id}-${billing.billingId}`,
-        tenantId: tenant.id,
+        id: `${tenant.id}-${billingItem.id}`,
+        subscriptionId: tenant.id,
         tenantName: tenant.name,
-        billingId: billing.billingId || '',
-        startDate: billing.startDate || '',
-        endDate: billing.endDate || '',
-        paymentType: billing.paymentType || 'Monthly',
+        deviceContract: billingItem.deviceContract || [],
+        startDate: billingItem.startDate || '',
+        endDate: billingItem.endDate || '',
+        paymentType: billingItem.paymentType || 'Monthly',
+        billingDate: billingItem.billingDate,
+        dueMonth: billingItem.dueMonth,
+        description: billingItem.description,
         nextBillingDate,
         totalDevices
       });
@@ -124,15 +122,15 @@ export class BillingService implements IBillingService {
             const searchValue = String(value).toLowerCase();
             result = result.filter(item => 
               item.tenantName.toLowerCase().includes(searchValue) || 
-              item.billingId.toLowerCase().includes(searchValue)
+              item.id.toLowerCase().includes(searchValue)
             );
           } else if (key === 'tenantName') {
             result = result.filter(item => 
               item.tenantName.toLowerCase().includes(String(value).toLowerCase())
             );
-          } else if (key === 'billingId') {
+          } else if (key === 'id') {
             result = result.filter(item => 
-              item.billingId.toLowerCase().includes(String(value).toLowerCase())
+              item.id.toLowerCase().includes(String(value).toLowerCase())
             );
           } else if (key === 'paymentType') {
             result = result.filter(item => 
@@ -150,7 +148,7 @@ export class BillingService implements IBillingService {
             });
           } else {
             result = result.filter(item => 
-              item[key as keyof BillingItem] === value
+              item[key as keyof BillingWithTenant] === value
             );
           }
         }
@@ -201,8 +199,8 @@ export class BillingService implements IBillingService {
           return 0;
         }
         else if (field === 'startDate' || field === 'endDate') {
-          const dateA = a[field as keyof BillingItem] ? new Date(a[field as keyof BillingItem] as string).getTime() : 0;
-          const dateB = b[field as keyof BillingItem] ? new Date(b[field as keyof BillingItem] as string).getTime() : 0;
+          const dateA = a[field as keyof BillingWithTenant] ? new Date(a[field as keyof BillingWithTenant] as string).getTime() : 0;
+          const dateB = b[field as keyof BillingWithTenant] ? new Date(b[field as keyof BillingWithTenant] as string).getTime() : 0;
           
           if (dateA === 0 && dateB !== 0) {
             return params.sort!.order === 'asc' ? 1 : -1;
@@ -214,8 +212,8 @@ export class BillingService implements IBillingService {
           return (dateA - dateB) * (params.sort!.order === 'asc' ? 1 : -1);
         }
         else {
-          const valueA = a[field as keyof BillingItem] || '';
-          const valueB = b[field as keyof BillingItem] || '';
+          const valueA = a[field as keyof BillingWithTenant] || '';
+          const valueB = b[field as keyof BillingWithTenant] || '';
           
           if (valueA < valueB) {
             return params.sort!.order === 'asc' ? -1 : 1;
@@ -255,56 +253,59 @@ export class BillingService implements IBillingService {
     
     const billingItems: any[] = [];
     
-    flatBilling.forEach(billing => {
-      const tenant = flatTenants.find(t => t.id === billing.tenantId);
+    billing.forEach((billingItem: any) => {
+      const tenant = tenants.find((t: any) => t.id === billingItem.subscriptionId);
       if (!tenant) return;
       
-      const totalDevices = billing.deviceContract?.reduce(
+      const totalDevices = billingItem.deviceContract?.reduce(
         (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
       ) || 0;
       
-      const deviceContractFormatted = billing.deviceContract?.map(contract => 
+      const deviceContractFormatted = billingItem.deviceContract?.map((contract: any) => 
         `${contract.type}: ${contract.quantity}`
       ).join(', ') || '';
       
       const nextBillingMonth = this.calculateNextBillingMonth({
-        id: `${tenant.id}-${billing.billingId}`,
-        tenantId: tenant.id,
+        id: `${tenant.id}-${billingItem.id}`,
+        subscriptionId: tenant.id,
         tenantName: tenant.name,
-        billingId: billing.billingId || '',
-        startDate: billing.startDate || '',
-        endDate: billing.endDate || '',
-        paymentType: billing.paymentType || 'Monthly',
+        deviceContract: billingItem.deviceContract || [],
+        startDate: billingItem.startDate || '',
+        endDate: billingItem.endDate || '',
+        paymentType: billingItem.paymentType || 'Monthly',
+        billingDate: billingItem.billingDate,
+        dueMonth: billingItem.dueMonth,
+        description: billingItem.description,
         nextBillingDate: '',
         totalDevices
       });
       
-      let paymentSettings = billing.paymentType || 'N/A';
+      let paymentSettings = billingItem.paymentType || 'N/A';
       
-      if (billing.paymentType === 'One-time' && billing.billingDate) {
-        paymentSettings += ` | Billing Date: ${billing.billingDate}`;
+      if (billingItem.paymentType === 'One-time' && billingItem.billingDate) {
+        paymentSettings += ` | Billing Date: ${billingItem.billingDate}`;
       }
       
 
       
-      if (billing.paymentType === 'Annually' && billing.dueMonth) {
+      if (billingItem.paymentType === 'Annually' && billingItem.dueMonth) {
         const months = [
           'January', 'February', 'March', 'April', 'May', 'June',
           'July', 'August', 'September', 'October', 'November', 'December'
         ];
-        const month = typeof billing.dueMonth === 'number' && billing.dueMonth >= 1 && billing.dueMonth <= 12
-          ? months[billing.dueMonth - 1]
-          : billing.dueMonth;
+        const month = typeof billingItem.dueMonth === 'number' && billingItem.dueMonth >= 1 && billingItem.dueMonth <= 12
+          ? months[billingItem.dueMonth - 1]
+          : billingItem.dueMonth;
         
         paymentSettings += ` | Due Month: ${month}`;
       }
       
       billingItems.push({
-        tenantId: tenant.id,
+        subscriptionId: tenant.id,
         tenantName: tenant.name,
-        billingId: billing.billingId || '',
-        startDate: billing.startDate || '',
-        endDate: billing.endDate || '',
+        id: billingItem.id || '',
+        startDate: billingItem.startDate || '',
+        endDate: billingItem.endDate || '',
         nextBillingMonth,
         paymentSettings,
         numberOfDevices: totalDevices,

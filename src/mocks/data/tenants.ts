@@ -1,19 +1,19 @@
 import { faker } from '@faker-js/faker';
-import { FlatTenant } from './types.js';
-import { flatSubscriptions } from './subscriptions.js';
+import { Tenant } from './types.js';
+import { subscriptions } from './subscriptions.js';
 
 /**
- * Generate a list of flat tenant objects
+ * Generate a list of tenant objects
  * @param count Number of tenants to generate
- * @returns Array of flat tenant objects
+ * @returns Array of tenant objects
  */
-export function generateTenants(count: number = 100): FlatTenant[] {
-  const tenants: FlatTenant[] = [];
+export function generateTenants(count: number = 100): Tenant[] {
+  const tenants: Tenant[] = [];
   
   for (let i = 0; i < count; i++) {
     const id = `tenant-${i + 1}`;
     const language = faker.helpers.arrayElement(['日本語', 'English']);
-    const subscription = faker.helpers.arrayElement(flatSubscriptions);
+    const subscription = faker.helpers.arrayElement(subscriptions);
     
     tenants.push({
       id,
@@ -33,11 +33,11 @@ export function generateTenants(count: number = 100): FlatTenant[] {
       contact_state_prefecture: faker.location.state(),
       contact_country: faker.location.country(),
       contact_postal_code: faker.location.zipCode(),
-      corresponding_subscription_id: subscription.id
+      subscriptionId: subscription.id
     });
   }
   
   return tenants;
 }
 
-export const flatTenants = generateTenants(100);
+export const tenants = generateTenants(100);
