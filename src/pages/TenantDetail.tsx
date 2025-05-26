@@ -45,11 +45,11 @@ export const TenantDetail: React.FC = () => {
     [key: string]: string;
   };
 
-  const mockUsers: UserType[] = [
+  const mockUsers = useMemo<UserType[]>(() => [
     { id: 'u1', name: 'John Doe', email: 'john@example.com', role: 'Admin' },
     { id: 'u2', name: 'Jane Smith', email: 'jane@example.com', role: 'User' },
     { id: 'u3', name: 'Bob Johnson', email: 'bob@example.com', role: 'Manager' },
-  ];
+  ], []);
 
   type DeviceType = {
     id: string;
@@ -59,11 +59,11 @@ export const TenantDetail: React.FC = () => {
     [key: string]: string;
   };
 
-  const mockDevices: DeviceType[] = [
+  const mockDevices = useMemo<DeviceType[]>(() => [
     { id: 'd1', name: 'Device 1', type: 'Sensor', status: 'Active' },
     { id: 'd2', name: 'Device 2', type: 'Controller', status: 'Inactive' },
     { id: 'd3', name: 'Device 3', type: 'Monitor', status: 'Active' },
-  ];
+  ], []);
 
   type BillingType = {
     id: string;
@@ -73,11 +73,11 @@ export const TenantDetail: React.FC = () => {
     [key: string]: string | number;
   };
 
-  const mockBilling: BillingType[] = [
+  const mockBilling = useMemo<BillingType[]>(() => [
     { id: 'b1', paymentType: 'Monthly', amount: 100, dueDate: '2024-02-01' },
     { id: 'b2', paymentType: 'Annual', amount: 1000, dueDate: '2024-12-01' },
     { id: 'b3', paymentType: 'One-time', amount: 500, dueDate: '2024-01-15' },
-  ];
+  ], []);
 
   const sortedUsers = useMemo(() => {
     if (!sortConfig) return mockUsers;
@@ -92,7 +92,7 @@ export const TenantDetail: React.FC = () => {
       }
       return 0;
     });
-  }, [sortConfig]);
+  }, [mockUsers, sortConfig]);
 
   const sortedDevices = useMemo(() => {
     if (!sortConfig) return mockDevices;
@@ -107,7 +107,7 @@ export const TenantDetail: React.FC = () => {
       }
       return 0;
     });
-  }, [sortConfig]);
+  }, [mockDevices, sortConfig]);
 
   const sortedBilling = useMemo(() => {
     if (!sortConfig) return mockBilling;
@@ -122,7 +122,7 @@ export const TenantDetail: React.FC = () => {
       }
       return 0;
     });
-  }, [sortConfig]);
+  }, [mockBilling, sortConfig]);
 
   return (
     <Box p={3}>
