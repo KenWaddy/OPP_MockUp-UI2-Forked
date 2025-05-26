@@ -265,7 +265,7 @@ export const TenantPage: React.FC = () => {
           country: '',
           postal_code: ''
         },
-        corresponding_subscription_id: '',
+        subscriptionId: '',
         subscription: {
           id: `sub-new-${Math.floor(Math.random() * 1000)}`,
           name: '',

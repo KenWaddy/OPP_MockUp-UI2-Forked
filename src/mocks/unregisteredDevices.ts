@@ -1,11 +1,10 @@
-import { UnregisteredDevice } from './types.js';
+import { UnregisteredDevice } from './data/types.js';
 
 export const mockUnregisteredDevices: UnregisteredDevice[] = [
   {
     id: "unreg-1",
     name: "New Server",
     type: "Server",
-    deviceId: "SRV-NEW-001",
     serialNo: "NEW123456",
     description: "New server awaiting registration",
     status: "Registered",
@@ -19,7 +18,6 @@ export const mockUnregisteredDevices: UnregisteredDevice[] = [
     id: "unreg-2",
     name: "New Workstation",
     type: "Workstation",
-    deviceId: "WS-NEW-001",
     serialNo: "NEW654321",
     description: "New workstation awaiting registration",
     status: "Registered",
