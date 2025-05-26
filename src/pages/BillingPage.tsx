@@ -521,7 +521,7 @@ export const BillingPage: React.FC = () => {
                             localStorage.setItem('selectedTenantId', billing.tenantId);
                             window.history.pushState({}, '', '/');
                             const tenantPageEvent = new CustomEvent('navigate-to-tenant', {
-                              detail: { tenantId: billing.tenantId }
+                              detail: { tenant: { id: billing.tenantId } }
                             });
                             window.dispatchEvent(tenantPageEvent);
                           }}
