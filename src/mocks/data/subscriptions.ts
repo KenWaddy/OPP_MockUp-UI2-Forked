@@ -1,6 +1,15 @@
 import { faker } from '@faker-js/faker';
 import { Subscription } from './types.js';
 
+const japaneseSubscriptionDescriptions = [
+  'エンタープライズ向け総合管理プラットフォーム',
+  '中小企業に最適な標準プラン',
+  'スタートアップ企業向けベーシックプラン',
+  '大企業向けプレミアムサービス',
+  '高度なセキュリティと管理機能を提供',
+  'クラウドベースの統合ソリューション'
+];
+
 /**
  * Generate a list of subscriptions
  * @param count Number of subscriptions to generate
@@ -14,11 +23,12 @@ export function generateSubscriptions(count: number = 100): Subscription[] {
     const status = faker.helpers.arrayElement(['Active', 'Cancelled']);
     const startDate = faker.date.past({ years: 2 });
     const endDate = type === 'Termed' ? faker.date.future({ years: 1, refDate: startDate }) : null;
+    const isJapanese = faker.datatype.boolean(0.4); // 40% chance of Japanese descriptions
     
     subscriptions.push({
       id: `sub-${i}`,
       name: faker.helpers.arrayElement(['Enterprise Plan', 'Standard Plan', 'Basic Plan', 'Premium Plan']),
-      description: faker.lorem.sentence(),
+      description: isJapanese ? faker.helpers.arrayElement(japaneseSubscriptionDescriptions) : faker.lorem.sentence(),
       type,
       status,
       start_date: startDate.toISOString().split('T')[0],
