@@ -1467,30 +1467,9 @@ export const TenantPage: React.FC = () => {
                           <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>
-                            <Tooltip title={
-                              <TableContainer>
-                                <Table size="small">
-                                  <TableHead>
-                                    <TableRow>
-                                      <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
-                                      <TableCell sx={tableHeaderCellStyle}>Quantity</TableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {billing.deviceContract && billing.deviceContract.map((contract, idx) => (
-                                      <TableRow key={idx}>
-                                        <TableCell sx={tableBodyCellStyle}>{contract.type}</TableCell>
-                                        <TableCell sx={tableBodyCellStyle}>{contract.quantity}</TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </TableContainer>
-                            }>
-                              <span style={{ cursor: 'pointer', color: 'blue' }}>
-                                View ({billing.deviceContract?.length || 0})
-                              </span>
-                            </Tooltip>
+                            {billing.deviceContract && billing.deviceContract.length > 0
+                              ? billing.deviceContract.map(contract => `${contract.type} (${contract.quantity})`).join(', ')
+                              : 'No devices'}
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
                             {billing.description || '—'}
