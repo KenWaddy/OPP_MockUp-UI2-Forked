@@ -184,9 +184,7 @@ export const BillingPage: React.FC = () => {
   const renderNumberOfDevices = (deviceContract: { type: string; quantity: number }[] | undefined) => {
     if (!deviceContract || deviceContract.length === 0) return 'No devices';
 
-    const total = deviceContract.reduce((sum, item) => sum + item.quantity, 0);
-    const summary = deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
-    return `${total} Devices: ${summary}`;
+    return deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
   };
 
   const renderPaymentSettings = (billing: AggregatedBillingItem) => {
