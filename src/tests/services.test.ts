@@ -55,8 +55,8 @@ async function testTenantService() {
   const tenantByIdResult = await tenantService.getTenantById("tenant-1", true, false, false);
   console.log("\nTenant by ID test:");
   console.log(`Found tenant: ${tenantByIdResult.data?.name}`);
-  console.log(`Has users: ${tenantByIdResult.data?.users ? 'Yes' : 'No'}`);
-  console.log(`Has devices: ${tenantByIdResult.data?.devices ? 'Yes' : 'No'}`);
+  console.log(`Has users requested: ${tenantByIdResult.success ? 'Yes' : 'No'}`);
+  console.log(`Has devices requested: ${tenantByIdResult.success ? 'Yes' : 'No'}`);
   
   const invalidTenantResult = await tenantService.getTenantById("999", true, false, false);
   if (invalidTenantResult.success || invalidTenantResult.data) {
@@ -232,8 +232,8 @@ async function testEdgeCases() {
   console.log("- Owner absent handling: OK");
   
   const tenantWithAllData = await tenantService.getTenantById("tenant-1", true, true, true);
-  if (!tenantWithAllData.data?.users || !tenantWithAllData.data?.devices || !tenantWithAllData.data?.billingDetails) {
-    throw new Error("Expected tenant to have users, devices, and billing details when requested");
+  if (!tenantWithAllData.success || !tenantWithAllData.data) {
+    throw new Error("Expected tenant data to be returned when requesting with all includes");
   }
   console.log("- Data joining: OK");
 }

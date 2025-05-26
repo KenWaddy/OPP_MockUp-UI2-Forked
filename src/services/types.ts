@@ -1,4 +1,4 @@
-import { TenantType, UserType, DeviceType2, DeviceWithTenant, DeviceContractItem, UnregisteredDeviceType, Tenant, User, Device, Billing, UnregisteredDevice } from '../types/models.js';
+import { TenantType, UserType, DeviceType2, DeviceWithTenant, DeviceContractItem, UnregisteredDeviceType, Tenant, User, Device, Billing, UnregisteredDevice, Subscription } from '../types/models.js';
 
 export interface PaginationParams {
   page: number;
@@ -46,4 +46,10 @@ export interface IBillingService {
 export interface IUserService {
   getUsersForTenant(subscriptionId: string, params: PaginationParams): Promise<PaginatedResponse<User>>;
   getAllUsers(): Promise<User[]>;
+}
+
+export interface ISubscriptionService {
+  getSubscriptionById(id: string): Promise<ItemResponse<Subscription>>;
+  getSubscriptions(params: PaginationParams): Promise<PaginatedResponse<Subscription>>;
+  getAllSubscriptions(): Promise<Subscription[]>;
 }

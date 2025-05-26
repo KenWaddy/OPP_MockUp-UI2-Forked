@@ -1,4 +1,4 @@
-import { DeviceType } from './types.js';
+import { DeviceType } from '../types/models.js';
 
 export const defaultDeviceTypes: DeviceType[] = [
   { name: "Server", option: "Standard", description: "Server computing device" },

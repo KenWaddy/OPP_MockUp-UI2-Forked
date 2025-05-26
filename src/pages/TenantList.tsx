@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -9,62 +9,74 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  CircularProgress,
 } from "@mui/material";
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common.js';
 import { formatContactName } from '../services/utils.js';
+import { TenantService, SubscriptionService } from '../services/index.js';
+import { TenantType, Subscription } from '../types/models.js';
 
-interface Tenant {
-  id: string;
-  name: string;
-  contact: {
-    first_name: string;
-    last_name: string;
-    language: '日本語' | 'English';
-    email: string;
-  };
-  subscription?: {
-    type: 'Evergreen' | 'Termed';
-    status: 'Active' | 'Cancelled';
-  };
+const tenantService = new TenantService();
+const subscriptionService = new SubscriptionService();
+
+interface SubscriptionMap {
+  [key: string]: Subscription | null;
 }
-
-const mockTenants: Tenant[] = [
-  {
-    id: "1",
-    name: "Acme Corp",
-    contact: {
-      first_name: "John",
-      last_name: "Doe",
-      language: "English",
-      email: "john@acme.com"
-    },
-    subscription: {
-      type: "Evergreen",
-      status: "Active"
-    }
-  },
-  {
-    id: "2",
-    name: "Globex Inc",
-    contact: {
-      first_name: "Jane",
-      last_name: "Smith",
-      language: "English",
-      email: "jane@globex.com"
-    },
-    subscription: {
-      type: "Termed",
-      status: "Active"
-    }
-  }
-];
 
 export const TenantList: React.FC = () => {
   const navigate = useNavigate();
+  const [tenants, setTenants] = useState<TenantType[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionMap>({});
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const tenantsResponse = await tenantService.getTenants({
+          page: 1,
+          limit: 100
+        });
+        
+        const fetchedTenants = tenantsResponse.data;
+        setTenants(fetchedTenants);
+        
+        const subscriptionMap: SubscriptionMap = {};
+        
+        await Promise.all(
+          fetchedTenants.map(async (tenant) => {
+            try {
+              const subscriptionResponse = await subscriptionService.getSubscriptionById(tenant.subscriptionId);
+              subscriptionMap[tenant.subscriptionId] = subscriptionResponse.data;
+            } catch (error) {
+              console.error(`Error fetching subscription for tenant ${tenant.id}:`, error);
+              subscriptionMap[tenant.subscriptionId] = null;
+            }
+          })
+        );
+        
+        setSubscriptions(subscriptionMap);
+      } catch (error) {
+        console.error("Error fetching tenants:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   const handleRowClick = (id: string) => {
     navigate(`/tenants/${id}`);
   };
+
+  if (loading) {
+    return (
+      <Box p={3} display="flex" justifyContent="center">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box p={3}>
@@ -81,22 +93,25 @@ export const TenantList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockTenants.map((tenant) => (
-              <TableRow 
-                key={tenant.id}
-                onClick={() => handleRowClick(tenant.id)}
-                sx={{ cursor: 'pointer' }}
-              >
-                <TableCell sx={tableBodyCellStyle}>{tenant.name}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>
-                  {formatContactName(tenant.contact.first_name, tenant.contact.last_name, tenant.contact.language)}
-                </TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.subscription?.type || '-'}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{tenant.subscription?.status || '-'}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>Edit/Delete</TableCell>
-              </TableRow>
-            ))}
+            {tenants.map((tenant) => {
+              const subscription = subscriptions[tenant.subscriptionId];
+              return (
+                <TableRow 
+                  key={tenant.id}
+                  onClick={() => handleRowClick(tenant.id)}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  <TableCell sx={tableBodyCellStyle}>{tenant.name}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    {formatContactName(tenant.contact.first_name, tenant.contact.last_name, tenant.contact.language)}
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{subscription?.type || '-'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{subscription?.status || '-'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>Edit/Delete</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

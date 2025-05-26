@@ -47,14 +47,16 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle, groupTitleStyle } from '../styles/common.js';
 import { TenantType as Tenant, UserType as User, DeviceType2 as Device, Attribute, DeviceContractItem, UnregisteredDeviceType as UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
-import { TenantService, UserService, DeviceService } from '../services/index.js';
+import { TenantService, UserService, DeviceService, SubscriptionService } from '../services/index.js';
 import { formatContactName } from '../services/utils.js';
 import { exportToCsv } from '../utils/exportUtils.js';
+import { Subscription } from '../types/models.js';
 
 // Create service instances
 const tenantService = new TenantService();
 const userService = new UserService();
 const deviceService = new DeviceService();
+const subscriptionService = new SubscriptionService();
 
 const calculateNextBillingMonth = (billing: any) => {
   if (!billing) return '—';
@@ -125,11 +127,15 @@ export const TenantPage: React.FC = () => {
   const [openUserDialog, setOpenUserDialog] = useState(false);
   const [editableUser, setEditableUser] = useState<User | null>(null);
   const [openBillingDialog, setOpenBillingDialog] = useState(false);
-  const [editableBilling, setEditableBilling] = useState<NonNullable<Tenant["billingDetails"]>[0] | null>(null);
+  const [editableBilling, setEditableBilling] = useState<any | null>(null);
   const [openContactDialog, setOpenContactDialog] = useState(false);
   const [editableContact, setEditableContact] = useState<Tenant["contact"] | null>(null);
   const [openSubscriptionDialog, setOpenSubscriptionDialog] = useState(false);
-  const [editableSubscription, setEditableSubscription] = useState<Tenant["subscription"] | null>(null);
+  const [editableSubscription, setEditableSubscription] = useState<Subscription | null>(null);
+  const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
+  const [tenantUsers, setTenantUsers] = useState<User[]>([]);
+  const [tenantDevices, setTenantDevices] = useState<Device[]>([]);
+  const [tenantBillingDetails, setTenantBillingDetails] = useState<any[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 100, // Default to 100 rows
@@ -157,9 +163,30 @@ export const TenantPage: React.FC = () => {
   const loadTenantById = async (id: string) => {
     try {
       setLoading(true);
-      const response = await tenantService.getTenantById(id, true, true, true);
+      
+      // Load tenant basic info
+      const response = await tenantService.getTenantById(id, false, false, false);
       if (response.success && response.data) {
         setSelectedTenant(response.data);
+        
+        if (response.data.subscriptionId) {
+          const subscriptionResponse = await subscriptionService.getSubscriptionById(response.data.subscriptionId);
+          if (subscriptionResponse.success && subscriptionResponse.data) {
+            setCurrentSubscription(subscriptionResponse.data);
+          }
+        }
+        
+        const usersResponse = await userService.getUsersForTenant(id, {
+          page: 1,
+          limit: 1000
+        });
+        setTenantUsers(usersResponse.data);
+        
+        const devicesResponse = await deviceService.getDevicesForTenant(id, {
+          page: 1,
+          limit: 1000
+        });
+        setTenantDevices(devicesResponse.data);
       }
     } catch (err) {
       setError(`Error loading tenant: ${err instanceof Error ? err.message : String(err)}`);
@@ -278,24 +305,23 @@ export const TenantPage: React.FC = () => {
           country: '',
           postal_code: ''
         },
-        subscriptionId: '',
-        subscription: {
-          id: `sub-new-${Math.floor(Math.random() * 1000)}`,
-          name: '',
-          description: '',
-          type: 'Evergreen',
-          status: 'Active',
-          start_date: '',
-          end_date: '',
-          enabled_app_DMS: false,
-          enabled_app_eVMS: false,
-          enabled_app_CVR: false,
-          enabled_app_AIAMS: false,
-          config_SSH_terminal: false,
-          config_AIAPP_installer: false
-        },
-        users: [],
-        devices: []
+        subscriptionId: ''
+      });
+      
+      setCurrentSubscription({
+        id: `sub-new-${Math.floor(Math.random() * 1000)}`,
+        name: '',
+        description: '',
+        type: 'Evergreen',
+        status: 'Active',
+        start_date: '',
+        end_date: '',
+        enabled_app_DMS: false,
+        enabled_app_eVMS: false,
+        enabled_app_CVR: false,
+        enabled_app_AIAMS: false,
+        config_SSH_terminal: false,
+        config_AIAPP_installer: false
       });
     }
     setActiveTab("info"); // Reset to first tab when opening dialog
@@ -453,17 +479,15 @@ export const TenantPage: React.FC = () => {
       );
 
       const updatedDevices = [
-        ...(selectedTenant.devices || []),
+        ...tenantDevices,
         ...devicesToAssign.map(({ isUnregistered, ...deviceData }) => ({
           ...deviceData,
           status: "Assigned" as const // Set status to Assigned when device is assigned to a tenant
         })) as Device[]
       ];
 
-      setSelectedTenant({
-        ...selectedTenant,
-        devices: updatedDevices
-      });
+      // Update the devices state
+      setTenantDevices(updatedDevices);
 
       setOpenDeviceAssignDialog(false);
 
@@ -483,12 +507,10 @@ export const TenantPage: React.FC = () => {
 
       // In a real implementation, this would call a service method to unassign the device
       // For now, we'll just update the local state
-      const updatedDevices = selectedTenant.devices?.filter(device => device.id !== deviceId) || [];
+      const updatedDevices = tenantDevices.filter((device: Device) => device.id !== deviceId);
 
-      setSelectedTenant({
-        ...selectedTenant,
-        devices: updatedDevices
-      });
+      // Update the devices state
+      setTenantDevices(updatedDevices);
 
       // In a real implementation, we would reload the tenant data from the server
     } catch (err) {
@@ -502,7 +524,7 @@ export const TenantPage: React.FC = () => {
     if (!selectedTenant) return;
 
     // Check if this is the first user being added to the tenant
-    const isFirstUser = !selectedTenant.users || selectedTenant.users.length === 0;
+    const isFirstUser = tenantUsers.length === 0;
 
     setEditableUser({
       id: `u-new-${Math.floor(Math.random() * 1000)}`,
@@ -526,28 +548,24 @@ export const TenantPage: React.FC = () => {
     try {
       setLoading(true);
 
-      const existingUserIndex = selectedTenant.users?.findIndex(user => user.id === editableUser.id) ?? -1;
+      const existingUserIndex = tenantUsers.findIndex((user: User) => user.id === editableUser.id);
 
       if (existingUserIndex >= 0) {
         // Update existing user
-        const updatedUsers = [...(selectedTenant.users || [])];
+        const updatedUsers = [...tenantUsers];
         updatedUsers[existingUserIndex] = editableUser;
 
-        setSelectedTenant({
-          ...selectedTenant,
-          users: updatedUsers
-        });
+        // Update the users state
+        setTenantUsers(updatedUsers);
       } else {
         // Add new user
         const updatedUsers = [
-          ...(selectedTenant.users || []),
+          ...tenantUsers,
           editableUser
         ];
 
-        setSelectedTenant({
-          ...selectedTenant,
-          users: updatedUsers
-        });
+        // Update the users state
+        setTenantUsers(updatedUsers);
       }
 
       setOpenUserDialog(false);
@@ -571,7 +589,7 @@ export const TenantPage: React.FC = () => {
   const handleDeleteUser = (userId: string) => {
     if (!selectedTenant) return;
 
-    const userToDelete = selectedTenant.users?.find(user => user.id === userId);
+    const userToDelete = tenantUsers.find((user: User) => user.id === userId);
 
     if (userToDelete && userToDelete.roles.includes('Owner')) {
       return;
@@ -582,12 +600,10 @@ export const TenantPage: React.FC = () => {
 
       // In a real implementation, this would call a service method to delete the user
       // For now, we'll just update the local state
-      const updatedUsers = selectedTenant.users?.filter(user => user.id !== userId) || [];
+      const updatedUsers = tenantUsers.filter((user: User) => user.id !== userId);
 
-      setSelectedTenant({
-        ...selectedTenant,
-        users: updatedUsers
-      });
+      // Update the users state
+      setTenantUsers(updatedUsers);
     } catch (err) {
       setError(`Error deleting user: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -643,8 +659,8 @@ export const TenantPage: React.FC = () => {
   };
 
   const handleOpenSubscriptionDialog = () => {
-    if (!selectedTenant || !selectedTenant.subscription) return;
-    setEditableSubscription({...selectedTenant.subscription});
+    if (!selectedTenant || !currentSubscription) return;
+    setEditableSubscription({...currentSubscription});
     setOpenSubscriptionDialog(true);
   };
 
@@ -652,15 +668,16 @@ export const TenantPage: React.FC = () => {
     setOpenSubscriptionDialog(false);
   };
 
-  const handleSaveSubscription = () => {
+  const handleSaveSubscription = async () => {
     if (!selectedTenant || !editableSubscription) return;
 
     try {
       setLoading(true);
-      setSelectedTenant({
-        ...selectedTenant,
-        subscription: editableSubscription
-      });
+      
+      // In a real implementation, this would call a service method to save the subscription
+      // For now, we'll just update the local state
+      setCurrentSubscription(editableSubscription);
+      
       setOpenSubscriptionDialog(false);
     } catch (err) {
       setError(`Error saving subscription: ${err instanceof Error ? err.message : String(err)}`);
@@ -676,28 +693,24 @@ export const TenantPage: React.FC = () => {
     try {
       setLoading(true);
 
-      const existingBillingIndex = selectedTenant.billingDetails?.findIndex(billing => billing.id === editableBilling.id) ?? -1;
+      const existingBillingIndex = tenantBillingDetails.findIndex(billing => billing.id === editableBilling.id);
 
       if (existingBillingIndex >= 0) {
         // Update existing billing detail
-        const updatedBillingDetails = [...(selectedTenant.billingDetails || [])];
+        const updatedBillingDetails = [...tenantBillingDetails];
         updatedBillingDetails[existingBillingIndex] = editableBilling;
 
-        setSelectedTenant({
-          ...selectedTenant,
-          billingDetails: updatedBillingDetails
-        });
+        // Update the billing details state
+        setTenantBillingDetails(updatedBillingDetails);
       } else {
         // Add new billing detail
         const updatedBillingDetails = [
-          ...(selectedTenant.billingDetails || []),
+          ...tenantBillingDetails,
           editableBilling
         ];
 
-        setSelectedTenant({
-          ...selectedTenant,
-          billingDetails: updatedBillingDetails
-        });
+        // Update the billing details state
+        setTenantBillingDetails(updatedBillingDetails);
       }
 
       setOpenBillingDialog(false);
@@ -708,7 +721,7 @@ export const TenantPage: React.FC = () => {
     }
   };
 
-  const handleEditBilling = (billing: NonNullable<Tenant["billingDetails"]>[0]) => {
+  const handleEditBilling = (billing: any) => {
     if (!selectedTenant) return;
 
     setEditableBilling({
@@ -726,12 +739,10 @@ export const TenantPage: React.FC = () => {
 
       // In a real implementation, this would call a service method to delete the billing
       // For now, we'll just update the local state
-      const updatedBillingDetails = selectedTenant.billingDetails?.filter(billing => billing.id !== billingId) || [];
+      const updatedBillingDetails = tenantBillingDetails.filter(billing => billing.id !== billingId);
 
-      setSelectedTenant({
-        ...selectedTenant,
-        billingDetails: updatedBillingDetails
-      });
+      // Update the billing details state
+      setTenantBillingDetails(updatedBillingDetails);
     } catch (err) {
       setError(`Error deleting billing: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -744,8 +755,8 @@ export const TenantPage: React.FC = () => {
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
   
   const sortedUsers = useMemo(() => {
-    if (!selectedTenant?.users || !sortConfig) return selectedTenant?.users || [];
-    return [...selectedTenant.users].sort((a, b) => {
+    if (!tenantUsers || !sortConfig) return tenantUsers || [];
+    return [...tenantUsers].sort((a, b) => {
       const aValue = a[sortConfig.key as keyof typeof a];
       const bValue = b[sortConfig.key as keyof typeof b];
       
@@ -757,11 +768,11 @@ export const TenantPage: React.FC = () => {
       }
       return 0;
     });
-  }, [selectedTenant?.users, sortConfig]);
+  }, [tenantUsers, sortConfig]);
   
   const sortedDevices = useMemo(() => {
-    if (!selectedTenant?.devices || !sortConfig) return selectedTenant?.devices || [];
-    return [...selectedTenant.devices].sort((a, b) => {
+    if (!tenantDevices || !sortConfig) return tenantDevices || [];
+    return [...tenantDevices].sort((a, b) => {
       const aValue = a[sortConfig.key as keyof typeof a];
       const bValue = b[sortConfig.key as keyof typeof b];
       
@@ -777,7 +788,7 @@ export const TenantPage: React.FC = () => {
       }
       return 0;
     });
-  }, [selectedTenant?.devices, sortConfig]);
+  }, [tenantDevices, sortConfig]);
   
   const paginatedDevices = useMemo(() => {
     if (!sortedDevices) return [];
@@ -801,8 +812,8 @@ export const TenantPage: React.FC = () => {
   }, [sortedDevices, devicePagination.page, devicePagination.limit]);
   
   const sortedBillingDetails = useMemo(() => {
-    if (!selectedTenant?.billingDetails || !sortConfig) return selectedTenant?.billingDetails || [];
-    return [...selectedTenant.billingDetails].sort((a, b) => {
+    if (!tenantBillingDetails || !sortConfig) return tenantBillingDetails || [];
+    return [...tenantBillingDetails].sort((a, b) => {
       if (sortConfig.key === 'nextBillingMonth') {
         const nextBillingMonthA = calculateNextBillingMonth(a);
         const nextBillingMonthB = calculateNextBillingMonth(b);
@@ -856,7 +867,7 @@ export const TenantPage: React.FC = () => {
       }
       return 0;
     });
-  }, [selectedTenant?.billingDetails, sortConfig, calculateNextBillingMonth]);
+  }, [tenantBillingDetails, sortConfig, calculateNextBillingMonth]);
 
   return (
     <div className="tenant-list">
@@ -1048,23 +1059,23 @@ export const TenantPage: React.FC = () => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Name:</Typography>
-                      <Typography>{selectedTenant.subscription?.name || 'N/A'}</Typography>
+                      <Typography>{currentSubscription?.name || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
-                      <Typography>{selectedTenant.subscription?.id || 'N/A'}</Typography>
+                      <Typography>{currentSubscription?.id || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
-                      <Typography>{selectedTenant.subscription?.description || 'N/A'}</Typography>
+                      <Typography>{currentSubscription?.description || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
                       <Chip
-                        label={selectedTenant.subscription?.status || 'N/A'}
+                        label={currentSubscription?.status || 'N/A'}
                         color={
-                          selectedTenant.subscription?.status === "Active" ? "success" :
-                          selectedTenant.subscription?.status === "Cancelled" ? "error" :
+                          currentSubscription?.status === "Active" ? "success" :
+                          currentSubscription?.status === "Cancelled" ? "error" :
                           "default"
                         }
                         size="small"
@@ -1072,15 +1083,15 @@ export const TenantPage: React.FC = () => {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
-                      <Typography>{selectedTenant.subscription?.type || 'N/A'}</Typography>
+                      <Typography>{currentSubscription?.type || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Start Date:</Typography>
-                      <Typography>{selectedTenant.subscription?.start_date || 'N/A'}</Typography>
+                      <Typography>{currentSubscription?.start_date || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>End Date:</Typography>
-                      <Typography>{selectedTenant.subscription?.end_date || 'N/A'}</Typography>
+                      <Typography>{currentSubscription?.end_date || 'N/A'}</Typography>
                     </Grid>
                     <Grid item xs={12}>
                       <Divider sx={{ my: 2 }} />
@@ -1090,7 +1101,7 @@ export const TenantPage: React.FC = () => {
                           <FormControlLabel
                             control={
                               <Checkbox 
-                                checked={selectedTenant.subscription?.enabled_app_DMS || false} 
+                                checked={currentSubscription?.enabled_app_DMS || false} 
                                 disabled 
                               />
                             }
@@ -1101,7 +1112,7 @@ export const TenantPage: React.FC = () => {
                           <FormControlLabel
                             control={
                               <Checkbox 
-                                checked={selectedTenant.subscription?.enabled_app_eVMS || false} 
+                                checked={currentSubscription?.enabled_app_eVMS || false} 
                                 disabled 
                               />
                             }
@@ -1112,7 +1123,7 @@ export const TenantPage: React.FC = () => {
                           <FormControlLabel
                             control={
                               <Checkbox 
-                                checked={selectedTenant.subscription?.enabled_app_CVR || false} 
+                                checked={currentSubscription?.enabled_app_CVR || false} 
                                 disabled 
                               />
                             }
@@ -1123,7 +1134,7 @@ export const TenantPage: React.FC = () => {
                           <FormControlLabel
                             control={
                               <Checkbox 
-                                checked={selectedTenant.subscription?.enabled_app_AIAMS || false} 
+                                checked={currentSubscription?.enabled_app_AIAMS || false} 
                                 disabled 
                               />
                             }
@@ -1139,7 +1150,7 @@ export const TenantPage: React.FC = () => {
                           <FormControlLabel
                             control={
                               <Checkbox 
-                                checked={selectedTenant.subscription?.config_SSH_terminal || false} 
+                                checked={currentSubscription?.config_SSH_terminal || false} 
                                 disabled 
                               />
                             }
@@ -1150,13 +1161,14 @@ export const TenantPage: React.FC = () => {
                           <FormControlLabel
                             control={
                               <Checkbox 
-                                checked={selectedTenant.subscription?.config_AIAPP_installer || false} 
+                                checked={currentSubscription?.config_AIAPP_installer || false} 
                                 disabled 
                               />
                             }
                             label="AIAPP Installer"
                           />
                         </Grid>
+
                       </Grid>
                     </Grid>
                   </Grid>
@@ -1461,7 +1473,7 @@ export const TenantPage: React.FC = () => {
                 </Button>
               </Box>
 
-              {selectedTenant.billingDetails && selectedTenant.billingDetails.length > 0 ? (
+              {tenantBillingDetails && tenantBillingDetails.length > 0 ? (
                 <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
                   <Table size="small">
                     <TableHead>
@@ -1533,7 +1545,7 @@ export const TenantPage: React.FC = () => {
                           <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
                           <TableCell sx={tableBodyCellStyle}>
                             {billing.deviceContract && billing.deviceContract.length > 0
-                              ? billing.deviceContract.map(contract => `${contract.type} (${contract.quantity})`).join(', ')
+                              ? billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')
                               : 'No devices'}
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
@@ -1780,13 +1792,13 @@ export const TenantPage: React.FC = () => {
                         )}
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.subscription?.type || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{currentSubscription?.type || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>
                         <Chip
-                          label={tenant.subscription?.status || 'N/A'}
+                          label={currentSubscription?.status || 'N/A'}
                           color={
-                            tenant.subscription?.status === "Active" ? "success" :
-                            tenant.subscription?.status === "Cancelled" ? "error" :
+                            currentSubscription?.status === "Active" ? "success" :
+                            currentSubscription?.status === "Cancelled" ? "error" :
                             "default"
                           }
                           size="small"
@@ -2113,13 +2125,13 @@ export const TenantPage: React.FC = () => {
               )}
 
               {/* Subscription Info Tab */}
-              {activeTab === "subscription" && editableTenant && editableTenant.subscription && (
+              {activeTab === "subscription" && editableTenant && editableSubscription && (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
                       label="ID"
-                      value={editableTenant.subscription.id}
+                      value={editableSubscription.id}
                       disabled
                       margin="normal"
                     />
@@ -2128,15 +2140,12 @@ export const TenantPage: React.FC = () => {
                     <TextField
                       fullWidth
                       label="Name"
-                      value={editableTenant.subscription.name}
+                      value={editableSubscription.name}
                       onChange={(e) => {
-                        if (editableTenant && editableTenant.subscription) {
-                          setEditableTenant({
-                            ...editableTenant,
-                            subscription: {
-                              ...editableTenant.subscription,
-                              name: e.target.value
-                            } as Tenant["subscription"]
+                        if (editableSubscription) {
+                          setEditableSubscription({
+                            ...editableSubscription,
+                            name: e.target.value
                           });
                         }
                       }}
@@ -2147,15 +2156,12 @@ export const TenantPage: React.FC = () => {
                     <TextField
                       fullWidth
                       label="Description"
-                      value={editableTenant.subscription.description}
+                      value={editableSubscription.description}
                       onChange={(e) => {
-                        if (editableTenant && editableTenant.subscription) {
-                          setEditableTenant({
-                            ...editableTenant,
-                            subscription: {
-                              ...editableTenant.subscription,
-                              description: e.target.value
-                            } as Tenant["subscription"]
+                        if (editableSubscription) {
+                          setEditableSubscription({
+                            ...editableSubscription,
+                            description: e.target.value
                           });
                         }
                       }}
@@ -2168,16 +2174,13 @@ export const TenantPage: React.FC = () => {
                     <FormControl fullWidth margin="normal">
                       <InputLabel>Type</InputLabel>
                       <Select
-                        value={editableTenant.subscription.type}
+                        value={editableSubscription.type}
                         label="Type"
                         onChange={(e) => {
-                          if (editableTenant && editableTenant.subscription) {
-                            setEditableTenant({
-                              ...editableTenant,
-                              subscription: {
-                                ...editableTenant.subscription,
-                                type: e.target.value as 'Evergreen' | 'Termed'
-                              } as Tenant["subscription"]
+                          if (editableSubscription) {
+                            setEditableSubscription({
+                              ...editableSubscription,
+                              type: e.target.value as 'Evergreen' | 'Termed'
                             });
                           }
                         }}
@@ -2191,16 +2194,13 @@ export const TenantPage: React.FC = () => {
                     <FormControl fullWidth margin="normal">
                       <InputLabel>Status</InputLabel>
                       <Select
-                        value={editableTenant.subscription.status}
+                        value={editableSubscription.status}
                         label="Status"
                         onChange={(e) => {
-                          if (editableTenant && editableTenant.subscription) {
-                            setEditableTenant({
-                              ...editableTenant,
-                              subscription: {
-                                ...editableTenant.subscription,
-                                status: e.target.value as 'Active' | 'Cancelled'
-                              } as Tenant["subscription"]
+                          if (editableSubscription) {
+                            setEditableSubscription({
+                              ...editableSubscription,
+                              status: e.target.value as 'Active' | 'Cancelled'
                             });
                           }
                         }}
@@ -2215,15 +2215,12 @@ export const TenantPage: React.FC = () => {
                       fullWidth
                       label="Start Date"
                       type="date"
-                      value={editableTenant.subscription.start_date}
+                      value={editableSubscription.start_date}
                       onChange={(e) => {
-                        if (editableTenant && editableTenant.subscription) {
-                          setEditableTenant({
-                            ...editableTenant,
-                            subscription: {
-                              ...editableTenant.subscription,
-                              start_date: e.target.value
-                            } as Tenant["subscription"]
+                        if (editableSubscription) {
+                          setEditableSubscription({
+                            ...editableSubscription,
+                            start_date: e.target.value
                           });
                         }
                       }}
@@ -2236,15 +2233,12 @@ export const TenantPage: React.FC = () => {
                       fullWidth
                       label="End Date"
                       type="date"
-                      value={editableTenant.subscription.end_date}
+                      value={editableSubscription.end_date}
                       onChange={(e) => {
-                        if (editableTenant && editableTenant.subscription) {
-                          setEditableTenant({
-                            ...editableTenant,
-                            subscription: {
-                              ...editableTenant.subscription,
-                              end_date: e.target.value
-                            } as Tenant["subscription"]
+                        if (editableSubscription) {
+                          setEditableSubscription({
+                            ...editableSubscription,
+                            end_date: e.target.value
                           });
                         }
                       }}
@@ -2261,15 +2255,12 @@ export const TenantPage: React.FC = () => {
                         <FormControlLabel
                           control={
                             <Checkbox 
-                              checked={editableTenant.subscription.enabled_app_DMS}
+                              checked={editableSubscription.enabled_app_DMS}
                               onChange={(e) => {
-                                if (editableTenant && editableTenant.subscription) {
-                                  setEditableTenant({
-                                    ...editableTenant,
-                                    subscription: {
-                                      ...editableTenant.subscription,
-                                      enabled_app_DMS: e.target.checked
-                                    } as Tenant["subscription"]
+                                if (editableSubscription) {
+                                  setEditableSubscription({
+                                    ...editableSubscription,
+                                    enabled_app_DMS: e.target.checked
                                   });
                                 }
                               }}
@@ -2282,15 +2273,12 @@ export const TenantPage: React.FC = () => {
                         <FormControlLabel
                           control={
                             <Checkbox 
-                              checked={editableTenant.subscription.enabled_app_eVMS}
+                              checked={editableSubscription.enabled_app_eVMS}
                               onChange={(e) => {
-                                if (editableTenant && editableTenant.subscription) {
-                                  setEditableTenant({
-                                    ...editableTenant,
-                                    subscription: {
-                                      ...editableTenant.subscription,
-                                      enabled_app_eVMS: e.target.checked
-                                    } as Tenant["subscription"]
+                                if (editableSubscription) {
+                                  setEditableSubscription({
+                                    ...editableSubscription,
+                                    enabled_app_eVMS: e.target.checked
                                   });
                                 }
                               }}
@@ -2303,15 +2291,12 @@ export const TenantPage: React.FC = () => {
                         <FormControlLabel
                           control={
                             <Checkbox 
-                              checked={editableTenant.subscription.enabled_app_CVR}
+                              checked={editableSubscription.enabled_app_CVR}
                               onChange={(e) => {
-                                if (editableTenant && editableTenant.subscription) {
-                                  setEditableTenant({
-                                    ...editableTenant,
-                                    subscription: {
-                                      ...editableTenant.subscription,
-                                      enabled_app_CVR: e.target.checked
-                                    } as Tenant["subscription"]
+                                if (editableSubscription) {
+                                  setEditableSubscription({
+                                    ...editableSubscription,
+                                    enabled_app_CVR: e.target.checked
                                   });
                                 }
                               }}
@@ -2324,15 +2309,12 @@ export const TenantPage: React.FC = () => {
                         <FormControlLabel
                           control={
                             <Checkbox 
-                              checked={editableTenant.subscription.enabled_app_AIAMS}
+                              checked={editableSubscription.enabled_app_AIAMS}
                               onChange={(e) => {
-                                if (editableTenant && editableTenant.subscription) {
-                                  setEditableTenant({
-                                    ...editableTenant,
-                                    subscription: {
-                                      ...editableTenant.subscription,
-                                      enabled_app_AIAMS: e.target.checked
-                                    } as Tenant["subscription"]
+                                if (editableSubscription) {
+                                  setEditableSubscription({
+                                    ...editableSubscription,
+                                    enabled_app_AIAMS: e.target.checked
                                   });
                                 }
                               }}
@@ -2352,15 +2334,12 @@ export const TenantPage: React.FC = () => {
                         <FormControlLabel
                           control={
                             <Checkbox 
-                              checked={editableTenant.subscription.config_SSH_terminal}
+                              checked={editableSubscription.config_SSH_terminal}
                               onChange={(e) => {
-                                if (editableTenant && editableTenant.subscription) {
-                                  setEditableTenant({
-                                    ...editableTenant,
-                                    subscription: {
-                                      ...editableTenant.subscription,
-                                      config_SSH_terminal: e.target.checked
-                                    } as Tenant["subscription"]
+                                if (editableSubscription) {
+                                  setEditableSubscription({
+                                    ...editableSubscription,
+                                    config_SSH_terminal: e.target.checked
                                   });
                                 }
                               }}
@@ -2373,15 +2352,12 @@ export const TenantPage: React.FC = () => {
                         <FormControlLabel
                           control={
                             <Checkbox 
-                              checked={editableTenant.subscription.config_AIAPP_installer}
+                              checked={editableSubscription.config_AIAPP_installer}
                               onChange={(e) => {
-                                if (editableTenant && editableTenant.subscription) {
-                                  setEditableTenant({
-                                    ...editableTenant,
-                                    subscription: {
-                                      ...editableTenant.subscription,
-                                      config_AIAPP_installer: e.target.checked
-                                    } as Tenant["subscription"]
+                                if (editableSubscription) {
+                                  setEditableSubscription({
+                                    ...editableSubscription,
+                                    config_AIAPP_installer: e.target.checked
                                   });
                                 }
                               }}
@@ -2513,7 +2489,7 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {editableUser && selectedTenant?.users?.find(user => user.id === editableUser.id)
+          {editableUser && tenantUsers?.find((user: {id: string}) => user.id === editableUser.id)
             ? `Edit User: ${editableUser.name}`
             : `Add User to ${selectedTenant?.name}`}
         </DialogTitle>
@@ -2624,7 +2600,7 @@ export const TenantPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {editableBilling && selectedTenant?.billingDetails?.find(billing => billing.id === editableBilling.id)
+          {editableBilling && tenantBillingDetails?.find((billing: {id: string}) => billing.id === editableBilling.id)
             ? `Edit Billing: ${editableBilling.id}`
             : `Add Billing to ${selectedTenant?.name}`}
         </DialogTitle>
@@ -2704,7 +2680,7 @@ export const TenantPage: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {editableBilling.deviceContract?.map((contract, index) => (
+                      {editableBilling.deviceContract?.map((contract: {type: string, quantity: number}, index: number) => (
                         <TableRow key={index}>
                           <TableCell>
                             <FormControl fullWidth size="small">
