@@ -62,11 +62,17 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
       
+      console.log('Loading devices for tenant:', tenantId);
+      console.log('Pagination params:', pagination);
+      
       const response = await deviceService.getDevicesForTenant(tenantId, {
         page: pagination.page,
         limit: pagination.limit,
         sort: serviceSort
       });
+      
+      console.log('Device service response:', response);
+      console.log('Total pages:', response.meta.totalPages);
       
       setDevices(response.data);
       setPagination({
@@ -74,7 +80,14 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
         total: response.meta.total,
         totalPages: response.meta.totalPages
       });
+      
+      console.log('Updated pagination state:', {
+        ...pagination,
+        total: response.meta.total,
+        totalPages: response.meta.totalPages
+      });
     } catch (err) {
+      console.error('Error loading devices:', err);
       setError(`Error loading devices: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
