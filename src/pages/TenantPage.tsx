@@ -46,7 +46,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle, groupTitleStyle } from '../styles/common.js';
-import { Tenant, User, Device, Attribute, DeviceContractItem, UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
+import { TenantType as Tenant, UserType as User, DeviceType2 as Device, Attribute, DeviceContractItem, UnregisteredDeviceType as UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
 import { TenantService, UserService, DeviceService } from '../services/index.js';
 import { formatContactName } from '../services/utils.js';
 import { exportToCsv } from '../utils/exportUtils.js';
@@ -126,6 +126,10 @@ export const TenantPage: React.FC = () => {
   const [editableUser, setEditableUser] = useState<User | null>(null);
   const [openBillingDialog, setOpenBillingDialog] = useState(false);
   const [editableBilling, setEditableBilling] = useState<NonNullable<Tenant["billingDetails"]>[0] | null>(null);
+  const [openContactDialog, setOpenContactDialog] = useState(false);
+  const [editableContact, setEditableContact] = useState<Tenant["contact"] | null>(null);
+  const [openSubscriptionDialog, setOpenSubscriptionDialog] = useState(false);
+  const [editableSubscription, setEditableSubscription] = useState<Tenant["subscription"] | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 100, // Default to 100 rows
@@ -597,6 +601,60 @@ export const TenantPage: React.FC = () => {
     setOpenBillingDialog(false);
   };
 
+  const handleOpenContactDialog = () => {
+    if (!selectedTenant) return;
+    setEditableContact({...selectedTenant.contact});
+    setOpenContactDialog(true);
+  };
+
+  const handleCloseContactDialog = () => {
+    setOpenContactDialog(false);
+  };
+
+  const handleSaveContact = () => {
+    if (!selectedTenant || !editableContact) return;
+
+    try {
+      setLoading(true);
+      setSelectedTenant({
+        ...selectedTenant,
+        contact: editableContact
+      });
+      setOpenContactDialog(false);
+    } catch (err) {
+      setError(`Error saving contact: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenSubscriptionDialog = () => {
+    if (!selectedTenant || !selectedTenant.subscription) return;
+    setEditableSubscription({...selectedTenant.subscription});
+    setOpenSubscriptionDialog(true);
+  };
+
+  const handleCloseSubscriptionDialog = () => {
+    setOpenSubscriptionDialog(false);
+  };
+
+  const handleSaveSubscription = () => {
+    if (!selectedTenant || !editableSubscription) return;
+
+    try {
+      setLoading(true);
+      setSelectedTenant({
+        ...selectedTenant,
+        subscription: editableSubscription
+      });
+      setOpenSubscriptionDialog(false);
+    } catch (err) {
+      setError(`Error saving subscription: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleSaveBilling = () => {
     if (!selectedTenant || !editableBilling) return;
@@ -742,7 +800,16 @@ export const TenantPage: React.FC = () => {
 
               <Grid item xs={12}>
                 <Paper sx={paperStyle} variant="outlined">
-                  <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem" }}>Contact</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Contact</Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenContactDialog()}
+                      aria-label="edit contact"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                   <Divider sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
@@ -842,7 +909,7 @@ export const TenantPage: React.FC = () => {
                     <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Subscription</Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleOpenBillingDialog()}
+                      onClick={() => handleOpenSubscriptionDialog()}
                       aria-label="edit subscription"
                     >
                       <EditIcon fontSize="small" />
@@ -1554,167 +1621,11 @@ export const TenantPage: React.FC = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Subscription Type</InputLabel>
-                  <Select
-                    value={editableTenant.subscription?.type || 'Evergreen'}
-                    label="Subscription Type"
-                    onChange={(e) => setEditableTenant({
-                      ...editableTenant,
-                      subscription: {
-                        ...editableTenant.subscription!,
-                        type: e.target.value as 'Evergreen' | 'Termed'
-                      }
-                    })}
-                  >
-                    <MenuItem value="Evergreen">Evergreen</MenuItem>
-                    <MenuItem value="Termed">Termed</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                  Contact Information
-                </Typography>
-                <Divider />
-              </Grid>
-              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="First Name"
-                  value={editableTenant.contact.first_name}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      first_name: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  value={editableTenant.contact.last_name}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      last_name: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  value={editableTenant.contact.email}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      email: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Language</InputLabel>
-                  <Select
-                    value={editableTenant.contact.language}
-                    label="Language"
-                    onChange={(e) => setEditableTenant({
-                      ...editableTenant,
-                      contact: {
-                        ...editableTenant.contact,
-                        language: e.target.value as '日本語' | 'English'
-                      }
-                    })}
-                  >
-                    <MenuItem value="日本語">日本語</MenuItem>
-                    <MenuItem value="English">English</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Office Phone"
-                  value={editableTenant.contact.phone_office}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      phone_office: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Mobile Phone"
-                  value={editableTenant.contact.phone_mobile}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      phone_mobile: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Company"
-                  value={editableTenant.contact.company}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      company: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Department"
-                  value={editableTenant.contact.department}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      department: e.target.value
-                    }
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Address Line 1"
-                  value={editableTenant.contact.address1}
-                  onChange={(e) => setEditableTenant({
-                    ...editableTenant,
-                    contact: {
-                      ...editableTenant.contact,
-                      address1: e.target.value
-                    }
-                  })}
+                  label="ID"
+                  value={editableTenant.id}
+                  disabled
                   margin="normal"
                 />
               </Grid>
@@ -1727,7 +1638,7 @@ export const TenantPage: React.FC = () => {
             onClick={handleSaveTenant}
             variant="contained"
             color="primary"
-            disabled={!editableTenant || !editableTenant.name || !editableTenant.contact.first_name || !editableTenant.contact.email}
+            disabled={!editableTenant || !editableTenant.name}
           >
             Save
           </Button>
@@ -2131,6 +2042,429 @@ export const TenantPage: React.FC = () => {
             variant="contained"
             color="primary"
             disabled={!editableBilling}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Contact Dialog */}
+      <Dialog
+        open={openContactDialog}
+        onClose={handleCloseContactDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Edit Contact Information
+        </DialogTitle>
+        <DialogContent dividers>
+          {editableContact && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  value={editableContact.first_name}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    first_name: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  value={editableContact.last_name}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    last_name: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  value={editableContact.email}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    email: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Language</InputLabel>
+                  <Select
+                    value={editableContact.language}
+                    label="Language"
+                    onChange={(e) => setEditableContact({
+                      ...editableContact,
+                      language: e.target.value as '日本語' | 'English'
+                    })}
+                  >
+                    <MenuItem value="日本語">日本語</MenuItem>
+                    <MenuItem value="English">English</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Company"
+                  value={editableContact.company}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    company: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Department"
+                  value={editableContact.department}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    department: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Office Phone"
+                  value={editableContact.phone_office}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    phone_office: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Mobile Phone"
+                  value={editableContact.phone_mobile}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    phone_mobile: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Address Line 1"
+                  value={editableContact.address1}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    address1: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Address Line 2"
+                  value={editableContact.address2}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    address2: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="City"
+                  value={editableContact.city}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    city: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="State/Prefecture"
+                  value={editableContact.state_prefecture}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    state_prefecture: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Country"
+                  value={editableContact.country}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    country: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Postal Code"
+                  value={editableContact.postal_code}
+                  onChange={(e) => setEditableContact({
+                    ...editableContact,
+                    postal_code: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseContactDialog}>Cancel</Button>
+          <Button
+            onClick={handleSaveContact}
+            variant="contained"
+            color="primary"
+            disabled={!editableContact}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Subscription Dialog */}
+      <Dialog
+        open={openSubscriptionDialog}
+        onClose={handleCloseSubscriptionDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Edit Subscription
+        </DialogTitle>
+        <DialogContent dividers>
+          {editableSubscription && (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="ID"
+                  value={editableSubscription.id}
+                  disabled
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={editableSubscription.name}
+                  onChange={(e) => setEditableSubscription({
+                    ...editableSubscription,
+                    name: e.target.value
+                  })}
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  value={editableSubscription.description}
+                  onChange={(e) => setEditableSubscription({
+                    ...editableSubscription,
+                    description: e.target.value
+                  })}
+                  margin="normal"
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Type</InputLabel>
+                  <Select
+                    value={editableSubscription.type}
+                    label="Type"
+                    onChange={(e) => setEditableSubscription({
+                      ...editableSubscription,
+                      type: e.target.value as 'Evergreen' | 'Termed'
+                    })}
+                  >
+                    <MenuItem value="Evergreen">Evergreen</MenuItem>
+                    <MenuItem value="Termed">Termed</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={editableSubscription.status}
+                    label="Status"
+                    onChange={(e) => setEditableSubscription({
+                      ...editableSubscription,
+                      status: e.target.value as 'Active' | 'Cancelled'
+                    })}
+                  >
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Cancelled">Cancelled</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Start Date"
+                  type="date"
+                  value={editableSubscription.start_date}
+                  onChange={(e) => setEditableSubscription({
+                    ...editableSubscription,
+                    start_date: e.target.value
+                  })}
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="End Date"
+                  type="date"
+                  value={editableSubscription.end_date}
+                  onChange={(e) => setEditableSubscription({
+                    ...editableSubscription,
+                    end_date: e.target.value
+                  })}
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                  Enabled Applications
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={editableSubscription.enabled_app_DMS}
+                          onChange={(e) => setEditableSubscription({
+                            ...editableSubscription,
+                            enabled_app_DMS: e.target.checked
+                          })}
+                        />
+                      }
+                      label="DMS"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={editableSubscription.enabled_app_eVMS}
+                          onChange={(e) => setEditableSubscription({
+                            ...editableSubscription,
+                            enabled_app_eVMS: e.target.checked
+                          })}
+                        />
+                      }
+                      label="eVMS"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={editableSubscription.enabled_app_CVR}
+                          onChange={(e) => setEditableSubscription({
+                            ...editableSubscription,
+                            enabled_app_CVR: e.target.checked
+                          })}
+                        />
+                      }
+                      label="CVR"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={editableSubscription.enabled_app_AIAMS}
+                          onChange={(e) => setEditableSubscription({
+                            ...editableSubscription,
+                            enabled_app_AIAMS: e.target.checked
+                          })}
+                        />
+                      }
+                      label="AIAMS"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Configuration
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={editableSubscription.config_SSH_terminal}
+                          onChange={(e) => setEditableSubscription({
+                            ...editableSubscription,
+                            config_SSH_terminal: e.target.checked
+                          })}
+                        />
+                      }
+                      label="SSH Terminal"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox 
+                          checked={editableSubscription.config_AIAPP_installer}
+                          onChange={(e) => setEditableSubscription({
+                            ...editableSubscription,
+                            config_AIAPP_installer: e.target.checked
+                          })}
+                        />
+                      }
+                      label="AIAPP Installer"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseSubscriptionDialog}>Cancel</Button>
+          <Button
+            onClick={handleSaveSubscription}
+            variant="contained"
+            color="primary"
+            disabled={!editableSubscription}
           >
             Save
           </Button>
