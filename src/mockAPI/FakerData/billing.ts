@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Billing } from '../../types/models.js';
+import { Billing } from '../../commons/models.js';
 import { tenants } from './tenants.js';
 import { devices } from './devices.js';
 

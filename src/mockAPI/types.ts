@@ -1,4 +1,4 @@
-import { TenantType, UserType, DeviceType2, DeviceWithTenant, DeviceContractItem, UnregisteredDeviceType, Tenant, User, Device, Billing, UnregisteredDevice, Subscription } from '../types/models.js';
+import { TenantType, UserType, DeviceType2, DeviceWithTenant, DeviceContractItem, UnregisteredDeviceType, Tenant, User, Device, Billing, UnregisteredDevice, Subscription } from '../commons/models.js';
 
 export interface PaginationParams {
   page: number;

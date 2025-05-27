@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Subscription } from '../../types/models.js';
+import { Subscription } from '../../commons/models.js';
 
 const japaneseSubscriptionDescriptions = [
   'エンタープライズ向け総合管理プラットフォーム',
