@@ -1242,7 +1242,7 @@ export const TenantPage: React.FC = () => {
                     }
                   ];
                   return userColumns;
-                }, [])}
+                }, [handleEditUser, handleDeleteUser])}
                 sortConfig={sortConfig}
                 requestSort={requestSort}
                 getSortDirectionIndicator={getSortDirectionIndicator}
@@ -1358,7 +1358,7 @@ export const TenantPage: React.FC = () => {
                     }
                   ];
                   return deviceColumns;
-                }, [])}
+                }, [handleUnassignDevice])}
                 sortConfig={sortConfig}
                 requestSort={requestSort}
                 getSortDirectionIndicator={getSortDirectionIndicator}
@@ -1709,7 +1709,7 @@ export const TenantPage: React.FC = () => {
             }
           ];
           return tenantColumns;
-        }, [])}
+        }, [loadTenantById, handleOpenTenantDialog, handleDeleteTenant, currentSubscription])}
         sortConfig={sortConfig}
         requestSort={requestSort}
         getSortDirectionIndicator={getSortDirectionIndicator}
