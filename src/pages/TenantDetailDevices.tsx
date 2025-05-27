@@ -40,13 +40,13 @@ interface TenantDetailDevicesProps {
     direction: 'ascending' | 'descending';
   } | null;
   requestSort: (key: string) => void;
-  tenantDevices: Device[];
-  setTenantDevices: React.Dispatch<React.SetStateAction<Device[]>>;
-  selectedTenant: Tenant | null;
-  loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  error: string | null;
-  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  tenantDevices?: Device[];
+  setTenantDevices?: React.Dispatch<React.SetStateAction<Device[]>>;
+  selectedTenant?: Tenant | null;
+  loading?: boolean;
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+  error?: string | null;
+  setError?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({ 
@@ -81,7 +81,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
     if (!selectedTenant) return;
 
     try {
-      setLoading(true);
+      if (setLoading) setLoading(true);
 
       const response = await deviceService.getDevices({
         page: 1,
@@ -96,9 +96,9 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
       setSelectedUnassignedDevices([]);
       setOpenDeviceAssignDialog(true);
     } catch (err) {
-      setError(`Error loading unassigned devices: ${err instanceof Error ? err.message : String(err)}`);
+      if (setError) setError(`Error loading unassigned devices: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
-      setLoading(false);
+      if (setLoading) setLoading(false);
     }
   };
 
@@ -107,10 +107,10 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
   };
 
   const handleAssignDevices = async () => {
-    if (!selectedTenant || selectedUnassignedDevices.length === 0) return;
+    if (!selectedTenant || selectedUnassignedDevices.length === 0 || !tenantDevices || !setTenantDevices) return;
 
     try {
-      setLoading(true);
+      if (setLoading) setLoading(true);
 
       const devicesToAssign = unassignedDevices.filter(device =>
         selectedUnassignedDevices.includes(device.id)
@@ -129,26 +129,26 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
       setOpenDeviceAssignDialog(false);
 
     } catch (err) {
-      setError(`Error assigning devices: ${err instanceof Error ? err.message : String(err)}`);
+      if (setError) setError(`Error assigning devices: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
-      setLoading(false);
+      if (setLoading) setLoading(false);
     }
   };
 
   const handleUnassignDevice = async (deviceId: string) => {
-    if (!selectedTenant) return;
+    if (!selectedTenant || !tenantDevices || !setTenantDevices) return;
 
     try {
-      setLoading(true);
+      if (setLoading) setLoading(true);
 
       const updatedDevices = tenantDevices.filter((device: Device) => device.id !== deviceId);
 
       setTenantDevices(updatedDevices);
 
     } catch (err) {
-      setError(`Error unassigning device: ${err instanceof Error ? err.message : String(err)}`);
+      if (setError) setError(`Error unassigning device: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
-      setLoading(false);
+      if (setLoading) setLoading(false);
     }
   };
 
@@ -334,7 +334,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
         open={openDeviceAssignDialog}
         onClose={handleCloseDeviceAssignDialog}
         onSave={handleAssignDevices}
-        selectedTenant={selectedTenant}
+        selectedTenant={selectedTenant || null}
         unassignedDevices={unassignedDevices}
         selectedUnassignedDevices={selectedUnassignedDevices}
         setSelectedUnassignedDevices={setSelectedUnassignedDevices}

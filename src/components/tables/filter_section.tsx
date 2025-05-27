@@ -24,27 +24,29 @@ export interface FilterField {
   startAdornment?: boolean;
 }
 
-export interface FilterSectionProps {
+export interface FilterSectionProps<T extends Record<string, any> = Record<string, any>> {
   title?: string;
-  filters: Record<string, any>;
-  onFiltersChange: React.Dispatch<React.SetStateAction<Record<string, any>>> | ((filters: Record<string, any>) => void);
+  filters: T;
+  onFiltersChange: React.Dispatch<React.SetStateAction<T>> | ((filters: T) => void);
   onResetFilters: () => void;
   filterFields: FilterField[];
 }
 
-export const FilterSection: React.FC<FilterSectionProps> = ({
+export const FilterSection = <T extends Record<string, any> = Record<string, any>>({
   title = "Filters",
   filters,
   onFiltersChange,
   onResetFilters,
   filterFields
-}) => {
+}: FilterSectionProps<T>) => {
   const handleFilterChange = (key: string, value: any) => {
     if (typeof onFiltersChange === 'function') {
-      if (typeof filters === 'object') {
-        onFiltersChange({ ...filters, [key]: value });
+      const updatedFilters = { ...filters, [key]: value } as T;
+      
+      if (typeof onFiltersChange === 'function' && 'setState' in onFiltersChange) {
+        (onFiltersChange as React.Dispatch<React.SetStateAction<T>>)(updatedFilters);
       } else {
-        onFiltersChange((prevFilters: Record<string, any>) => ({ ...prevFilters, [key]: value }));
+        (onFiltersChange as (filters: T) => void)(updatedFilters);
       }
     }
   };
