@@ -51,6 +51,7 @@ import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 import { TenantService, UserService, DeviceService, SubscriptionService } from '../mockAPI/index.js';
 import { formatContactName } from '../mockAPI/utils.js';
 import { exportToCsv } from '../commons/export.js';
+import { calculateNextBillingMonth } from '../commons/billing.js';
 import { Subscription } from '../commons/models.js';
 import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
@@ -62,60 +63,7 @@ const userService = new UserService();
 const deviceService = new DeviceService();
 const subscriptionService = new SubscriptionService();
 
-const calculateNextBillingMonth = (billing: any) => {
-  if (!billing) return '—';
 
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth(); // 0-11
-
-  if (billing.endDate) {
-    try {
-      const endDate = new Date(billing.endDate);
-      const currentDate = new Date();
-
-      if (currentDate > endDate) {
-        return 'Ended';
-      }
-    } catch (e) {
-    }
-  }
-
-  if (billing.paymentType === 'Monthly') {
-    let nextBillingYear = currentYear;
-    let nextBillingMonth = currentMonth;
-
-    return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
-  }
-  else if (billing.paymentType === 'Annually') {
-    if (!billing.endDate) return '—';
-
-    try {
-      const endDate = new Date(billing.endDate);
-      const endYear = endDate.getFullYear();
-      const endMonth = endDate.getMonth(); // 0-11
-
-      return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
-    } catch (e) {
-      return '—';
-    }
-  }
-  else if (billing.paymentType === 'One-time') {
-    if (!billing.startDate) return '—';
-
-    try {
-      const startDate = new Date(billing.startDate);
-      const startYear = startDate.getFullYear();
-      const startMonth = startDate.getMonth(); // 0-11
-
-      return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
-    } catch (e) {
-      return '—';
-    }
-  }
-
-  return '—'; // Default for unknown payment types
-};
 
 export const TenantPage: React.FC = () => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
