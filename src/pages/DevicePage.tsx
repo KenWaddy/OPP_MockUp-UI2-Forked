@@ -31,9 +31,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { FilterSection } from '../components/tables/filter_section';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
+import { SortableTableCell } from '../components/tables/SortableTableCell';
+import { useSorting } from '../hooks/useSorting';
 import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType } from '../commons/models.js';
 import { defaultDeviceTypes, getDeviceTypeByName } from '../mockAPI/FakerData/deviceTypes.js';
 import { DeviceService, TenantService } from '../mockAPI/index.js';
@@ -78,10 +78,7 @@ export const DevicePage: React.FC = () => {
     status: "",
   });
   
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: 'ascending' | 'descending';
-  } | null>(null);
+  const { sortConfig, requestSort } = useSorting();
   
   const [deviceTypes, setDeviceTypes] = useState<string[]>([]);
   const statusOptions: Device["status"][] = ["Registered", "Assigned", "Activated"];
@@ -292,27 +289,8 @@ export const DevicePage: React.FC = () => {
     }
   };
   
-  const requestSort = (key: string) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-    
-    if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    }
-    
-    setSortConfig({ key, direction });
-  };
-  
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setPagination({ ...pagination, page });
-  };
-  
-  const getSortDirectionIndicator = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return null;
-    }
-    return sortConfig.direction === 'ascending' 
-      ? <ArrowUpwardIcon fontSize="small" />
-      : <ArrowDownwardIcon fontSize="small" />;
   };
   
   const handleExportAllDevices = async () => {
@@ -474,48 +452,62 @@ export const DevicePage: React.FC = () => {
             <Table size="small" aria-label="device list table">
               <TableHead>
                 <TableRow>
-                  <TableCell 
-                    onClick={() => requestSort('tenant')}
+                  <SortableTableCell 
+                    sortKey="tenant"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Tenant {getSortDirectionIndicator('tenant')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('name')}
+                    Tenant
+                  </SortableTableCell>
+                  <SortableTableCell 
+                    sortKey="name"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Name {getSortDirectionIndicator('name')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('type')}
+                    Name
+                  </SortableTableCell>
+                  <SortableTableCell 
+                    sortKey="type"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Type {getSortDirectionIndicator('type')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('deviceId')}
+                    Type
+                  </SortableTableCell>
+                  <SortableTableCell 
+                    sortKey="deviceId"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Device ID {getSortDirectionIndicator('deviceId')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('serialNo')}
+                    Device ID
+                  </SortableTableCell>
+                  <SortableTableCell 
+                    sortKey="serialNo"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Serial No. {getSortDirectionIndicator('serialNo')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('description')}
+                    Serial No.
+                  </SortableTableCell>
+                  <SortableTableCell 
+                    sortKey="description"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Description {getSortDirectionIndicator('description')}
-                  </TableCell>
-                  <TableCell 
-                    onClick={() => requestSort('status')}
+                    Description
+                  </SortableTableCell>
+                  <SortableTableCell 
+                    sortKey="status"
+                    sortConfig={sortConfig}
+                    onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Status {getSortDirectionIndicator('status')}
-                  </TableCell>
+                    Status
+                  </SortableTableCell>
                   <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
                   <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
                 </TableRow>

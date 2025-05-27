@@ -24,6 +24,7 @@ import { ContactDialog } from '../components/dialogs/ContactDialog';
 import { SubscriptionDialog } from '../components/dialogs/SubscriptionDialog';
 import { TenantDetailInfo } from './TenantDetailInfo';
 import { TenantList } from './TenantList';
+import { useSorting } from '../hooks/useSorting';
 
 // Create service instances
 
@@ -212,29 +213,7 @@ export const TenantPage: React.FC = () => {
     }
   };
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: 'ascending' | 'descending';
-  } | null>(null);
-
-  const requestSort = (key: string) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-
-    if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    }
-
-    setSortConfig({ key, direction });
-  };
-
-  const getSortDirectionIndicator = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return null;
-    }
-    return sortConfig.direction === 'ascending'
-      ? <span>↑</span>
-      : <span>↓</span>;
-  };
+  const { sortConfig, requestSort } = useSorting();
 
   const handleExportAllTenants = async () => {
     try {
@@ -399,7 +378,6 @@ export const TenantPage: React.FC = () => {
               tenantId={selectedTenant?.id}
               sortConfig={sortConfig}
               requestSort={requestSort}
-              getSortDirectionIndicator={getSortDirectionIndicator}
               tenantUsers={tenantUsers}
               setTenantUsers={setTenantUsers}
               selectedTenant={selectedTenant}
@@ -416,7 +394,6 @@ export const TenantPage: React.FC = () => {
               tenantId={selectedTenant?.id}
               sortConfig={sortConfig}
               requestSort={requestSort}
-              getSortDirectionIndicator={getSortDirectionIndicator}
               tenantDevices={tenantDevices}
               setTenantDevices={setTenantDevices}
               selectedTenant={selectedTenant}
@@ -433,7 +410,6 @@ export const TenantPage: React.FC = () => {
               tenantId={selectedTenant?.id}
               sortConfig={sortConfig}
               requestSort={requestSort}
-              getSortDirectionIndicator={getSortDirectionIndicator}
               tenantBillingDetails={tenantBillingDetails}
               setTenantBillingDetails={setTenantBillingDetails}
               loading={loading}

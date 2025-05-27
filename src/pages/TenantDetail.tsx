@@ -1,43 +1,20 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Tabs, Tab, Button } from "@mui/material";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { TenantDetailInfo } from './TenantDetailInfo';
 import { TenantDetailUsers } from './TenantDetailUsers';
 import { TenantDetailDevices } from './TenantDetailDevices';
 import { TenantDetailBilling } from './TenantDetailBilling';
+import { useSorting } from '../hooks/useSorting';
 
 export const TenantDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState(0);
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: 'ascending' | 'descending';
-  } | null>(null);
+  const { sortConfig, requestSort } = useSorting();
 
   const handleTabChange = (_e: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
-  };
-
-  const requestSort = (key: string) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-
-    if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    }
-
-    setSortConfig({ key, direction });
-  };
-
-  const getSortDirectionIndicator = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return null;
-    }
-    return sortConfig.direction === 'ascending'
-      ? <ArrowUpwardIcon fontSize="small" />
-      : <ArrowDownwardIcon fontSize="small" />;
   };
 
   return (
@@ -56,7 +33,6 @@ export const TenantDetail: React.FC = () => {
           tenantId={id}
           sortConfig={sortConfig}
           requestSort={requestSort}
-          getSortDirectionIndicator={getSortDirectionIndicator}
         />
       )}
       {tab === 2 && (
@@ -64,7 +40,6 @@ export const TenantDetail: React.FC = () => {
           tenantId={id}
           sortConfig={sortConfig}
           requestSort={requestSort}
-          getSortDirectionIndicator={getSortDirectionIndicator}
         />
       )}
       {tab === 3 && (
@@ -72,7 +47,6 @@ export const TenantDetail: React.FC = () => {
           tenantId={id}
           sortConfig={sortConfig}
           requestSort={requestSort}
-          getSortDirectionIndicator={getSortDirectionIndicator}
         />
       )}
     </Box>

@@ -27,6 +27,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService } from '../mockAPI/billing.service.js';
 import { Billing, DeviceContractItem } from '../commons/models.js';
 import { BillingDialog } from '../components/dialogs/BillingDialog';
@@ -43,7 +44,6 @@ interface TenantDetailBillingProps {
     direction: 'ascending' | 'descending';
   } | null;
   requestSort: (key: string) => void;
-  getSortDirectionIndicator: (key: string) => React.ReactNode;
   tenantBillingDetails?: any[];
   setTenantBillingDetails?: React.Dispatch<React.SetStateAction<any[]>>;
   loading?: boolean;
@@ -56,7 +56,6 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
   tenantId,
   sortConfig,
   requestSort,
-  getSortDirectionIndicator,
   tenantBillingDetails = [],
   setTenantBillingDetails,
   loading: propLoading,
@@ -282,49 +281,55 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('id')}
-                  style={{ cursor: 'pointer' }}
+                <SortableTableCell 
+                  sortKey="id"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Billing ID {getSortDirectionIndicator('id')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('paymentType')}
-                  style={{ cursor: 'pointer' }}
+                  Billing ID
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="paymentType"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Payment Type {getSortDirectionIndicator('paymentType')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('nextBillingMonth')}
-                  style={{ cursor: 'pointer' }}
+                  Payment Type
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="nextBillingMonth"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('startDate')}
-                  style={{ cursor: 'pointer' }}
+                  Next Billing Month
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="startDate"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Contract Start {getSortDirectionIndicator('startDate')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('endDate')}
-                  style={{ cursor: 'pointer' }}
+                  Contract Start
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="endDate"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Contract End {getSortDirectionIndicator('endDate')}
-                </TableCell>
+                  Contract End
+                </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('description')}
-                  style={{ cursor: 'pointer' }}
+                <SortableTableCell 
+                  sortKey="description"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Description {getSortDirectionIndicator('description')}
-                </TableCell>
+                  Description
+                </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
               </TableRow>
             </TableHead>

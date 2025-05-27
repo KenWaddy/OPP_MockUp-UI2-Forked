@@ -27,11 +27,11 @@ import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '.
 import { formatContactName } from '../mockAPI/utils.js';
 import { TenantService, SubscriptionService } from '../mockAPI/index.js';
 import { TenantType, Subscription } from '../commons/models.js';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { FilterSection } from '../components/tables/filter_section';
+import { useSorting } from '../hooks/useSorting';
+import { SortableTableCell } from '../components/tables/SortableTableCell';
 
 const tenantService = new TenantService();
 const subscriptionService = new SubscriptionService();
@@ -67,10 +67,7 @@ export const TenantList: React.FC<{
     textSearch: "",
   });
   
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: 'ascending' | 'descending';
-  } | null>(null);
+  const { sortConfig, requestSort } = useSorting();
 
   const contractTypeOptions = ["Evergreen", "Termed"];
   const statusOptions = ["Active", "Cancelled"];
@@ -150,24 +147,6 @@ export const TenantList: React.FC<{
     setPagination({ ...pagination, page });
   };
   
-  const requestSort = (key: string) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-
-    if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    }
-
-    setSortConfig({ key, direction });
-  };
-  
-  const getSortDirectionIndicator = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return null;
-    }
-    return sortConfig.direction === 'ascending'
-      ? <ArrowUpwardIcon fontSize="small" />
-      : <ArrowDownwardIcon fontSize="small" />;
-  };
 
   return (
     <div className="tenant-list">
@@ -228,36 +207,46 @@ export const TenantList: React.FC<{
           <Table size="small" aria-label="tenant list table">
             <TableHead>
               <TableRow>
-                <TableCell
-                  onClick={() => requestSort('tenant')}
+                <SortableTableCell
+                  sortKey="tenant"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Tenant {getSortDirectionIndicator('tenant')}
-                </TableCell>
-                <TableCell
-                  onClick={() => requestSort('contact')}
+                  Tenant
+                </SortableTableCell>
+                <SortableTableCell
+                  sortKey="contact"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Contact {getSortDirectionIndicator('contact')}
-                </TableCell>
-                <TableCell
-                  onClick={() => requestSort('email')}
+                  Contact
+                </SortableTableCell>
+                <SortableTableCell
+                  sortKey="email"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Email {getSortDirectionIndicator('email')}
-                </TableCell>
-                <TableCell
-                  onClick={() => requestSort('type')}
+                  Email
+                </SortableTableCell>
+                <SortableTableCell
+                  sortKey="type"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Type {getSortDirectionIndicator('type')}
-                </TableCell>
-                <TableCell
-                  onClick={() => requestSort('status')}
+                  Type
+                </SortableTableCell>
+                <SortableTableCell
+                  sortKey="status"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Status {getSortDirectionIndicator('status')}
-                </TableCell>
+                  Status
+                </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
               </TableRow>
             </TableHead>

@@ -22,10 +22,10 @@ import {
   Chip
 } from "@mui/material";
 import { PaginationComponent } from '../components/tables/pagination';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { FilterSection } from '../components/tables/filter_section';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
+import { useSorting } from '../hooks/useSorting';
+import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService, TenantService } from '../mockAPI/index.js';
 import { DeviceContractItem } from '../commons/models.js';
 import { exportToCsv } from '../commons/export.js';
@@ -77,10 +77,7 @@ export const BillingPage: React.FC = () => {
     paymentType: "",
   });
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: 'ascending' | 'descending';
-  } | null>(null);
+  const { sortConfig, requestSort } = useSorting();
 
   const compareYearMonth = (date1: string, date2: string): number => {
     if (!date1 || !date2) return 0;
@@ -161,25 +158,6 @@ export const BillingPage: React.FC = () => {
     setPagination({ ...pagination, page });
   };
 
-  const requestSort = (key: string) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-
-    setSortConfig({ key, direction });
-  };
-
-  const getSortDirectionIndicator = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return null;
-    }
-
-    return sortConfig.direction === 'ascending'
-      ? <ArrowUpwardIcon fontSize="small" />
-      : <ArrowDownwardIcon fontSize="small" />;
-  };
 
   const renderNumberOfDevices = (deviceContract: { type: string; quantity: number }[] | undefined) => {
     if (!deviceContract || deviceContract.length === 0) return 'No devices';
@@ -320,54 +298,70 @@ export const BillingPage: React.FC = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell
+                    <SortableTableCell
+                      sortKey="tenant"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('tenant')}
                     >
-                      Tenant {getSortDirectionIndicator('tenant')}
-                    </TableCell>
-                    <TableCell
+                      Tenant
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="billingId"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('billingId')}
                     >
-                      Billing ID {getSortDirectionIndicator('billingId')}
-                    </TableCell>
-                    <TableCell
+                      Billing ID
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="paymentType"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('paymentType')}
                     >
-                      Payment Type {getSortDirectionIndicator('paymentType')}
-                    </TableCell>
-                    <TableCell
+                      Payment Type
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="nextBillingMonth"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('nextBillingMonth')}
                     >
-                      Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
-                    </TableCell>
-                    <TableCell
+                      Next Billing Month
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="startDate"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('startDate')}
                     >
-                      Contract Start {getSortDirectionIndicator('startDate')}
-                    </TableCell>
-                    <TableCell
+                      Contract Start
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="endDate"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('endDate')}
                     >
-                      Contract End {getSortDirectionIndicator('endDate')}
-                    </TableCell>
-                    <TableCell
+                      Contract End
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="numberOfDevices"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('numberOfDevices')}
                     >
-                      Number of Devices {getSortDirectionIndicator('numberOfDevices')}
-                    </TableCell>
-                    <TableCell
+                      Number of Devices
+                    </SortableTableCell>
+                    <SortableTableCell
+                      sortKey="description"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
-                      onClick={() => requestSort('description')}
                     >
-                      Description {getSortDirectionIndicator('description')}
-                    </TableCell>
+                      Description
+                    </SortableTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
