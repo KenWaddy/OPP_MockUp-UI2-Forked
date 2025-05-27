@@ -115,7 +115,9 @@ export const BillingPage: React.FC = () => {
 
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
-        field: sortConfig.key === 'tenant' ? 'tenantName' : sortConfig.key,
+        field: sortConfig.key === 'tenant' ? 'tenantName' : 
+               sortConfig.key === 'billingId' ? 'id' : 
+               sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
       } : undefined;
 
