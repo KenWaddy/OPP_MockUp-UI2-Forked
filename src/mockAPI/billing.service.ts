@@ -103,7 +103,7 @@ export class BillingService implements IBillingService {
       }
       
       billingItems.push({
-        id: `${tenant.id}-${billingItem.id}`,
+        id: billingItem.id,
         subscriptionId: tenant.id,
         tenantName: tenant.name,
         deviceContract: billingItem.deviceContract || [],
@@ -271,7 +271,7 @@ export class BillingService implements IBillingService {
       ).join(', ') || '';
       
       const nextBillingMonth = this.calculateNextBillingMonth({
-        id: `${tenant.id}-${billingItem.id}`,
+        id: billingItem.id,
         subscriptionId: tenant.id,
         tenantName: tenant.name,
         deviceContract: billingItem.deviceContract || [],
