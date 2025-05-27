@@ -31,7 +31,7 @@ import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService } from '../mockAPI/billing.service.js';
 import { Billing, DeviceContractItem } from '../commons/models.js';
 import { BillingDialog } from '../components/dialogs/BillingDialog';
-import { calculateNextBillingMonth } from '../commons/billing.js';
+import { calculateNextBillingMonth } from '../commons/billing_calc.js';
 import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 
 const billingService = new BillingService();

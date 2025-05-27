@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { paperStyle, primaryTypographyStyle } from '../commons/styles.js';
 import { TenantType as Tenant, UserType as User, DeviceType2 as Device } from '../commons/models.js';
 import { TenantService, UserService, DeviceService, SubscriptionService } from '../mockAPI/index.js';
-import { exportToCsv } from '../commons/export.js';
+import { exportToCsv } from '../commons/export_CSV.js';
 import { Subscription } from '../commons/models.js';
 import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
