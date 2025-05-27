@@ -46,62 +46,60 @@ export function SortableTable<T>({
   error = null,
   emptyMessage = "No data found"
 }: SortableTableProps<T>) {
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-        {error}
-      </Typography>
-    );
-  }
-
-  if (data.length === 0) {
-    return (
-      <Typography variant="body1" sx={{ textAlign: 'center', my: 2 }}>
-        {emptyMessage}
-      </Typography>
-    );
-  }
-
   return (
-    <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            {columns.map((column) => (
-              <TableCell
-                key={column.key as string}
-                sx={tableHeaderCellStyle}
-                onClick={column.sortable !== false ? () => requestSort(column.key as string) : undefined}
-                style={{ cursor: column.sortable !== false ? 'pointer' : 'default' }}
-              >
-                {column.label} {column.sortable !== false && getSortDirectionIndicator(column.key as string)}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((row, index) => (
-            <TableRow key={index}>
-              {columns.map((column) => (
-                <TableCell key={column.key as string} sx={tableBodyCellStyle}>
-                  {column.render 
-                    ? column.render((row as any)[column.key], row)
-                    : (row as any)[column.key]
-                  }
-                </TableCell>
+    <>
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+      
+      {error && (
+        <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+      
+      {!loading && !error && data.length === 0 && (
+        <Typography variant="body1" sx={{ textAlign: 'center', my: 2 }}>
+          {emptyMessage}
+        </Typography>
+      )}
+      
+      {!loading && !error && data.length > 0 && (
+        <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.key as string}
+                    sx={tableHeaderCellStyle}
+                    onClick={column.sortable !== false ? () => requestSort(column.key as string) : undefined}
+                    style={{ cursor: column.sortable !== false ? 'pointer' : 'default' }}
+                  >
+                    {column.label} {column.sortable !== false && getSortDirectionIndicator(column.key as string)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((row, index) => (
+                <TableRow key={index}>
+                  {columns.map((column) => (
+                    <TableCell key={column.key as string} sx={tableBodyCellStyle}>
+                      {column.render 
+                        ? column.render((row as any)[column.key], row)
+                        : (row as any)[column.key]
+                      }
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </>
   );
 }
