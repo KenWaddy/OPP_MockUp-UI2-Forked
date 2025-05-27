@@ -24,6 +24,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { UserService } from '../mockAPI/user.service.js';
 import { UserType as User, TenantType as Tenant } from '../commons/models.js';
 import { UserDialog } from '../components/dialogs/UserDialog';
@@ -37,7 +38,6 @@ interface TenantDetailUsersProps {
     direction: 'ascending' | 'descending';
   } | null;
   requestSort: (key: string) => void;
-  getSortDirectionIndicator: (key: string) => React.ReactNode;
   tenantUsers?: User[];
   setTenantUsers?: React.Dispatch<React.SetStateAction<User[]>>;
   selectedTenant?: Tenant | null;
@@ -51,7 +51,6 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
   tenantId,
   sortConfig,
   requestSort,
-  getSortDirectionIndicator,
   tenantUsers: externalTenantUsers,
   setTenantUsers: externalSetTenantUsers,
   selectedTenant,
@@ -228,41 +227,46 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell 
+                <SortableTableCell 
+                  sortKey="name"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('name')}
-                  style={{ cursor: 'pointer' }}
                 >
-                  Name {getSortDirectionIndicator('name')}
-                </TableCell>
-                <TableCell 
+                  Name
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="email"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('email')}
-                  style={{ cursor: 'pointer' }}
                 >
-                  Email {getSortDirectionIndicator('email')}
-                </TableCell>
-                <TableCell 
+                  Email
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="roles"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('roles')}
-                  style={{ cursor: 'pointer' }}
                 >
-                  Roles {getSortDirectionIndicator('roles')}
-                </TableCell>
-                <TableCell 
+                  Roles
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="ipWhitelist"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('ipWhitelist')}
-                  style={{ cursor: 'pointer' }}
                 >
-                  IP Whitelist {getSortDirectionIndicator('ipWhitelist')}
-                </TableCell>
-                <TableCell 
+                  IP Whitelist
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="mfa"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
-                  onClick={() => requestSort('mfa')}
-                  style={{ cursor: 'pointer' }}
                 >
-                  MFA {getSortDirectionIndicator('mfa')}
-                </TableCell>
+                  MFA
+                </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
               </TableRow>
             </TableHead>

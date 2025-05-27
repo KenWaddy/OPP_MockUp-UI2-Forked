@@ -25,9 +25,8 @@ import {
 import { PaginationComponent } from '../components/tables/pagination';
 import AddIcon from '@mui/icons-material/Add';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { DeviceService } from '../mockAPI/index.js';
 import { DeviceAssignmentDialog } from '../components/dialogs/DeviceAssignmentDialog';
 import { DeviceType2 as Device, TenantType as Tenant, UnregisteredDeviceType as UnregisteredDevice } from '../commons/models.js';
@@ -41,7 +40,6 @@ interface TenantDetailDevicesProps {
     direction: 'ascending' | 'descending';
   } | null;
   requestSort: (key: string) => void;
-  getSortDirectionIndicator: (key: string) => React.ReactNode;
   tenantDevices: Device[];
   setTenantDevices: React.Dispatch<React.SetStateAction<Device[]>>;
   selectedTenant: Tenant | null;
@@ -55,7 +53,6 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
   tenantId,
   sortConfig,
   requestSort,
-  getSortDirectionIndicator,
   tenantDevices,
   setTenantDevices,
   selectedTenant,
@@ -225,48 +222,54 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('name')}
-                  style={{ cursor: 'pointer' }}
+                <SortableTableCell 
+                  sortKey="name"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Name {getSortDirectionIndicator('name')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('type')}
-                  style={{ cursor: 'pointer' }}
+                  Name
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="type"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Type {getSortDirectionIndicator('type')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('id')}
-                  style={{ cursor: 'pointer' }}
+                  Type
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="id"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Device ID {getSortDirectionIndicator('id')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('serialNo')}
-                  style={{ cursor: 'pointer' }}
+                  Device ID
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="serialNo"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Serial No. {getSortDirectionIndicator('serialNo')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('description')}
-                  style={{ cursor: 'pointer' }}
+                  Serial No.
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="description"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Description {getSortDirectionIndicator('description')}
-                </TableCell>
-                <TableCell 
-                  sx={tableHeaderCellStyle} 
-                  onClick={() => requestSort('status')}
-                  style={{ cursor: 'pointer' }}
+                  Description
+                </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="status"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
                 >
-                  Status {getSortDirectionIndicator('status')}
-                </TableCell>
+                  Status
+                </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
                 <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
               </TableRow>
