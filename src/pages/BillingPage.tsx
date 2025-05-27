@@ -71,12 +71,10 @@ export const BillingPage: React.FC = () => {
     searchText: string;
     nextBillingFrom: string;
     paymentType: string;
-    deviceType: string;
   }>({
     searchText: "",
     nextBillingFrom: getCurrentMonth(), // Default to current month
     paymentType: "",
-    deviceType: "",
   });
 
   const [sortConfig, setSortConfig] = useState<{
@@ -111,7 +109,6 @@ export const BillingPage: React.FC = () => {
       }
       if (filters.nextBillingFrom) serviceFilters.nextBillingFrom = filters.nextBillingFrom;
       if (filters.paymentType) serviceFilters.paymentType = filters.paymentType;
-      if (filters.deviceType) serviceFilters.deviceType = filters.deviceType;
 
       // Convert sort config to the format expected by the service
       const serviceSort = sortConfig ? {
@@ -272,7 +269,6 @@ export const BillingPage: React.FC = () => {
           searchText: "",
           nextBillingFrom: "", // Clear the filter on reset
           paymentType: "",
-          deviceType: "",
         })}
         filterFields={[
           {
@@ -295,13 +291,6 @@ export const BillingPage: React.FC = () => {
             key: 'paymentType',
             label: 'Payment Type',
             options: paymentTypes,
-            gridSize: 3
-          },
-          {
-            type: 'select',
-            key: 'deviceType',
-            label: 'Device Type',
-            options: deviceTypes,
             gridSize: 3
           }
         ]}

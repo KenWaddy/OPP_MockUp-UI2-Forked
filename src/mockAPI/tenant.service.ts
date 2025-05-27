@@ -59,7 +59,16 @@ export class TenantService implements ITenantService {
               tenant.contact.last_name.toLowerCase().includes(searchValue) ||
               tenant.contact.email.toLowerCase().includes(searchValue)
             );
-          } else if (key === 'type' || key === 'status') {
+          } else if (key === 'contractType') {
+            result = result.filter(tenant => {
+              const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
+              return subscription && subscription.type === value;
+            });
+          } else if (key === 'status') {
+            result = result.filter(tenant => {
+              const subscription = subscriptions.find((sub: any) => sub.id === tenant.subscriptionId);
+              return subscription && subscription.status === value;
+            });
           } else {
             result = result.filter(tenant => 
               (tenant as any)[key] === value
