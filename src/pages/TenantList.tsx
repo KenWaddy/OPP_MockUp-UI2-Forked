@@ -72,8 +72,8 @@ export const TenantList: React.FC<{
     direction: 'ascending' | 'descending';
   } | null>(null);
 
-  const contractTypeOptions = ["Evergreen", "Fixed-term", "Trial"];
-  const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
+  const contractTypeOptions = ["Evergreen", "Termed"];
+  const statusOptions = ["Active", "Cancelled"];
 
   const loadTenants = async () => {
     try {
@@ -81,8 +81,8 @@ export const TenantList: React.FC<{
       setError(null);
 
       const serviceFilters: Record<string, any> = {};
-      if (filters.contractType) serviceFilters.contract = filters.contractType;
-      if (filters.status) serviceFilters.subscriptionStatus = filters.status;
+      if (filters.contractType) serviceFilters.contractType = filters.contractType;
+      if (filters.status) serviceFilters.status = filters.status;
       if (filters.textSearch) serviceFilters.textSearch = filters.textSearch;
 
       const serviceSort = sortConfig ? {
