@@ -1,15 +1,20 @@
-import React, { useMemo } from "react";
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import React, { useMemo, useEffect, useState } from "react";
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common';
+import { BillingService } from '../services/billing.service';
+
+const billingService = new BillingService();
 
 type BillingType = {
   id: string;
   paymentType: string;
-  amount: number;
-  dueDate: string;
-  [key: string]: string | number;
+  startDate?: string;
+  endDate?: string;
+  deviceContract?: any[];
+  description?: string;
+  [key: string]: any;
 };
 
 interface TenantDetailBillingProps {
@@ -28,15 +33,34 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
   requestSort,
   getSortDirectionIndicator
 }) => {
-  const mockBilling = useMemo<BillingType[]>(() => [
-    { id: 'b1', paymentType: 'Monthly', amount: 100, dueDate: '2024-02-01' },
-    { id: 'b2', paymentType: 'Annual', amount: 1000, dueDate: '2024-12-01' },
-    { id: 'b3', paymentType: 'One-time', amount: 500, dueDate: '2024-01-15' },
-  ], []);
+  const [billingRecords, setBillingRecords] = useState<BillingType[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchBillingData = async () => {
+      if (!tenantId) return;
+      
+      setLoading(true);
+      try {
+        const allBillingItems = await billingService.getAllBillingItems();
+        const tenantBillingItems = allBillingItems.filter(item => 
+          item.subscriptionId === tenantId
+        );
+        
+        setBillingRecords(tenantBillingItems);
+      } catch (error) {
+        console.error('Error fetching billing data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchBillingData();
+  }, [tenantId]);
 
   const sortedBilling = useMemo(() => {
-    if (!sortConfig) return mockBilling;
-    return [...mockBilling].sort((a, b) => {
+    if (!sortConfig) return billingRecords;
+    return [...billingRecords].sort((a, b) => {
       const aValue = a[sortConfig.key] as string | number;
       const bValue = b[sortConfig.key] as string | number;
       if (aValue < bValue) {
@@ -47,50 +71,64 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
       }
       return 0;
     });
-  }, [mockBilling, sortConfig]);
+  }, [billingRecords, sortConfig]);
 
   return (
     <Box mt={2}>
-      <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell 
-                sx={tableHeaderCellStyle}
-                onClick={() => requestSort('paymentType')}
-                style={{ cursor: 'pointer' }}
-              >
-                Payment Type {getSortDirectionIndicator('paymentType')}
-              </TableCell>
-              <TableCell 
-                sx={tableHeaderCellStyle}
-                onClick={() => requestSort('amount')}
-                style={{ cursor: 'pointer' }}
-              >
-                Amount {getSortDirectionIndicator('amount')}
-              </TableCell>
-              <TableCell 
-                sx={tableHeaderCellStyle}
-                onClick={() => requestSort('dueDate')}
-                style={{ cursor: 'pointer' }}
-              >
-                Due Date {getSortDirectionIndicator('dueDate')}
-              </TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedBilling.map((billing) => (
-              <TableRow key={billing.id}>
-                <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>${billing.amount}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>{billing.dueDate}</TableCell>
-                <TableCell sx={tableBodyCellStyle}>Edit</TableCell>
+      {loading ? (
+        <Typography variant="body1">Loading billing details...</Typography>
+      ) : sortedBilling.length === 0 ? (
+        <Typography variant="body1">No billing details found</Typography>
+      ) : (
+        <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell 
+                  sx={tableHeaderCellStyle}
+                  onClick={() => requestSort('paymentType')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  Payment Type {getSortDirectionIndicator('paymentType')}
+                </TableCell>
+                <TableCell 
+                  sx={tableHeaderCellStyle}
+                  onClick={() => requestSort('startDate')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  Start Date {getSortDirectionIndicator('startDate')}
+                </TableCell>
+                <TableCell 
+                  sx={tableHeaderCellStyle}
+                  onClick={() => requestSort('endDate')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  End Date {getSortDirectionIndicator('endDate')}
+                </TableCell>
+                <TableCell 
+                  sx={tableHeaderCellStyle}
+                  onClick={() => requestSort('description')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  Description {getSortDirectionIndicator('description')}
+                </TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {sortedBilling.map((billing) => (
+                <TableRow key={billing.id}>
+                  <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.startDate || '—'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || '—'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>Edit</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Box>
   );
 };

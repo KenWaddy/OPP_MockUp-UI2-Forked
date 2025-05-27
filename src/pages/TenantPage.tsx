@@ -165,9 +165,13 @@ export const TenantPage: React.FC = () => {
       setLoading(true);
       
       // Load tenant basic info
-      const response = await tenantService.getTenantById(id, false, false, false);
+      const response = await tenantService.getTenantById(id, false, false, true);
       if (response.success && response.data) {
         setSelectedTenant(response.data);
+        
+        if ((response.data as any).billingDetails) {
+          setTenantBillingDetails((response.data as any).billingDetails);
+        }
         
         if (response.data.subscriptionId) {
           const subscriptionResponse = await subscriptionService.getSubscriptionById(response.data.subscriptionId);
