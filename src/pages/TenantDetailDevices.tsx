@@ -18,9 +18,9 @@ import {
 } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common';
-import { DeviceService } from '../services/index';
-import { Device } from '../types/models.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { DeviceService } from '../mockAPI/index.js';
+import { Device } from '../commons/models.js';
 
 const deviceService = new DeviceService();
 

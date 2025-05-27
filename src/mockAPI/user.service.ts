@@ -1,14 +1,13 @@
-import { mockTenants } from '../mocks/index.js';
-import { User } from '../types/models.js';
+import { User } from '../commons/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IUserService } from './types.js';
-import { delay } from '../utils/delay.js';
+import { delay } from './utils/delay.js';
 import { 
   users, tenants,
   addUser as addUserToStore,
   updateUser as updateUserInStore,
   deleteUser as deleteUserFromStore,
   getNextUserIdForTenant
-} from '../mocks/data/index.js';
+} from './FakerData/index.js';
 
 export class UserService implements IUserService {
   /**

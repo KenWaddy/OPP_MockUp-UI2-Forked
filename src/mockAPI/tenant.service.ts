@@ -1,18 +1,17 @@
-import { mockTenants } from '../mocks/index.js';
-import { TenantType } from '../types/models.js';
+import { TenantType } from '../commons/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ITenantService } from './types.js';
-import { delay } from '../utils/delay.js';
+import { delay } from './utils/delay.js';
 import { 
   tenants, users, devices, billing, subscriptions,
   addTenant as addTenantToStore,
   updateTenant as updateTenantInStore,
   deleteTenant as deleteTenantFromStore,
   getNextTenantId
-} from '../mocks/data/index.js';
+} from './FakerData/index.js';
 import { 
   addSubscription as addSubscriptionToStore,
   getNextSubscriptionId
-} from '../mocks/data/subscriptions.js';
+} from './FakerData/subscriptions.js';
 import { findOwnerForTenant } from './utils.js';
 
 export class TenantService implements ITenantService {

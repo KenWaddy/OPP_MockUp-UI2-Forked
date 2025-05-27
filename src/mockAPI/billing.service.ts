@@ -1,15 +1,14 @@
-import { mockTenants } from '../mocks/index.js';
-import { TenantType, DeviceContractItem } from '../types/models.js';
+import { TenantType, DeviceContractItem } from '../commons/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IBillingService } from './types.js';
-import { delay } from '../utils/delay.js';
+import { delay } from './utils/delay.js';
 import { 
   billing, tenants,
   addBilling as addBillingToStore,
   updateBilling as updateBillingInStore,
   deleteBilling as deleteBillingFromStore,
   getNextBillingIdForTenant
-} from '../mocks/data/index.js';
-import { Billing } from '../types/models.js';
+} from './FakerData/index.js';
+import { Billing } from '../commons/models.js';
 
 interface BillingWithTenant extends Billing {
   tenantName: string;
