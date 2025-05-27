@@ -3,11 +3,11 @@ import { DeviceType, TenantType, UserType, DeviceType2, Attribute, DeviceContrac
 
 export function generateDeviceTypes(): DeviceType[] {
   return [
-    { name: "Server", option: "Standard", description: faker.lorem.sentence() },
-    { name: "Workstation", option: "Standard", description: faker.lorem.sentence() },
-    { name: "Mobile", option: "Standard", description: faker.lorem.sentence() },
-    { name: "IoT", option: "Standard", description: faker.lorem.sentence() },
-    { name: "Other", option: "Standard", description: faker.lorem.sentence() }
+    { name: "AG10", option: "Standard", description: faker.lorem.sentence() },
+    { name: "AR10", option: "Standard", description: faker.lorem.sentence() },
+    { name: "AX11", option: "Standard", description: faker.lorem.sentence() },
+    { name: "AC15", option: "Standard", description: faker.lorem.sentence() },
+    { name: "AB11", option: "Standard", description: faker.lorem.sentence() }
   ];
 }
 

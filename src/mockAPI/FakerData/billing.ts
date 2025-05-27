@@ -35,7 +35,7 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
     });
     
     const billing: Billing = {
-      id: `billing-${subscriptionId}-${i}`,
+      id: `AMOR-${subscriptionId}-${i}`,
       subscriptionId,
       deviceContract,
       startDate,
