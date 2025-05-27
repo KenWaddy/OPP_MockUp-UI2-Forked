@@ -1473,7 +1473,7 @@ export const TenantPage: React.FC = () => {
                     }
                   ];
                   return billingColumns;
-                }, [])}
+                }, [calculateNextBillingMonth])}
                 sortConfig={sortConfig}
                 requestSort={requestSort}
                 getSortDirectionIndicator={getSortDirectionIndicator}
