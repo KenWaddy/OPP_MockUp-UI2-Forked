@@ -57,8 +57,6 @@ import { BillingDialog } from '../components/dialogs/BillingDialog';
 import { ContactDialog } from '../components/dialogs/ContactDialog';
 import { SubscriptionDialog } from '../components/dialogs/SubscriptionDialog';
 import { ContactForm } from '../components/forms/ContactForm';
-import { SortableTable, PaginatedTable, DataTable, TableColumn, SortConfig, PaginationConfig } from '../components/tables';
-import { Billing, TenantType } from '../commons/models';
 
 // Create service instances
 const tenantService = new TenantService();
@@ -1149,75 +1147,100 @@ export const TenantPage: React.FC = () => {
           {/* Users Tab */}
           {activeTab === "users" && (
             <>
-              <DataTable
-                data={sortedUsers || []}
-                columns={useMemo(() => {
-                  const userColumns: TableColumn<User>[] = [
-                    {
-                      key: 'name',
-                      label: 'Name',
-                      sortable: true
-                    },
-                    {
-                      key: 'email',
-                      label: 'Email',
-                      sortable: true
-                    },
-                    {
-                      key: 'roles',
-                      label: 'Roles',
-                      sortable: true,
-                      render: (roles, user) => (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {(roles as string[]).map((role, index) => (
-                            <Chip
-                              key={index}
-                              label={role}
-                              size="small"
-                              color={
-                                role === "Owner" ? "primary" :
-                                role === "Engineer" ? "secondary" :
-                                "default"
-                              }
-                            />
-                          ))}
-                        </Box>
-                      )
-                    },
-                    {
-                      key: 'ipWhitelist',
-                      label: 'IP Whitelist',
-                      sortable: true,
-                      render: (ipList, user) => (
-                        (ipList as string[]).length > 0 ? (
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenUserDialog}
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  Add User
+                </Button>
+              </Box>
+              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('name')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Name {getSortDirectionIndicator('name')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('email')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Email {getSortDirectionIndicator('email')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('roles')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Roles {getSortDirectionIndicator('roles')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('ipWhitelist')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        IP Whitelist {getSortDirectionIndicator('ipWhitelist')}
+                      </TableCell>
+                      <TableCell 
+                        sx={tableHeaderCellStyle} 
+                        onClick={() => requestSort('mfa')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        MFA {getSortDirectionIndicator('mfa')}
+                      </TableCell>
+                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                <TableBody>
+                  {sortedUsers && sortedUsers.length > 0 ? (
+                    sortedUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell sx={tableBodyCellStyle}>{user.name}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{user.email}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {(ipList as string[]).map((ip, index) => (
-                              <Chip key={index} label={ip} size="small" />
+                            {user.roles.map((role, index) => (
+                              <Chip
+                                key={index}
+                                label={role}
+                                size="small"
+                                color={
+                                  role === "Owner" ? "primary" :
+                                  role === "Engineer" ? "secondary" :
+                                  "default"
+                                }
+                              />
                             ))}
                           </Box>
-                        ) : (
-                          'None'
-                        )
-                      )
-                    },
-                    {
-                      key: 'mfaEnabled',
-                      label: 'MFA',
-                      sortable: true,
-                      render: (mfaEnabled) => (
-                        <Chip
-                          label={mfaEnabled ? 'Enabled' : 'Disabled'}
-                          color={mfaEnabled ? 'success' : 'error'}
-                          size="small"
-                        />
-                      )
-                    },
-                    {
-                      key: 'actions',
-                      label: 'Actions',
-                      sortable: false,
-                      render: (_, user) => (
-                        <>
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          {user.ipWhitelist.length > 0 ? (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {user.ipWhitelist.map((ip, index) => (
+                                <Chip key={index} label={ip} size="small" />
+                              ))}
+                            </Box>
+                          ) : (
+                            'None'
+                          )}
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <Chip
+                            label={user.mfaEnabled ? 'Enabled' : 'Disabled'}
+                            color={user.mfaEnabled ? 'success' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
                           <IconButton
                             size="small"
                             onClick={() => handleEditUser(user)}
@@ -1237,269 +1260,288 @@ export const TenantPage: React.FC = () => {
                               </IconButton>
                             </span>
                           </Tooltip>
-                        </>
-                      )
-                    }
-                  ];
-                  return userColumns;
-                }, [])}
-                sortConfig={sortConfig}
-                requestSort={requestSort}
-                getSortDirectionIndicator={getSortDirectionIndicator}
-                pagination={{
-                  page: 1,
-                  limit: 100,
-                  total: sortedUsers?.length || 0,
-                  totalPages: 1
-                }}
-                onPageChange={() => {}} // No pagination needed for users
-                showPagination={false}
-                loading={loading}
-                error={error}
-                emptyMessage="No users found"
-                actions={
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<AddIcon />}
-                    onClick={handleOpenUserDialog}
-                    sx={{ fontWeight: 'bold' }}
-                  >
-                    Add User
-                  </Button>
-                }
-              />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={tableBodyCellStyle}>No users found</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
             </>
           )}
 
           {/* Devices Tab */}
           {activeTab === "devices" && (
             <>
-              <DataTable
-                data={paginatedDevices || []}
-                columns={useMemo(() => {
-                  const deviceColumns: TableColumn<Device>[] = [
-                    {
-                      key: 'name',
-                      label: 'Name',
-                      sortable: true
-                    },
-                    {
-                      key: 'type',
-                      label: 'Type',
-                      sortable: true
-                    },
-                    {
-                      key: 'id',
-                      label: 'Device ID',
-                      sortable: true
-                    },
-                    {
-                      key: 'serialNo',
-                      label: 'Serial No.',
-                      sortable: true
-                    },
-                    {
-                      key: 'description',
-                      label: 'Description',
-                      sortable: true
-                    },
-                    {
-                      key: 'status',
-                      label: 'Status',
-                      sortable: true,
-                      render: (status) => (
-                        <Chip
-                          label={status as string}
-                          color={
-                            status === "Activated" ? "success" :
-                            status === "Assigned" ? "info" : "warning"
-                          }
-                          size="small"
-                        />
-                      )
-                    },
-                    {
-                      key: 'attributes',
-                      label: 'Attributes',
-                      sortable: false,
-                      render: (attributes) => (
-                        <Tooltip 
-                          leaveDelay={0}
-                          title={
-                            <List dense>
-                              {(attributes as Attribute[]).map((attr, index) => (
-                                <ListItem key={index}>
-                                  <ListItemText primary={`${attr.key}: ${attr.value}`} />
-                                </ListItem>
-                              ))}
-                            </List>
-                          }
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel id="device-rows-per-page-label">Rows</InputLabel>
+                    <Select
+                      labelId="device-rows-per-page-label"
+                      value={devicePagination.limit}
+                      label="Rows"
+                      onChange={(e) => {
+                        setDevicePagination({ ...devicePagination, page: 1, limit: Number(e.target.value) });
+                      }}
+                      sx={{ backgroundColor: "white" }}
+                    >
+                      <MenuItem value={100}>100</MenuItem>
+                      <MenuItem value={500}>500</MenuItem>
+                      <MenuItem value={2000}>2000</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Pagination 
+                    count={devicePagination.totalPages} 
+                    page={devicePagination.page} 
+                    onChange={handleDevicePageChange} 
+                    color="primary" 
+                  />
+                </Box>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenDeviceAssignDialog}
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  Assign Device
+                </Button>
+              </Box>
+              
+              {loadingDevices ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('name')}
+                          style={{ cursor: 'pointer' }}
                         >
-                          <span style={{ cursor: 'pointer', color: 'blue' }}>
-                            View ({(attributes as Attribute[]).length})
-                          </span>
-                        </Tooltip>
-                      )
-                    },
-                    {
-                      key: 'actions',
-                      label: 'Actions',
-                      sortable: false,
-                      render: (_, device) => (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleUnassignDevice(device.id)}
-                          aria-label="unassign"
+                          Name {getSortDirectionIndicator('name')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('type')}
+                          style={{ cursor: 'pointer' }}
                         >
-                          <LinkOffIcon fontSize="small" />
-                        </IconButton>
-                      )
-                    }
-                  ];
-                  return deviceColumns;
-                }, [])}
-                sortConfig={sortConfig}
-                requestSort={requestSort}
-                getSortDirectionIndicator={getSortDirectionIndicator}
-                pagination={devicePagination}
-                onPageChange={handleDevicePageChange}
-                onLimitChange={(limit) => {
-                  setDevicePagination({ ...devicePagination, page: 1, limit });
-                }}
-                rowsPerPageOptions={[100, 500, 2000]}
-                loading={loadingDevices}
-                error={error}
-                emptyMessage="No devices found"
-                actions={
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<AddIcon />}
-                    onClick={handleOpenDeviceAssignDialog}
-                    sx={{ fontWeight: 'bold' }}
-                  >
-                    Assign Device
-                  </Button>
-                }
-              />
+                          Type {getSortDirectionIndicator('type')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('id')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Device ID {getSortDirectionIndicator('id')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('serialNo')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Serial No. {getSortDirectionIndicator('serialNo')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('description')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Description {getSortDirectionIndicator('description')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('status')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Status {getSortDirectionIndicator('status')}
+                        </TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                  <TableBody>
+                    {paginatedDevices && paginatedDevices.length > 0 ? (
+                      paginatedDevices.map((device: any) => (
+                        <TableRow key={device.id}>
+                          <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{device.description}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Chip
+                              label={device.status}
+                              color={device.status === "Activated" ? "success" :
+                                    device.status === "Assigned" ? "info" : "warning"}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Tooltip 
+                              leaveDelay={0}
+                              title={
+                              <List dense>
+                                {device.attributes.map((attr: { key: string, value: string }, index: number) => (
+                                  <ListItem key={index}>
+                                    <ListItemText primary={`${attr.key}: ${attr.value}`} />
+                                  </ListItem>
+                                ))}
+                              </List>
+                            }>
+                              <span style={{ cursor: 'pointer', color: 'blue' }}>
+                                View ({device.attributes.length})
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleUnassignDevice(device.id)}
+                              aria-label="unassign"
+                            >
+                              <LinkOffIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={8} align="center" sx={tableBodyCellStyle}>No devices found</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              )}
             </>
           )}
 
           {/* Billing Tab */}
           {activeTab === "billing" && (
             <>
-              <DataTable
-                data={sortedBillingDetails || []}
-                columns={useMemo(() => {
-                  const billingColumns: TableColumn<Billing>[] = [
-                    {
-                      key: 'id',
-                      label: 'Billing ID',
-                      sortable: true
-                    },
-                    {
-                      key: 'paymentType',
-                      label: 'Payment Type',
-                      sortable: true,
-                      render: (paymentType) => (
-                        <Chip
-                          label={paymentType as string}
-                          size="small"
-                          color={
-                            paymentType === "Monthly" ? "info" :
-                            paymentType === "Annually" ? "success" :
-                            paymentType === "One-time" ? "warning" :
-                            "default"
-                          }
-                        />
-                      )
-                    },
-                    {
-                      key: 'nextBillingMonth',
-                      label: 'Next Billing Month',
-                      sortable: true,
-                      render: (_, billing) => calculateNextBillingMonth(billing)
-                    },
-                    {
-                      key: 'startDate',
-                      label: 'Contract Start',
-                      sortable: true
-                    },
-                    {
-                      key: 'endDate',
-                      label: 'Contract End',
-                      sortable: true,
-                      render: (endDate) => endDate || 'N/A'
-                    },
-                    {
-                      key: 'deviceContract',
-                      label: 'Number of Devices',
-                      sortable: false,
-                      render: (deviceContract) => (
-                        (deviceContract as {type: string, quantity: number}[] || []).length > 0
-                          ? (deviceContract as {type: string, quantity: number}[]).map(contract => `${contract.type} (${contract.quantity})`).join(', ')
-                          : 'No devices'
-                      )
-                    },
-                    {
-                      key: 'description',
-                      label: 'Description',
-                      sortable: true,
-                      render: (description) => description || '—'
-                    },
-                    {
-                      key: 'actions',
-                      label: 'Actions',
-                      sortable: false,
-                      render: (_, billing) => (
-                        <>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleEditBilling(billing)}
-                            aria-label="edit"
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDeleteBilling(billing.id || '')}
-                            aria-label="delete"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </>
-                      )
-                    }
-                  ];
-                  return billingColumns;
-                }, [])}
-                sortConfig={sortConfig}
-                requestSort={requestSort}
-                getSortDirectionIndicator={getSortDirectionIndicator}
-                pagination={{
-                  page: 1,
-                  limit: 100,
-                  total: sortedBillingDetails?.length || 0,
-                  totalPages: 1
-                }}
-                onPageChange={() => {}} // No pagination needed for billing
-                showPagination={false}
-                loading={loading}
-                error={error}
-                emptyMessage="No billing details found"
-                actions={
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<AddIcon />}
-                    onClick={handleOpenBillingDialog}
-                    sx={{ fontWeight: 'bold' }}
-                  >
-                    ADD BILLING
-                  </Button>
-                }
-              />
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenBillingDialog}
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  ADD BILLING
+                </Button>
+              </Box>
+
+              {tenantBillingDetails && tenantBillingDetails.length > 0 ? (
+                <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('id')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Billing ID {getSortDirectionIndicator('id')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('paymentType')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Payment Type {getSortDirectionIndicator('paymentType')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('nextBillingMonth')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('startDate')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Contract Start {getSortDirectionIndicator('startDate')}
+                        </TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('endDate')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Contract End {getSortDirectionIndicator('endDate')}
+                        </TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
+                        <TableCell 
+                          sx={tableHeaderCellStyle} 
+                          onClick={() => requestSort('description')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Description {getSortDirectionIndicator('description')}
+                        </TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {sortedBillingDetails.map((billing, index) => (
+                        <TableRow key={index}>
+                          <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <Chip
+                              label={billing.paymentType}
+                              size="small"
+                              color={
+                                billing.paymentType === "Monthly" ? "info" :
+                                billing.paymentType === "Annually" ? "success" :
+                                billing.paymentType === "One-time" ? "warning" :
+                                "default"
+                              }
+                            />
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            {billing.deviceContract && billing.deviceContract.length > 0
+                              ? billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')
+                              : 'No devices'}
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            {billing.description || '—'}
+                          </TableCell>
+                          <TableCell sx={tableBodyCellStyle}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditBilling(billing)}
+                              aria-label="edit"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteBilling(billing.id || '')}
+                              aria-label="delete"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography align="center">No billing details found</Typography>
+              )}
             </>
           )}
         </Paper>
@@ -1625,104 +1667,138 @@ export const TenantPage: React.FC = () => {
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
       )}
 
-      {/* Tenant Table with Pagination */}
-      <PaginatedTable
-        data={tenants}
-        columns={useMemo(() => {
-          const tenantColumns: TableColumn<TenantType>[] = [
-            {
-              key: 'name',
-              label: 'Tenant',
-              sortable: true,
-              render: (name, tenant) => (
-                <span
-                  className="clickable"
-                  onClick={() => loadTenantById(tenant.id)}
-                  style={{ cursor: 'pointer', color: 'blue' }}
-                >
-                  {name as string}
-                </span>
-              )
-            },
-            {
-              key: 'contact',
-              label: 'Contact',
-              sortable: true,
-              render: (_, tenant) => (
-                formatContactName(
-                  tenant.contact.first_name,
-                  tenant.contact.last_name,
-                  tenant.contact.language
-                )
-              )
-            },
-            {
-              key: 'email',
-              label: 'Email',
-              sortable: true,
-              render: (_, tenant) => tenant.contact.email
-            },
-            {
-              key: 'type',
-              label: 'Type',
-              sortable: true,
-              render: () => currentSubscription?.type || 'N/A'
-            },
-            {
-              key: 'status',
-              label: 'Status',
-              sortable: true,
-              render: () => (
-                <Chip
-                  label={currentSubscription?.status || 'N/A'}
-                  color={
-                    currentSubscription?.status === "Active" ? "success" :
-                    currentSubscription?.status === "Cancelled" ? "error" :
-                    "default"
-                  }
-                  size="small"
-                />
-              )
-            },
-            {
-              key: 'actions',
-              label: 'Actions',
-              sortable: false,
-              render: (_, tenant) => (
-                <>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleOpenTenantDialog(tenant)}
-                    aria-label="edit"
+      {/* Pagination - Moved above the table */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel id="rows-per-page-label">Rows</InputLabel>
+          <Select
+            labelId="rows-per-page-label"
+            value={pagination.limit}
+            label="Rows"
+            onChange={(e) => {
+              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
+            }}
+            sx={{ backgroundColor: "white" }}
+          >
+            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={100}>100</MenuItem>
+            <MenuItem value={500}>500</MenuItem>
+          </Select>
+        </FormControl>
+        <Pagination
+          count={pagination.totalPages}
+          page={pagination.page}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
+
+      {/* Loading indicator */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* Tenant Table */}
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+            <Table size="small" aria-label="tenant list table">
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    onClick={() => requestSort('tenant')}
+                    sx={tableHeaderCellStyle}
                   >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDeleteTenant(tenant.id)}
-                    aria-label="delete"
+                    Tenant {getSortDirectionIndicator('tenant')}
+                  </TableCell>
+                  <TableCell
+                    onClick={() => requestSort('contact')}
+                    sx={tableHeaderCellStyle}
                   >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </>
-              )
-            }
-          ];
-          return tenantColumns;
-        }, [])}
-        sortConfig={sortConfig}
-        requestSort={requestSort}
-        getSortDirectionIndicator={getSortDirectionIndicator}
-        pagination={pagination}
-        onPageChange={handlePageChange}
-        onLimitChange={(limit) => {
-          setPagination({ ...pagination, page: 1, limit });
-        }}
-        rowsPerPageOptions={[20, 100, 500]}
-        loading={loading}
-        error={error}
-        emptyMessage="No tenants match the filter criteria"
-      />
+                    Contact {getSortDirectionIndicator('contact')}
+                  </TableCell>
+                  <TableCell
+                    onClick={() => requestSort('email')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Email {getSortDirectionIndicator('email')}
+                  </TableCell>
+                  <TableCell
+                    onClick={() => requestSort('type')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Type {getSortDirectionIndicator('type')}
+                  </TableCell>
+                  <TableCell
+                    onClick={() => requestSort('status')}
+                    sx={tableHeaderCellStyle}
+                  >
+                    Status {getSortDirectionIndicator('status')}
+                  </TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tenants.length > 0 ? (
+                  tenants.map((tenant) => (
+                    <TableRow key={tenant.id}>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <span
+                          className="clickable"
+                          onClick={() => loadTenantById(tenant.id)}
+                          style={{ cursor: 'pointer', color: 'blue' }}
+                        >
+                          {tenant.name}
+                        </span>
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        {formatContactName(
+                          tenant.contact.first_name,
+                          tenant.contact.last_name,
+                          tenant.contact.language
+                        )}
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{currentSubscription?.type || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <Chip
+                          label={currentSubscription?.status || 'N/A'}
+                          color={
+                            currentSubscription?.status === "Active" ? "success" :
+                            currentSubscription?.status === "Cancelled" ? "error" :
+                            "default"
+                          }
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell sx={tableBodyCellStyle}>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleOpenTenantDialog(tenant)}
+                          aria-label="edit"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteTenant(tenant.id)}
+                          aria-label="delete"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={tableBodyCellStyle}>No tenants match the filter criteria</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
       </>
       )}
 
