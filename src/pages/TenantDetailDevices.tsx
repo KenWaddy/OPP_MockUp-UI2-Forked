@@ -8,7 +8,6 @@ import {
   TableHead, 
   TableRow, 
   Paper,
-  Pagination,
   FormControl,
   InputLabel,
   Select,
@@ -23,6 +22,7 @@ import {
   ListItem,
   ListItemText
 } from "@mui/material";
+import { PaginationComponent } from '../components/tables/pagination';
 import AddIcon from '@mui/icons-material/Add';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -198,30 +198,13 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel id="device-rows-per-page-label">Rows</InputLabel>
-            <Select
-              labelId="device-rows-per-page-label"
-              value={devicePagination.limit}
-              label="Rows"
-              onChange={(e) => {
-                setDevicePagination({ ...devicePagination, page: 1, limit: Number(e.target.value) });
-              }}
-              sx={{ backgroundColor: "white" }}
-            >
-              <MenuItem value={100}>100</MenuItem>
-              <MenuItem value={500}>500</MenuItem>
-              <MenuItem value={2000}>2000</MenuItem>
-            </Select>
-          </FormControl>
-          <Pagination 
-            count={devicePagination.totalPages} 
-            page={devicePagination.page} 
-            onChange={handleDevicePageChange} 
-            color="primary" 
-          />
-        </Box>
+        <PaginationComponent
+          pagination={devicePagination}
+          onPageChange={handleDevicePageChange}
+          onLimitChange={(limit) => setDevicePagination({ ...devicePagination, page: 1, limit })}
+          pageSizeOptions={[100, 500, 2000]}
+          sx={{ justifyContent: 'flex-start' }}
+        />
         <Button
           variant="outlined"
           size="small"
