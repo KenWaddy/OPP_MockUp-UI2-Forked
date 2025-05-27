@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TenantPage } from "./pages/TenantPage";
 import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
-import { Header } from "./commons/components";
+import { AppBarHeader } from "./components/headers/AppBarHeader";
 import "./App.css";
 
 interface TenantNavigationEvent extends CustomEvent {
