@@ -12,10 +12,6 @@ import {
   TableHead,
   TableRow,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   IconButton,
   FormControl,
@@ -42,6 +38,9 @@ import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType } f
 import { defaultDeviceTypes, getDeviceTypeByName } from '../mockAPI/FakerData/deviceTypes.js';
 import { DeviceService, TenantService } from '../mockAPI/index.js';
 import { exportToCsv } from '../commons/export.js';
+import { AttributesDialog } from '../components/dialogs/AttributesDialog';
+import { DeviceDialog } from '../components/dialogs/DeviceDialog';
+import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';
 
 // Create service instances
 const deviceService = new DeviceService();
@@ -709,328 +708,49 @@ export const DevicePage: React.FC = () => {
       )}
       
       {/* Attributes Dialog */}
-      <Dialog open={openAttributesDialog} onClose={handleCloseAttributesDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          Attributes for {selectedDevice?.name}
-        </DialogTitle>
-        <DialogContent dividers>
-          {editMode ? (
-            <>
-              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {editableAttributes.map((attr, index) => (
-                      <TableRow key={index}>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            value={attr.key}
-                            onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
-                          />
-                        </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            value={attr.value}
-                            onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
-                          />
-                        </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <IconButton 
-                            size="small" 
-                            onClick={() => handleRemoveAttribute(index)}
-                            aria-label="delete"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          placeholder="New Key"
-                          value={newAttribute.key}
-                          onChange={(e) => setNewAttribute({
-                            ...newAttribute,
-                            key: e.target.value
-                          })}
-                        />
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          placeholder="New Value"
-                          value={newAttribute.value}
-                          onChange={(e) => setNewAttribute({
-                            ...newAttribute,
-                            value: e.target.value
-                          })}
-                        />
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <Button 
-                          variant="outlined" 
-                          size="small" 
-                          onClick={handleAddAttribute}
-                          disabled={!newAttribute.key.trim()}
-                        >
-                          Add
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          ) : (
-            <>
-              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedDevice && selectedDevice.attributes.map((attr, index) => (
-                      <TableRow key={index}>
-                        <TableCell sx={tableBodyCellStyle}>{attr.key}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{attr.value}</TableCell>
-                      </TableRow>
-                    ))}
-                    {selectedDevice && selectedDevice.attributes.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={2} align="center" sx={tableBodyCellStyle}>No attributes found</TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          {editMode ? (
-            <>
-              <Button onClick={handleCloseAttributesDialog}>Cancel</Button>
-              <Button onClick={handleSaveClick} variant="contained" color="primary">Save</Button>
-            </>
-          ) : (
-            <>
-              <Button onClick={handleCloseAttributesDialog}>Close</Button>
-              <Button onClick={handleEditClick} variant="contained" color="primary">Edit</Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
+      <AttributesDialog
+        open={openAttributesDialog}
+        onClose={handleCloseAttributesDialog}
+        device={selectedDevice}
+        editableAttributes={editableAttributes}
+        editMode={editMode}
+        newAttribute={newAttribute}
+        onEditClick={handleEditClick}
+        onSaveClick={handleSaveClick}
+        onAddAttribute={handleAddAttribute}
+        onRemoveAttribute={handleRemoveAttribute}
+        onAttributeChange={handleAttributeChange}
+        onNewAttributeChange={(field, value) => setNewAttribute({
+          ...newAttribute,
+          [field]: value
+        })}
+      />
       
       {/* Device Dialog */}
-      <Dialog open={openDeviceDialog} onClose={handleCloseDeviceDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {selectedDevice ? `Edit Device: ${selectedDevice.name}` : 'Add New Device'}
-        </DialogTitle>
-        <DialogContent dividers>
-          {editableDevice && (
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Device Name"
-                  value={editableDevice.name}
-                  onChange={(e) => setEditableDevice({
-                    ...editableDevice,
-                    name: e.target.value
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Type</InputLabel>
-                  <Select
-                    value={editableDevice.type}
-                    label="Type"
-                    onChange={(e) => setEditableDevice({
-                      ...editableDevice,
-                      type: e.target.value as "Server" | "Workstation" | "Mobile" | "IoT" | "Other"
-                    })}
-                  >
-                    {deviceTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Device ID"
-                  value={editableDevice.id}
-                  onChange={(e) => setEditableDevice({
-                    ...editableDevice,
-                    id: e.target.value
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Serial No."
-                  value={editableDevice.serialNo}
-                  onChange={(e) => setEditableDevice({
-                    ...editableDevice,
-                    serialNo: e.target.value
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  value={editableDevice.description}
-                  onChange={(e) => setEditableDevice({
-                    ...editableDevice,
-                    description: e.target.value
-                  })}
-                  margin="normal"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-              {/* Status field removed as requested */}
-              {/* Select Tenant field removed as requested */}
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeviceDialog}>Cancel</Button>
-          <Button 
-            onClick={handleSaveDevice} 
-            variant="contained" 
-            color="primary"
-            disabled={!editableDevice || !editableDevice.name || !editableDevice.id}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeviceDialog
+        open={openDeviceDialog}
+        onClose={handleCloseDeviceDialog}
+        device={selectedDevice}
+        editableDevice={editableDevice}
+        deviceTypes={deviceTypes}
+        onSave={handleSaveDevice}
+        onDeviceChange={setEditableDevice}
+      />
       
       {/* Device Type Dialog */}
-      <Dialog open={openDeviceTypeDialog} onClose={handleCloseDeviceTypeDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          Device Type Management
-        </DialogTitle>
-        <DialogContent dividers>
-          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={tableHeaderCellStyle}>Type Name</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Option</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {/* Add new device type row */}
-                <TableRow>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      placeholder="New Type Name"
-                      value={newDeviceType.name}
-                      onChange={(e) => setNewDeviceType({
-                        ...newDeviceType,
-                        name: e.target.value
-                      })}
-                    />
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      placeholder="Option"
-                      value={newDeviceType.option}
-                      onChange={(e) => setNewDeviceType({
-                        ...newDeviceType,
-                        option: e.target.value
-                      })}
-                    />
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      placeholder="Description"
-                      value={newDeviceType.description}
-                      onChange={(e) => setNewDeviceType({
-                        ...newDeviceType,
-                        description: e.target.value
-                      })}
-                    />
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <Button 
-                      variant="outlined" 
-                      size="small" 
-                      onClick={handleAddDeviceType}
-                      disabled={!newDeviceType.name.trim()}
-                    >
-                      Add
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                
-                {/* Existing device types */}
-                {editableDeviceTypes.map((type, index) => (
-                  <TableRow key={index}>
-                    <TableCell sx={tableBodyCellStyle}>{type.name}</TableCell>
-                    <TableCell sx={tableBodyCellStyle}>{type.option}</TableCell>
-                    <TableCell sx={tableBodyCellStyle}>{type.description}</TableCell>
-                    <TableCell sx={tableBodyCellStyle}>
-                      <IconButton 
-                        size="small" 
-                        onClick={() => handleRemoveDeviceType(index)}
-                        aria-label="delete"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                
-                {editableDeviceTypes.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4} align="center" sx={tableBodyCellStyle}>No device types found</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeviceTypeDialog}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      <DeviceTypeDialog
+        open={openDeviceTypeDialog}
+        onClose={handleCloseDeviceTypeDialog}
+        deviceTypes={editableDeviceTypes}
+        newDeviceType={newDeviceType}
+        onAddDeviceType={handleAddDeviceType}
+        onRemoveDeviceType={handleRemoveDeviceType}
+        onDeviceTypeChange={handleDeviceTypeChange}
+        onNewDeviceTypeChange={(field, value) => setNewDeviceType({
+          ...newDeviceType,
+          [field]: value
+        })}
+      />
     </div>
   );
 };
