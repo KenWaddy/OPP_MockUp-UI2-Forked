@@ -2,7 +2,17 @@ import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
 import { DeviceWithTenant, Device, UnregisteredDevice, Tenant } from '../types/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IDeviceService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { devices, unregisteredDevices, tenants } from '../mocks/data/index.js';
+import { 
+  devices, unregisteredDevices, tenants,
+  addDevice as addDeviceToStore,
+  updateDevice as updateDeviceInStore,
+  deleteDevice as deleteDeviceFromStore,
+  addUnregisteredDevice as addUnregisteredDeviceToStore,
+  updateUnregisteredDevice as updateUnregisteredDeviceInStore,
+  deleteUnregisteredDevice as deleteUnregisteredDeviceFromStore,
+  assignDeviceToTenant as assignDeviceToTenantInStore,
+  getNextDeviceIdForTenant
+} from '../mocks/data/index.js';
 
 export class DeviceService implements IDeviceService {
   /**
@@ -205,5 +215,126 @@ export class DeviceService implements IDeviceService {
     ];
     
     return allDevices;
+  }
+
+  /**
+   * Add a new device
+   */
+  async addDevice(device: any): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const newDevice = {
+        ...device,
+        id: device.id || getNextDeviceIdForTenant(device.subscriptionId)
+      };
+      
+      addDeviceToStore(newDevice);
+      
+      return {
+        data: newDevice,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error adding device: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Update an existing device
+   */
+  async updateDevice(device: any): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const existingDevice = devices.find((d: Device) => d.id === device.id);
+      
+      if (!existingDevice) {
+        return {
+          data: null,
+          success: false,
+          message: `Device with ID ${device.id} not found`
+        };
+      }
+      
+      updateDeviceInStore(device);
+      
+      return {
+        data: device,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error updating device: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Delete a device by ID
+   */
+  async deleteDevice(id: string): Promise<ItemResponse<boolean>> {
+    await delay();
+    
+    try {
+      const existingDevice = devices.find((d: Device) => d.id === id);
+      
+      if (!existingDevice) {
+        return {
+          data: false,
+          success: false,
+          message: `Device with ID ${id} not found`
+        };
+      }
+      
+      deleteDeviceFromStore(id);
+      
+      return {
+        data: true,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: false,
+        success: false,
+        message: `Error deleting device: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Assign a device to a tenant
+   */
+  async assignDeviceToTenant(deviceId: string, subscriptionId: string): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const assignedDevice = assignDeviceToTenantInStore(deviceId, subscriptionId);
+      
+      if (!assignedDevice) {
+        return {
+          data: null,
+          success: false,
+          message: `Device with ID ${deviceId} not found or could not be assigned`
+        };
+      }
+      
+      return {
+        data: assignedDevice,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error assigning device: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
   }
 }

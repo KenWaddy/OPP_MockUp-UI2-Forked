@@ -2,7 +2,13 @@ import { mockTenants } from '../mocks/index.js';
 import { User } from '../types/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IUserService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { users, tenants } from '../mocks/data/index.js';
+import { 
+  users, tenants,
+  addUser as addUserToStore,
+  updateUser as updateUserInStore,
+  deleteUser as deleteUserFromStore,
+  getNextUserIdForTenant
+} from '../mocks/data/index.js';
 
 export class UserService implements IUserService {
   /**
@@ -101,5 +107,96 @@ export class UserService implements IUserService {
     });
     
     return usersWithTenantInfo;
+  }
+
+  /**
+   * Add a new user
+   */
+  async addUser(user: any): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const newUser = {
+        ...user,
+        id: user.id || getNextUserIdForTenant(user.subscriptionId)
+      };
+      
+      addUserToStore(newUser);
+      
+      return {
+        data: newUser,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error adding user: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Update an existing user
+   */
+  async updateUser(user: any): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const existingUser = users.find((u: User) => u.id === user.id);
+      
+      if (!existingUser) {
+        return {
+          data: null,
+          success: false,
+          message: `User with ID ${user.id} not found`
+        };
+      }
+      
+      updateUserInStore(user);
+      
+      return {
+        data: user,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error updating user: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Delete a user by ID
+   */
+  async deleteUser(id: string): Promise<ItemResponse<boolean>> {
+    await delay();
+    
+    try {
+      const existingUser = users.find((u: User) => u.id === id);
+      
+      if (!existingUser) {
+        return {
+          data: false,
+          success: false,
+          message: `User with ID ${id} not found`
+        };
+      }
+      
+      deleteUserFromStore(id);
+      
+      return {
+        data: true,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: false,
+        success: false,
+        message: `Error deleting user: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
   }
 }

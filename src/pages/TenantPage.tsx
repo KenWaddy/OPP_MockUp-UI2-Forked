@@ -51,6 +51,7 @@ import { TenantService, UserService, DeviceService, SubscriptionService } from '
 import { formatContactName } from '../services/utils.js';
 import { exportToCsv } from '../utils/exportUtils.js';
 import { Subscription } from '../types/models.js';
+import { getNextSubscriptionId } from '../mocks/data/subscriptions.js';
 
 // Create service instances
 const tenantService = new TenantService();
@@ -340,19 +341,29 @@ export const TenantPage: React.FC = () => {
     if (editableTenant) {
       try {
         setLoading(true);
-        // In a real implementation, this would call a service method to save the tenant
-        // For now, we'll just update the local state
+        
         if (selectedTenant) {
           // Update existing tenant
-          const updatedTenants = tenants.map(tenant =>
-            tenant.id === selectedTenant.id
-              ? editableTenant
-              : tenant
-          );
-          setTenants(updatedTenants);
+          await tenantService.updateTenant(editableTenant);
         } else {
-          // Add new tenant
-          setTenants([...tenants, editableTenant]);
+          // Add new tenant with a new subscription
+          const newSubscription = {
+            id: getNextSubscriptionId(),
+            name: 'Standard Plan',
+            description: 'Standard subscription plan',
+            type: 'Evergreen',
+            status: 'Active',
+            start_date: new Date().toISOString().split('T')[0],
+            end_date: '',
+            enabled_app_DMS: true,
+            enabled_app_eVMS: true,
+            enabled_app_CVR: false,
+            enabled_app_AIAMS: false,
+            config_SSH_terminal: true,
+            config_AIAPP_installer: false
+          };
+          
+          await tenantService.addTenant(editableTenant, newSubscription);
         }
 
         setOpenTenantDialog(false);
