@@ -30,7 +30,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import { FilterSection } from '../components/tables/filter_section';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
@@ -415,95 +415,39 @@ export const DevicePage: React.FC = () => {
       </Box>
       
       {/* Filter section */}
-      <Paper 
-        elevation={2}
-        sx={{ 
-          p: 2, 
-          mb: 2, 
-          border: '1px solid #ddd', 
-          borderRadius: '4px',
-          bgcolor: '#F2F2F2'
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-            Filters
-          </Typography>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={() => setFilters({
-              searchText: "",
-              type: "",
-              status: "",
-            })}
-            startIcon={<FilterListIcon />}
-            sx={{ fontWeight: 'bold' }}
-          >
-            Reset Filters
-          </Button>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
-        
-        <Grid container spacing={2}>
-          {/* Unified search text field */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Search"
-              placeholder="Search in Tenant, Name, Device ID, Serial No, Description"
-              value={filters.searchText}
-              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
-              InputProps={{
-                startAdornment: (
-                  <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
-                ),
-              }}
-              sx={{ backgroundColor: "white" }}
-            />
-          </Grid>
-          
-          {/* Dropdown filters */}
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Type</InputLabel>
-              <Select
-                value={filters.type}
-                label="Type"
-                onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                sx={{ backgroundColor: "white" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {deviceTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={filters.status}
-                label="Status"
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                sx={{ backgroundColor: "white" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {statusOptions.map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Paper>
+      <FilterSection
+        filters={filters}
+        onFiltersChange={setFilters}
+        onResetFilters={() => setFilters({
+          searchText: "",
+          type: "",
+          status: "",
+        })}
+        filterFields={[
+          {
+            type: 'text',
+            key: 'searchText',
+            label: 'Search',
+            placeholder: 'Search in Tenant, Name, Device ID, Serial No, Description',
+            startAdornment: true,
+            gridSize: 4
+          },
+          {
+            type: 'select',
+            key: 'type',
+            label: 'Type',
+            options: deviceTypes,
+            gridSize: 4
+          },
+          {
+            type: 'select',
+            key: 'status',
+            label: 'Status',
+            options: statusOptions,
+            gridSize: 4
+          }
+        ]}
+      />
       
       {/* Error message */}
       {error && (

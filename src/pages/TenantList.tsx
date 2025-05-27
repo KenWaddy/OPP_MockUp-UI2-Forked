@@ -27,11 +27,11 @@ import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '.
 import { formatContactName } from '../mockAPI/utils.js';
 import { TenantService, SubscriptionService } from '../mockAPI/index.js';
 import { TenantType, Subscription } from '../commons/models.js';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { FilterSection } from '../components/tables/filter_section';
 
 const tenantService = new TenantService();
 const subscriptionService = new SubscriptionService();
@@ -172,90 +172,38 @@ export const TenantList: React.FC<{
   return (
     <div className="tenant-list">
       {/* Filter section */}
-      <Paper
-        elevation={2}
-        sx={{
-          p: 2,
-          mb: 2,
-          border: '1px solid #ddd',
-          borderRadius: '4px',
-          bgcolor: '#F2F2F2'
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-            Filters
-          </Typography>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setFilters({
-              contractType: "",
-              status: "",
-              textSearch: "",
-            })}
-            startIcon={<FilterListIcon />}
-            sx={{ fontWeight: 'bold' }}
-          >
-            Reset Filters
-          </Button>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
-
-        <Grid container spacing={2}>
-          {/* Text input filter */}
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Text Search"
-              placeholder="Search by Tenant Name, Contact Name, or Email Address"
-              value={filters.textSearch}
-              onChange={(e) => setFilters({ ...filters, textSearch: e.target.value })}
-              sx={{ backgroundColor: "white" }}
-            />
-          </Grid>
-
-          {/* Dropdown filters */}
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Subscription Type</InputLabel>
-              <Select
-                value={filters.contractType}
-                label="Subscription Type"
-                onChange={(e) => setFilters({ ...filters, contractType: e.target.value })}
-                sx={{ backgroundColor: "white" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {contractTypeOptions.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Subscription Status</InputLabel>
-              <Select
-                value={filters.status}
-                label="Subscription Status"
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                sx={{ backgroundColor: "white" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {statusOptions.map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Paper>
+      <FilterSection
+        filters={filters}
+        onFiltersChange={setFilters}
+        onResetFilters={() => setFilters({
+          contractType: "",
+          status: "",
+          textSearch: "",
+        })}
+        filterFields={[
+          {
+            type: 'text',
+            key: 'textSearch',
+            label: 'Text Search',
+            placeholder: 'Search by Tenant Name, Contact Name, or Email Address',
+            gridSize: 3
+          },
+          {
+            type: 'select',
+            key: 'contractType',
+            label: 'Subscription Type',
+            options: contractTypeOptions,
+            gridSize: 3
+          },
+          {
+            type: 'select',
+            key: 'status',
+            label: 'Subscription Status',
+            options: statusOptions,
+            gridSize: 3
+          }
+        ]}
+      />
 
       {/* Error message */}
       {error && (

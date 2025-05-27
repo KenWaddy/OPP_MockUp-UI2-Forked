@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import { FilterSection } from '../components/tables/filter_section';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
 import { BillingService, TenantService } from '../mockAPI/index.js';
 import { DeviceContractItem } from '../commons/models.js';
@@ -265,109 +265,47 @@ export const BillingPage: React.FC = () => {
       </Box>
 
       {/* Filters Section */}
-      <Paper
-        elevation={2}
-        sx={{
-          p: 2,
-          mb: 2,
-          border: '1px solid #ddd',
-          borderRadius: '4px',
-          bgcolor: '#F2F2F2'
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            Filters
-          </Typography>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setFilters({
-              searchText: "",
-              nextBillingFrom: "", // Clear the filter on reset
-              paymentType: "",
-              deviceType: "",
-            })}
-            startIcon={<FilterListIcon />}
-            sx={{ fontWeight: 'bold' }}
-          >
-            Reset Filters
-          </Button>
-        </Box>
-
-        <Grid container spacing={2}>
-          {/* Text-based Filter */}
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Text Search"
-              placeholder="Search in Tenant and Billing ID"
-              value={filters.searchText}
-              onChange={(e) => setFilters({ ...filters, searchText: e.target.value })}
-              InputProps={{
-                startAdornment: (
-                  <FilterListIcon fontSize="small" sx={{ mr: 1, color: 'action.active' }} />
-                ),
-              }}
-               sx={{ backgroundColor: "white" }}
-            />
-          </Grid>
-
-          {/* Next Billing Month: From */}
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Next Billing Month: From"
-              value={filters.nextBillingFrom}
-              onChange={(e) => setFilters({ ...filters, nextBillingFrom: e.target.value })}
-              placeholder="YYYY-MM"
-              sx={{ backgroundColor: "white" }}
-            />
-          </Grid>
-
-          {/* Payment Type */}
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Payment Type</InputLabel>
-              <Select
-                value={filters.paymentType}
-                label="Payment Type"
-                onChange={(e) => setFilters({ ...filters, paymentType: e.target.value })}
-                sx={{ backgroundColor: "white" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {paymentTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Device Type */}
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Device Type</InputLabel>
-              <Select
-                value={filters.deviceType}
-                label="Device Type"
-                onChange={(e) => setFilters({ ...filters, deviceType: e.target.value })}
-                sx={{ backgroundColor: "white" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {deviceTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Paper>
+      <FilterSection
+        filters={filters}
+        onFiltersChange={setFilters}
+        onResetFilters={() => setFilters({
+          searchText: "",
+          nextBillingFrom: "", // Clear the filter on reset
+          paymentType: "",
+          deviceType: "",
+        })}
+        filterFields={[
+          {
+            type: 'text',
+            key: 'searchText',
+            label: 'Text Search',
+            placeholder: 'Search in Tenant and Billing ID',
+            startAdornment: true,
+            gridSize: 3
+          },
+          {
+            type: 'date',
+            key: 'nextBillingFrom',
+            label: 'Next Billing Month: From',
+            placeholder: 'YYYY-MM',
+            gridSize: 3
+          },
+          {
+            type: 'select',
+            key: 'paymentType',
+            label: 'Payment Type',
+            options: paymentTypes,
+            gridSize: 3
+          },
+          {
+            type: 'select',
+            key: 'deviceType',
+            label: 'Device Type',
+            options: deviceTypes,
+            gridSize: 3
+          }
+        ]}
+      />
 
       {/* Error message */}
       {error && (
