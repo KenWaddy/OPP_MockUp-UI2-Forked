@@ -249,25 +249,16 @@ export const DevicePage: React.FC = () => {
     if (editableDevice) {
       try {
         setLoading(true);
-        // In a real implementation, this would call a service method to save the device
-        // For now, we'll just update the local state
-        let updatedDevices;
         
         if (selectedDevice) {
           // Update existing device
-          updatedDevices = allDevices.map(device => 
-            device.id === selectedDevice.id 
-              ? editableDevice 
-              : device
-          );
+          await deviceService.updateDevice(editableDevice);
         } else {
           // Add new device
-          updatedDevices = [...allDevices, editableDevice];
+          await deviceService.addDevice(editableDevice);
         }
         
-        setAllDevices(updatedDevices);
         setOpenDeviceDialog(false);
-        
         await loadDevices(); // Reload devices from the service
       } catch (err) {
         setError(`Error saving device: ${err instanceof Error ? err.message : String(err)}`);
@@ -280,11 +271,7 @@ export const DevicePage: React.FC = () => {
   const handleDeleteDevice = async (deviceId: string) => {
     try {
       setLoading(true);
-      // In a real implementation, this would call a service method to delete the device
-      // For now, we'll just update the local state
-      const updatedDevices = allDevices.filter(device => device.id !== deviceId);
-      setAllDevices(updatedDevices);
-      
+      await deviceService.deleteDevice(deviceId);
       await loadDevices(); // Reload devices from the service
     } catch (err) {
       setError(`Error deleting device: ${err instanceof Error ? err.message : String(err)}`);
@@ -296,22 +283,7 @@ export const DevicePage: React.FC = () => {
   const handleAssignToTenant = async (device: UnregisteredDevice, subscriptionId: string, tenantName: string) => {
     try {
       setLoading(true);
-      // In a real implementation, this would call a service method to assign the device to a tenant
-      // For now, we'll just update the local state
-      const updatedDevices = allDevices.map(d => {
-        if (d.id === device.id) {
-          const { isUnregistered, ...deviceWithoutFlag } = d as UnregisteredDevice;
-          return {
-            ...deviceWithoutFlag,
-            subscriptionId,
-            tenantName,
-            status: "Assigned" // Set status to Assigned when device is assigned to a tenant
-          } as DeviceWithTenant;
-        }
-        return d;
-      });
-      setAllDevices(updatedDevices);
-      
+      await deviceService.assignDeviceToTenant(device.id, subscriptionId);
       await loadDevices(); // Reload devices from the service
     } catch (err) {
       setError(`Error assigning device to tenant: ${err instanceof Error ? err.message : String(err)}`);

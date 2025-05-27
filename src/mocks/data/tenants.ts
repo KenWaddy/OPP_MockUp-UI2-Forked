@@ -106,4 +106,21 @@ export function generateTenants(count: number = 100): Tenant[] {
   return tenants;
 }
 
-export const tenants = generateTenants(100);
+let mutableTenants = generateTenants(100);
+
+export const getTenants = () => mutableTenants;
+export const addTenant = (tenant: Tenant) => {
+  mutableTenants.push(tenant);
+};
+export const updateTenant = (updatedTenant: Tenant) => {
+  const index = mutableTenants.findIndex(t => t.id === updatedTenant.id);
+  if (index !== -1) {
+    mutableTenants[index] = updatedTenant;
+  }
+};
+export const deleteTenant = (id: string) => {
+  mutableTenants = mutableTenants.filter(t => t.id !== id);
+};
+export const getNextTenantId = () => `tenant-${mutableTenants.length + 1}`;
+
+export const tenants = mutableTenants;

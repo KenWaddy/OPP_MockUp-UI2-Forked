@@ -45,4 +45,21 @@ export function generateSubscriptions(count: number = 100): Subscription[] {
   return subscriptions;
 }
 
-export const subscriptions = generateSubscriptions(100);
+let mutableSubscriptions = generateSubscriptions(100);
+
+export const getSubscriptions = () => mutableSubscriptions;
+export const addSubscription = (subscription: Subscription) => {
+  mutableSubscriptions.push(subscription);
+};
+export const updateSubscription = (updatedSubscription: Subscription) => {
+  const index = mutableSubscriptions.findIndex(s => s.id === updatedSubscription.id);
+  if (index !== -1) {
+    mutableSubscriptions[index] = updatedSubscription;
+  }
+};
+export const deleteSubscription = (id: string) => {
+  mutableSubscriptions = mutableSubscriptions.filter(s => s.id !== id);
+};
+export const getNextSubscriptionId = () => `sub-${mutableSubscriptions.length}`;
+
+export const subscriptions = mutableSubscriptions;

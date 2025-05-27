@@ -1,8 +1,14 @@
 import { mockTenants } from '../mocks/index.js';
 import { TenantType, DeviceContractItem } from '../types/models.js';
-import { PaginationParams, PaginatedResponse, IBillingService } from './types.js';
+import { PaginationParams, PaginatedResponse, ItemResponse, IBillingService } from './types.js';
 import { delay } from '../utils/delay.js';
-import { billing, tenants } from '../mocks/data/index.js';
+import { 
+  billing, tenants,
+  addBilling as addBillingToStore,
+  updateBilling as updateBillingInStore,
+  deleteBilling as deleteBillingFromStore,
+  getNextBillingIdForTenant
+} from '../mocks/data/index.js';
 import { Billing } from '../types/models.js';
 
 interface BillingWithTenant extends Billing {
@@ -314,5 +320,96 @@ export class BillingService implements IBillingService {
     });
     
     return billingItems;
+  }
+
+  /**
+   * Add a new billing record
+   */
+  async addBilling(billingRecord: any): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const newBilling = {
+        ...billingRecord,
+        id: billingRecord.id || getNextBillingIdForTenant(billingRecord.subscriptionId)
+      };
+      
+      addBillingToStore(newBilling);
+      
+      return {
+        data: newBilling,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error adding billing record: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Update an existing billing record
+   */
+  async updateBilling(billingRecord: any): Promise<ItemResponse<any>> {
+    await delay();
+    
+    try {
+      const existingBilling = billing.find((b: Billing) => b.id === billingRecord.id);
+      
+      if (!existingBilling) {
+        return {
+          data: null,
+          success: false,
+          message: `Billing record with ID ${billingRecord.id} not found`
+        };
+      }
+      
+      updateBillingInStore(billingRecord);
+      
+      return {
+        data: billingRecord,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: null,
+        success: false,
+        message: `Error updating billing record: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Delete a billing record by ID
+   */
+  async deleteBilling(id: string): Promise<ItemResponse<boolean>> {
+    await delay();
+    
+    try {
+      const existingBilling = billing.find((b: Billing) => b.id === id);
+      
+      if (!existingBilling) {
+        return {
+          data: false,
+          success: false,
+          message: `Billing record with ID ${id} not found`
+        };
+      }
+      
+      deleteBillingFromStore(id);
+      
+      return {
+        data: true,
+        success: true
+      };
+    } catch (error) {
+      return {
+        data: false,
+        success: false,
+        message: `Error deleting billing record: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
   }
 }

@@ -171,8 +171,59 @@ export function generateUnregisteredDevices(count: number = 20): UnregisteredDev
   return devices;
 }
 
-export const devices = generateAllDevices();
+let mutableDevices = generateAllDevices();
+let mutableUnregisteredDevices = [...generateUnregisteredDevices(20), ...generateRegisteredDevices(30)];
 
-export const registeredDevices = generateRegisteredDevices(30);
+export const getDevices = () => mutableDevices;
+export const getUnregisteredDevices = () => mutableUnregisteredDevices;
+export const addDevice = (device: Device) => {
+  mutableDevices.push(device);
+};
+export const updateDevice = (updatedDevice: Device) => {
+  const index = mutableDevices.findIndex(d => d.id === updatedDevice.id);
+  if (index !== -1) {
+    mutableDevices[index] = updatedDevice;
+  }
+};
+export const deleteDevice = (id: string) => {
+  mutableDevices = mutableDevices.filter(d => d.id !== id);
+};
+export const addUnregisteredDevice = (device: UnregisteredDevice) => {
+  mutableUnregisteredDevices.push(device);
+};
+export const updateUnregisteredDevice = (updatedDevice: UnregisteredDevice) => {
+  const index = mutableUnregisteredDevices.findIndex(d => d.id === updatedDevice.id);
+  if (index !== -1) {
+    mutableUnregisteredDevices[index] = updatedDevice;
+  }
+};
+export const deleteUnregisteredDevice = (id: string) => {
+  mutableUnregisteredDevices = mutableUnregisteredDevices.filter(d => d.id !== id);
+};
+export const assignDeviceToTenant = (deviceId: string, subscriptionId: string) => {
+  const deviceIndex = mutableUnregisteredDevices.findIndex(d => d.id === deviceId);
+  if (deviceIndex !== -1) {
+    const device = mutableUnregisteredDevices[deviceIndex];
+    const assignedDevice: Device = {
+      id: device.id,
+      subscriptionId,
+      name: device.name,
+      type: device.type,
+      serialNo: device.serialNo,
+      description: device.description,
+      status: "Assigned",
+      attributes: device.attributes
+    };
+    mutableDevices.push(assignedDevice);
+    mutableUnregisteredDevices.splice(deviceIndex, 1);
+    return assignedDevice;
+  }
+  return null;
+};
+export const getNextDeviceIdForTenant = (subscriptionId: string) => {
+  const tenantDevices = mutableDevices.filter(d => d.subscriptionId === subscriptionId);
+  return `device-${subscriptionId}-${tenantDevices.length}`;
+};
 
-export const unregisteredDevices = [...generateUnregisteredDevices(20), ...registeredDevices];
+export const devices = mutableDevices;
+export const unregisteredDevices = mutableUnregisteredDevices;

@@ -66,4 +66,24 @@ export function generateAllUsers(): User[] {
   return allUsers;
 }
 
-export const users = generateAllUsers();
+let mutableUsers = generateAllUsers();
+
+export const getUsers = () => mutableUsers;
+export const addUser = (user: User) => {
+  mutableUsers.push(user);
+};
+export const updateUser = (updatedUser: User) => {
+  const index = mutableUsers.findIndex(u => u.id === updatedUser.id);
+  if (index !== -1) {
+    mutableUsers[index] = updatedUser;
+  }
+};
+export const deleteUser = (id: string) => {
+  mutableUsers = mutableUsers.filter(u => u.id !== id);
+};
+export const getNextUserIdForTenant = (subscriptionId: string) => {
+  const tenantUsers = mutableUsers.filter(u => u.subscriptionId === subscriptionId);
+  return `user-${subscriptionId}-${tenantUsers.length}`;
+};
+
+export const users = mutableUsers;

@@ -71,4 +71,24 @@ export function generateAllBilling(): Billing[] {
   return allBilling;
 }
 
-export const billing = generateAllBilling();
+let mutableBilling = generateAllBilling();
+
+export const getBilling = () => mutableBilling;
+export const addBilling = (billingRecord: Billing) => {
+  mutableBilling.push(billingRecord);
+};
+export const updateBilling = (updatedBilling: Billing) => {
+  const index = mutableBilling.findIndex(b => b.id === updatedBilling.id);
+  if (index !== -1) {
+    mutableBilling[index] = updatedBilling;
+  }
+};
+export const deleteBilling = (id: string) => {
+  mutableBilling = mutableBilling.filter(b => b.id !== id);
+};
+export const getNextBillingIdForTenant = (subscriptionId: string) => {
+  const tenantBilling = mutableBilling.filter(b => b.subscriptionId === subscriptionId);
+  return `billing-${subscriptionId}-${tenantBilling.length}`;
+};
+
+export const billing = mutableBilling;
