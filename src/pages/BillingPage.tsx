@@ -29,6 +29,7 @@ import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerSty
 import { BillingService, TenantService } from '../mockAPI/index.js';
 import { DeviceContractItem } from '../commons/models.js';
 import { exportToCsv } from '../commons/export.js';
+import { calculateNextBillingMonth } from '../commons/billing.js';
 
 // Create service instances
 const billingService = new BillingService();
@@ -226,60 +227,7 @@ export const BillingPage: React.FC = () => {
     );
   };
 
-  const calculateNextBillingMonth = (billing: AggregatedBillingItem) => {
-    if (!billing) return '—';
 
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // 0-11
-
-    if (billing.endDate) {
-      try {
-        const endDate = new Date(billing.endDate);
-        const currentDate = new Date();
-
-        if (currentDate > endDate) {
-          return 'Ended';
-        }
-      } catch (e) {
-      }
-    }
-
-    if (billing.paymentType === 'Monthly') {
-      let nextBillingYear = currentYear;
-      let nextBillingMonth = currentMonth;
-
-      return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
-    }
-    else if (billing.paymentType === 'Annually') {
-      if (!billing.endDate) return '—';
-
-      try {
-        const endDate = new Date(billing.endDate);
-        const endYear = endDate.getFullYear();
-        const endMonth = endDate.getMonth(); // 0-11
-
-        return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
-      } catch (e) {
-        return '—';
-      }
-    }
-    else if (billing.paymentType === 'One-time') {
-      if (!billing.startDate) return '—';
-
-      try {
-        const startDate = new Date(billing.startDate);
-        const startYear = startDate.getFullYear();
-        const startMonth = startDate.getMonth(); // 0-11
-
-        return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
-      } catch (e) {
-        return '—';
-      }
-    }
-
-    return '—'; // Default for unknown payment types
-  };
 
   const handleExportAllBillings = async () => {
     try {
