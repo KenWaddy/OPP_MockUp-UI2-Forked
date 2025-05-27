@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Box,
   Paper,
@@ -46,7 +45,6 @@ export const TenantList: React.FC<{
   onDeleteTenant?: (tenantId: string) => void;
   onTenantSelect?: (tenantId: string) => void;
 }> = ({ onEditTenant, onDeleteTenant, onTenantSelect }) => {
-  const navigate = useNavigate();
   const [tenants, setTenants] = useState<TenantType[]>([]);
   const [subscriptions, setSubscriptions] = useState<SubscriptionMap>({});
   const [loading, setLoading] = useState<boolean>(true);
@@ -140,7 +138,11 @@ export const TenantList: React.FC<{
     if (onTenantSelect) {
       onTenantSelect(id);
     } else {
-      navigate(`/tenants/${id}`);
+      localStorage.setItem('selectedTenantId', id);
+      const tenantPageEvent = new CustomEvent('navigate-to-tenant', {
+        detail: { tenant: { id: id } }
+      });
+      window.dispatchEvent(tenantPageEvent);
     }
   };
   
