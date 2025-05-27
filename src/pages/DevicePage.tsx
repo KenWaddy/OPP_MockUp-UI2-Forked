@@ -39,7 +39,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
 import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType } from '../commons/models.js';
-import { defaultDeviceTypes, getDeviceTypeByName } from '../api/mockData/deviceTypes.js';
+import { defaultDeviceTypes, getDeviceTypeByName } from '../mockAPI/FakerData/deviceTypes.js';
 import { DeviceService, TenantService } from '../mockAPI/index.js';
 import { exportToCsv } from '../commons/export.js';
 

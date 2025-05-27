@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Device, UnregisteredDevice, Attribute } from '../../commons/models.js';
 import { tenants } from './tenants.js';
-import { defaultDeviceTypes } from '../../api/mockData/deviceTypes.js';
+import { defaultDeviceTypes } from './deviceTypes.js';
 
 /**
  * Generate attributes for a specific device type
