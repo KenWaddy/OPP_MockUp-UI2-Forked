@@ -16,10 +16,6 @@ import {
   TableHead,
   TableRow,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Switch,
   Checkbox,
   FormGroup,
@@ -55,6 +51,11 @@ import { calculateNextBillingMonth } from '../commons/billing.js';
 import { Subscription } from '../commons/models.js';
 import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
+import { DeviceAssignmentDialog } from '../components/dialogs/DeviceAssignmentDialog';
+import { UserDialog } from '../components/dialogs/UserDialog';
+import { BillingDialog } from '../components/dialogs/BillingDialog';
+import { ContactDialog } from '../components/dialogs/ContactDialog';
+import { SubscriptionDialog } from '../components/dialogs/SubscriptionDialog';
 import { ContactForm } from '../components/forms/ContactForm';
 
 // Create service instances
@@ -1815,660 +1816,55 @@ export const TenantPage: React.FC = () => {
       />
 
       {/* Device Assignment Dialog */}
-      <Dialog
+      <DeviceAssignmentDialog
         open={openDeviceAssignDialog}
         onClose={handleCloseDeviceAssignDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Assign Devices to {selectedTenant?.name}
-        </DialogTitle>
-        <DialogContent dividers>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      indeterminate={
-                        selectedUnassignedDevices.length > 0 &&
-                        selectedUnassignedDevices.length < unassignedDevices.length
-                      }
-                      checked={
-                        unassignedDevices.length > 0 &&
-                        selectedUnassignedDevices.length === unassignedDevices.length
-                      }
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedUnassignedDevices(unassignedDevices.map(d => d.id));
-                        } else {
-                          setSelectedUnassignedDevices([]);
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Name</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Device ID</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Serial No.</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {unassignedDevices.length > 0 ? (
-                  unassignedDevices.map((device) => (
-                    <TableRow key={device.id}>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectedUnassignedDevices.includes(device.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedUnassignedDevices([...selectedUnassignedDevices, device.id]);
-                            } else {
-                              setSelectedUnassignedDevices(
-                                selectedUnassignedDevices.filter(id => id !== device.id)
-                              );
-                            }
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{device.name}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{device.type}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{device.id}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{device.serialNo}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <Chip
-                          label={device.status}
-                          color={device.status === "Activated" ? "success" : "warning"}
-                          size="small"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center" sx={tableBodyCellStyle}>No unassigned devices found</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeviceAssignDialog}>Cancel</Button>
-          <Button
-            onClick={handleAssignDevices}
-            variant="contained"
-            color="primary"
-            disabled={selectedUnassignedDevices.length === 0}
-          >
-            Assign Selected Devices
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSave={handleAssignDevices}
+        selectedTenant={selectedTenant}
+        unassignedDevices={unassignedDevices}
+        selectedUnassignedDevices={selectedUnassignedDevices}
+        setSelectedUnassignedDevices={setSelectedUnassignedDevices}
+      />
 
-      {/* Add User Dialog */}
-      <Dialog
+      {/* User Dialog */}
+      <UserDialog
         open={openUserDialog}
         onClose={handleCloseUserDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {editableUser && tenantUsers?.find((user: {id: string}) => user.id === editableUser.id)
-            ? `Edit User: ${editableUser.name}`
-            : `Add User to ${selectedTenant?.name}`}
-        </DialogTitle>
-        <DialogContent dividers>
-          {editableUser && (
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Name"
-                  value={editableUser.name}
-                  onChange={(e) => setEditableUser({
-                    ...editableUser,
-                    name: e.target.value
-                  })}
-                  margin="normal"
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  value={editableUser.email}
-                  onChange={(e) => setEditableUser({
-                    ...editableUser,
-                    email: e.target.value
-                  })}
-                  margin="normal"
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Roles</InputLabel>
-                  <Select
-                    multiple
-                    value={editableUser.roles}
-                    label="Roles"
-                    onChange={(e) => {
-                      const newRoles = e.target.value as ("Owner" | "Engineer" | "Member")[];
-                      const hadOwner = editableUser.roles.includes("Owner");
-                      const hasOwner = newRoles.includes("Owner");
-
-                      setEditableUser({
-                        ...editableUser,
-                        roles: newRoles
-                      });
-                    }}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {(selected as string[]).map((value) => (
-                          <Chip
-                            key={value}
-                            label={value}
-                            size="small"
-                            color={
-                              value === "Owner" ? "primary" :
-                              value === "Engineer" ? "secondary" :
-                              "default"
-                            }
-                          />
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    <MenuItem value="Owner">Owner</MenuItem>
-                    <MenuItem value="Engineer">Engineer</MenuItem>
-                    <MenuItem value="Member">Member</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={editableUser.mfaEnabled}
-                      onChange={(e) => setEditableUser({
-                        ...editableUser,
-                        mfaEnabled: e.target.checked
-                      })}
-                    />
-                  }
-                  label="Enable MFA"
-                />
-              </Grid>
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseUserDialog}>Cancel</Button>
-          <Button
-            onClick={handleSaveUser}
-            variant="contained"
-            color="primary"
-            disabled={!editableUser || !editableUser.name || !editableUser.email}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSave={handleSaveUser}
+        editableUser={editableUser}
+        setEditableUser={setEditableUser}
+        selectedTenant={selectedTenant}
+        tenantUsers={tenantUsers}
+      />
 
       {/* Billing Dialog */}
-      <Dialog
+      <BillingDialog
         open={openBillingDialog}
         onClose={handleCloseBillingDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {editableBilling && tenantBillingDetails?.find((billing: {id: string}) => billing.id === editableBilling.id)
-            ? `Edit Billing: ${editableBilling.id}`
-            : `Add Billing to ${selectedTenant?.name}`}
-        </DialogTitle>
-        <DialogContent>
-          {editableBilling && (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Billing ID"
-                  value={editableBilling.id || ''}
-                  onChange={(e) => setEditableBilling({
-                    ...editableBilling,
-                    id: e.target.value
-                  })}
-                  fullWidth
-                  margin="normal"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Payment Type</InputLabel>
-                  <Select
-                    value={editableBilling.paymentType || "Monthly"}
-                    onChange={(e) => setEditableBilling({
-                      ...editableBilling,
-                      paymentType: e.target.value as "One-time" | "Monthly" | "Annually"
-                    })}
-                    label="Payment Type"
-                  >
-                    <MenuItem value="One-time">One-time</MenuItem>
-                    <MenuItem value="Monthly">Monthly</MenuItem>
-                    <MenuItem value="Annually">Annually</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Contract Start"
-                  type="date"
-                  value={editableBilling.startDate || ''}
-                  onChange={(e) => setEditableBilling({
-                    ...editableBilling,
-                    startDate: e.target.value
-                  })}
-                  fullWidth
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Contract End"
-                  type="date"
-                  value={editableBilling.endDate || ''}
-                  onChange={(e) => setEditableBilling({
-                    ...editableBilling,
-                    endDate: e.target.value
-                  })}
-                  fullWidth
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" gutterBottom>Device Contracts</Typography>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={tableHeaderCellStyle}>Device Type</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Quantity</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Action</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {editableBilling.deviceContract?.map((contract: {type: string, quantity: number}, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <FormControl fullWidth size="small">
-                              <Select
-                                value={contract.type}
-                                onChange={(e) => {
-                                  const newContracts = [...(editableBilling.deviceContract || [])];
-                                  newContracts[index].type = e.target.value;
-                                  setEditableBilling({
-                                    ...editableBilling,
-                                    deviceContract: newContracts
-                                  });
-                                }}
-                              >
-                                {defaultDeviceTypes.map(type => (
-                                  <MenuItem key={type.name} value={type.name}>
-                                    {type.name}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </TableCell>
-                          <TableCell>
-                            <TextField
-                              type="number"
-                              size="small"
-                              fullWidth
-                              value={contract.quantity}
-                              onChange={(e) => {
-                                const newContracts = [...(editableBilling.deviceContract || [])];
-                                newContracts[index].quantity = parseInt(e.target.value);
-                                setEditableBilling({
-                                  ...editableBilling,
-                                  deviceContract: newContracts
-                                });
-                              }}
-                              inputProps={{ min: 1 }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <IconButton
-                              size="small"
-                              onClick={() => {
-                                const newContracts = [...(editableBilling.deviceContract || [])];
-                                newContracts.splice(index, 1);
-                                setEditableBilling({
-                                  ...editableBilling,
-                                  deviceContract: newContracts
-                                });
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      <TableRow>
-                        <TableCell colSpan={3}>
-                          <Button
-                            startIcon={<AddIcon />}
-                            size="small"
-                            onClick={() => {
-                              const newContracts = [...(editableBilling.deviceContract || [])];
-                              newContracts.push({ type: defaultDeviceTypes[0].name, quantity: 1 });
-                              setEditableBilling({
-                                ...editableBilling,
-                                deviceContract: newContracts
-                              });
-                            }}
-                          >
-                            Add Device Contract
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  label="Description"
-                  value={editableBilling.description || ''}
-                  onChange={(e) => setEditableBilling({
-                    ...editableBilling,
-                    description: e.target.value
-                  })}
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseBillingDialog}>Cancel</Button>
-          <Button
-            onClick={handleSaveBilling}
-            variant="contained"
-            color="primary"
-            disabled={!editableBilling}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSave={handleSaveBilling}
+        editableBilling={editableBilling}
+        setEditableBilling={setEditableBilling}
+        selectedTenant={selectedTenant}
+        tenantBillingDetails={tenantBillingDetails}
+      />
 
       {/* Contact Dialog */}
-      <Dialog
+      <ContactDialog
         open={openContactDialog}
         onClose={handleCloseContactDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Edit Contact Information
-        </DialogTitle>
-        <DialogContent dividers>
-          {editableContact && (
-            <ContactForm
-              contact={editableContact}
-              onChange={(updatedContact) => setEditableContact(updatedContact)}
-            />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseContactDialog}>Cancel</Button>
-          <Button
-            onClick={handleSaveContact}
-            variant="contained"
-            color="primary"
-            disabled={!editableContact}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSave={handleSaveContact}
+        editableContact={editableContact}
+        setEditableContact={setEditableContact}
+      />
 
       {/* Subscription Dialog */}
-      <Dialog
+      <SubscriptionDialog
         open={openSubscriptionDialog}
         onClose={handleCloseSubscriptionDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Edit Subscription
-        </DialogTitle>
-        <DialogContent dividers>
-          {editableSubscription && (
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="ID"
-                  value={editableSubscription.id}
-                  disabled
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Name"
-                  value={editableSubscription.name}
-                  onChange={(e) => setEditableSubscription({
-                    ...editableSubscription,
-                    name: e.target.value
-                  })}
-                  margin="normal"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  value={editableSubscription.description}
-                  onChange={(e) => setEditableSubscription({
-                    ...editableSubscription,
-                    description: e.target.value
-                  })}
-                  margin="normal"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Type</InputLabel>
-                  <Select
-                    value={editableSubscription.type}
-                    label="Type"
-                    onChange={(e) => setEditableSubscription({
-                      ...editableSubscription,
-                      type: e.target.value as 'Evergreen' | 'Termed'
-                    })}
-                  >
-                    <MenuItem value="Evergreen">Evergreen</MenuItem>
-                    <MenuItem value="Termed">Termed</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={editableSubscription.status}
-                    label="Status"
-                    onChange={(e) => setEditableSubscription({
-                      ...editableSubscription,
-                      status: e.target.value as 'Active' | 'Cancelled'
-                    })}
-                  >
-                    <MenuItem value="Active">Active</MenuItem>
-                    <MenuItem value="Cancelled">Cancelled</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Start Date"
-                  type="date"
-                  value={editableSubscription.start_date}
-                  onChange={(e) => setEditableSubscription({
-                    ...editableSubscription,
-                    start_date: e.target.value
-                  })}
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="End Date"
-                  type="date"
-                  value={editableSubscription.end_date}
-                  onChange={(e) => setEditableSubscription({
-                    ...editableSubscription,
-                    end_date: e.target.value
-                  })}
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                  Enabled Applications
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={editableSubscription.enabled_app_DMS}
-                          onChange={(e) => setEditableSubscription({
-                            ...editableSubscription,
-                            enabled_app_DMS: e.target.checked
-                          })}
-                        />
-                      }
-                      label="DMS"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={editableSubscription.enabled_app_eVMS}
-                          onChange={(e) => setEditableSubscription({
-                            ...editableSubscription,
-                            enabled_app_eVMS: e.target.checked
-                          })}
-                        />
-                      }
-                      label="eVMS"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={editableSubscription.enabled_app_CVR}
-                          onChange={(e) => setEditableSubscription({
-                            ...editableSubscription,
-                            enabled_app_CVR: e.target.checked
-                          })}
-                        />
-                      }
-                      label="CVR"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={editableSubscription.enabled_app_AIAMS}
-                          onChange={(e) => setEditableSubscription({
-                            ...editableSubscription,
-                            enabled_app_AIAMS: e.target.checked
-                          })}
-                        />
-                      }
-                      label="AIAMS"
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Configuration
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={editableSubscription.config_SSH_terminal}
-                          onChange={(e) => setEditableSubscription({
-                            ...editableSubscription,
-                            config_SSH_terminal: e.target.checked
-                          })}
-                        />
-                      }
-                      label="SSH Terminal"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={editableSubscription.config_AIAPP_installer}
-                          onChange={(e) => setEditableSubscription({
-                            ...editableSubscription,
-                            config_AIAPP_installer: e.target.checked
-                          })}
-                        />
-                      }
-                      label="AIAPP Installer"
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseSubscriptionDialog}>Cancel</Button>
-          <Button
-            onClick={handleSaveSubscription}
-            variant="contained"
-            color="primary"
-            disabled={!editableSubscription}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSave={handleSaveSubscription}
+        editableSubscription={editableSubscription}
+        setEditableSubscription={setEditableSubscription}
+      />
     </div>
   );
 };
