@@ -836,7 +836,7 @@ export const TenantPage: React.FC = () => {
       }
       return 0;
     });
-  }, [tenantBillingDetails, sortConfig, calculateNextBillingMonth]);
+  }, [tenantBillingDetails, sortConfig]);
 
   return (
     <div className="tenant-list">
