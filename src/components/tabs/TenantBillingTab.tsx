@@ -24,7 +24,6 @@ interface BillingDetail {
   paymentType: string;
   billingDate: string;
   nextBillingDate: string;
-  amount: number;
   status: string;
   deviceContract: DeviceContractItem[];
 }
@@ -93,13 +92,7 @@ export const TenantBillingTab: React.FC<TenantBillingTabProps> = ({
                   >
                     Next Billing {getSortDirectionIndicator('nextBillingDate')}
                   </TableCell>
-                  <TableCell 
-                    sx={tableHeaderCellStyle} 
-                    onClick={() => requestSort('amount')}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    Amount {getSortDirectionIndicator('amount')}
-                  </TableCell>
+
                   <TableCell 
                     sx={tableHeaderCellStyle} 
                     onClick={() => requestSort('status')}
@@ -123,7 +116,7 @@ export const TenantBillingTab: React.FC<TenantBillingTabProps> = ({
                     <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
                     <TableCell sx={tableBodyCellStyle}>{billing.billingDate}</TableCell>
                     <TableCell sx={tableBodyCellStyle}>{billing.nextBillingDate}</TableCell>
-                    <TableCell sx={tableBodyCellStyle}>${billing.amount.toFixed(2)}</TableCell>
+
                     <TableCell sx={tableBodyCellStyle}>
                       <Chip
                         label={billing.status}
