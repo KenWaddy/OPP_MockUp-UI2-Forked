@@ -52,7 +52,7 @@ import { Subscription } from '../commons/models.js';
 import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
 import { DeviceAssignmentDialog } from '../components/dialogs/DeviceAssignmentDialog';
-import { UserDialog } from '../components/dialogs/UserDialog';
+import { TenantDetailUsers } from './TenantDetailUsers';
 import { BillingDialog } from '../components/dialogs/BillingDialog';
 import { ContactDialog } from '../components/dialogs/ContactDialog';
 import { SubscriptionDialog } from '../components/dialogs/SubscriptionDialog';
@@ -78,8 +78,7 @@ export const TenantPage: React.FC = () => {
   const [openDeviceAssignDialog, setOpenDeviceAssignDialog] = useState(false);
   const [unassignedDevices, setUnassignedDevices] = useState<UnregisteredDevice[]>([]);
   const [selectedUnassignedDevices, setSelectedUnassignedDevices] = useState<string[]>([]);
-  const [openUserDialog, setOpenUserDialog] = useState(false);
-  const [editableUser, setEditableUser] = useState<User | null>(null);
+  // User state moved to TenantDetailUsers
   const [openBillingDialog, setOpenBillingDialog] = useState(false);
   const [editableBilling, setEditableBilling] = useState<any | null>(null);
   const [openContactDialog, setOpenContactDialog] = useState(false);
@@ -488,96 +487,7 @@ export const TenantPage: React.FC = () => {
     }
   };
 
-  const handleOpenUserDialog = () => {
-    if (!selectedTenant) return;
-
-    // Check if this is the first user being added to the tenant
-    const isFirstUser = tenantUsers.length === 0;
-
-    setEditableUser({
-      id: `u-new-${Math.floor(Math.random() * 1000)}`,
-      name: '',
-      email: '',
-      roles: isFirstUser ? ['Owner'] : ['Member'], // Set 'Owner' role for first user, otherwise 'Member'
-      ipWhitelist: [],
-      mfaEnabled: false
-    });
-
-    setOpenUserDialog(true);
-  };
-
-  const handleCloseUserDialog = () => {
-    setOpenUserDialog(false);
-  };
-
-  const handleSaveUser = () => {
-    if (!selectedTenant || !editableUser) return;
-
-    try {
-      setLoading(true);
-
-      const existingUserIndex = tenantUsers.findIndex((user: User) => user.id === editableUser.id);
-
-      if (existingUserIndex >= 0) {
-        // Update existing user
-        const updatedUsers = [...tenantUsers];
-        updatedUsers[existingUserIndex] = editableUser;
-
-        // Update the users state
-        setTenantUsers(updatedUsers);
-      } else {
-        // Add new user
-        const updatedUsers = [
-          ...tenantUsers,
-          editableUser
-        ];
-
-        // Update the users state
-        setTenantUsers(updatedUsers);
-      }
-
-      setOpenUserDialog(false);
-    } catch (err) {
-      setError(`Error saving user: ${err instanceof Error ? err.message : String(err)}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditUser = (user: User) => {
-    if (!selectedTenant) return;
-
-    setEditableUser({
-      ...user
-    });
-
-    setOpenUserDialog(true);
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    if (!selectedTenant) return;
-
-    const userToDelete = tenantUsers.find((user: User) => user.id === userId);
-
-    if (userToDelete && userToDelete.roles.includes('Owner')) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // In a real implementation, this would call a service method to delete the user
-      // For now, we'll just update the local state
-      const updatedUsers = tenantUsers.filter((user: User) => user.id !== userId);
-
-      // Update the users state
-      setTenantUsers(updatedUsers);
-    } catch (err) {
-      setError(`Error deleting user: ${err instanceof Error ? err.message : String(err)}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // User management functions moved to TenantDetailUsers
 
   const handleOpenBillingDialog = () => {
     if (!selectedTenant) return;
@@ -722,21 +632,7 @@ export const TenantPage: React.FC = () => {
   const billingTypeOptions = ["Monthly", "Annually", "One-time"];
   const statusOptions = ["Active", "Inactive", "Pending", "Suspended"];
   
-  const sortedUsers = useMemo(() => {
-    if (!tenantUsers || !sortConfig) return tenantUsers || [];
-    return [...tenantUsers].sort((a, b) => {
-      const aValue = a[sortConfig.key as keyof typeof a];
-      const bValue = b[sortConfig.key as keyof typeof b];
-      
-      if (aValue < bValue) {
-        return sortConfig.direction === 'ascending' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [tenantUsers, sortConfig]);
+  // sortedUsers function moved to TenantDetailUsers
   
   const sortedDevices = useMemo(() => {
     if (!tenantDevices || !sortConfig) return tenantDevices || [];
@@ -879,132 +775,19 @@ export const TenantPage: React.FC = () => {
 
           {/* Users Tab */}
           {activeTab === "users" && (
-            <>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<AddIcon />}
-                  onClick={handleOpenUserDialog}
-                  sx={{ fontWeight: 'bold' }}
-                >
-                  Add User
-                </Button>
-              </Box>
-              <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('name')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Name {getSortDirectionIndicator('name')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('email')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Email {getSortDirectionIndicator('email')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('roles')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Roles {getSortDirectionIndicator('roles')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('ipWhitelist')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        IP Whitelist {getSortDirectionIndicator('ipWhitelist')}
-                      </TableCell>
-                      <TableCell 
-                        sx={tableHeaderCellStyle} 
-                        onClick={() => requestSort('mfa')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        MFA {getSortDirectionIndicator('mfa')}
-                      </TableCell>
-                      <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                <TableBody>
-                  {sortedUsers && sortedUsers.length > 0 ? (
-                    sortedUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell sx={tableBodyCellStyle}>{user.name}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>{user.email}</TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {user.roles.map((role, index) => (
-                              <Chip
-                                key={index}
-                                label={role}
-                                size="small"
-                                color={
-                                  role === "Owner" ? "primary" :
-                                  role === "Engineer" ? "secondary" :
-                                  "default"
-                                }
-                              />
-                            ))}
-                          </Box>
-                        </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          {user.ipWhitelist.length > 0 ? (
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {user.ipWhitelist.map((ip, index) => (
-                                <Chip key={index} label={ip} size="small" />
-                              ))}
-                            </Box>
-                          ) : (
-                            'None'
-                          )}
-                        </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <Chip
-                            label={user.mfaEnabled ? 'Enabled' : 'Disabled'}
-                            color={user.mfaEnabled ? 'success' : 'error'}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell sx={tableBodyCellStyle}>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleEditUser(user)}
-                            aria-label="edit"
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <Tooltip title={user.roles.includes('Owner') ? "Owner users cannot be deleted" : ""}>
-                            <span>
-                              <IconButton
-                                size="small"
-                                onClick={() => handleDeleteUser(user.id)}
-                                aria-label="delete"
-                                disabled={user.roles.includes('Owner')}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center" sx={tableBodyCellStyle}>No users found</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            </>
+            <TenantDetailUsers 
+              tenantId={selectedTenant?.id}
+              sortConfig={sortConfig}
+              requestSort={requestSort}
+              getSortDirectionIndicator={getSortDirectionIndicator}
+              tenantUsers={tenantUsers}
+              setTenantUsers={setTenantUsers}
+              selectedTenant={selectedTenant}
+              loading={loading}
+              setLoading={setLoading}
+              error={error}
+              setError={setError}
+            />
           )}
 
           {/* Devices Tab */}
@@ -1559,16 +1342,7 @@ export const TenantPage: React.FC = () => {
         setSelectedUnassignedDevices={setSelectedUnassignedDevices}
       />
 
-      {/* User Dialog */}
-      <UserDialog
-        open={openUserDialog}
-        onClose={handleCloseUserDialog}
-        onSave={handleSaveUser}
-        editableUser={editableUser}
-        setEditableUser={setEditableUser}
-        selectedTenant={selectedTenant}
-        tenantUsers={tenantUsers}
-      />
+      {/* User Dialog removed - now handled by TenantDetailUsers */}
 
       {/* Billing Dialog */}
       <BillingDialog
