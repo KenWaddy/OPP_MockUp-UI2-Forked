@@ -20,13 +20,13 @@ import {
   MenuItem,
   Tooltip,
   Chip,
-  Pagination,
   CircularProgress,
   Alert,
   List,
   ListItem,
   ListItemText
 } from "@mui/material";
+import { PaginationComponent } from '../components/tables/pagination';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -455,30 +455,12 @@ export const DevicePage: React.FC = () => {
       )}
       
       {/* Pagination - Moved above the table */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel id="rows-per-page-label">Rows</InputLabel>
-          <Select
-            labelId="rows-per-page-label"
-            value={pagination.limit}
-            label="Rows"
-            onChange={(e) => {
-              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
-            }}
-            sx={{ backgroundColor: "white" }}
-          >
-            <MenuItem value={100}>100</MenuItem>
-            <MenuItem value={500}>500</MenuItem>
-            <MenuItem value={2000}>2000</MenuItem>
-          </Select>
-        </FormControl>
-        <Pagination 
-          count={pagination.totalPages} 
-          page={pagination.page} 
-          onChange={handlePageChange} 
-          color="primary" 
-        />
-      </Box>
+      <PaginationComponent
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        onLimitChange={(limit) => setPagination({ ...pagination, page: 1, limit })}
+        pageSizeOptions={[100, 500, 2000]}
+      />
       
       {/* Loading indicator */}
       {loading ? (

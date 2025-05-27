@@ -18,11 +18,11 @@ import {
   Select,
   MenuItem,
   Button,
-  Pagination,
   Alert,
   IconButton,
   Chip
 } from "@mui/material";
+import { PaginationComponent } from '../components/tables/pagination';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
 import { formatContactName } from '../mockAPI/utils.js';
 import { TenantService, SubscriptionService } from '../mockAPI/index.js';
@@ -211,30 +211,12 @@ export const TenantList: React.FC<{
       )}
 
       {/* Pagination - Positioned above the table */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel id="rows-per-page-label">Rows</InputLabel>
-          <Select
-            labelId="rows-per-page-label"
-            value={pagination.limit}
-            label="Rows"
-            onChange={(e) => {
-              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
-            }}
-            sx={{ backgroundColor: "white" }}
-          >
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={100}>100</MenuItem>
-            <MenuItem value={500}>500</MenuItem>
-          </Select>
-        </FormControl>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Box>
+      <PaginationComponent
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        onLimitChange={(limit) => setPagination({ ...pagination, page: 1, limit })}
+        pageSizeOptions={[20, 100, 500]}
+      />
 
       {/* Loading indicator */}
       {loading ? (

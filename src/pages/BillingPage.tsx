@@ -17,11 +17,11 @@ import {
   MenuItem,
   Button,
   Grid,
-  Pagination,
   CircularProgress,
   Alert,
   Chip
 } from "@mui/material";
+import { PaginationComponent } from '../components/tables/pagination';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { FilterSection } from '../components/tables/filter_section';
@@ -312,30 +312,12 @@ export const BillingPage: React.FC = () => {
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
       )}
       {/* Pagination - Moved above the table */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, mb: 2, gap: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel id="rows-per-page-label">Rows</InputLabel>
-          <Select
-            labelId="rows-per-page-label"
-            value={pagination.limit}
-            label="Rows"
-            onChange={(e) => {
-              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) });
-            }}
-            sx={{ backgroundColor: "white" }}
-          >
-            <MenuItem value={50}>50</MenuItem>
-            <MenuItem value={200}>200</MenuItem>
-            <MenuItem value={1000}>1000</MenuItem>
-          </Select>
-        </FormControl>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Box>
+      <PaginationComponent
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        onLimitChange={(limit) => setPagination({ ...pagination, page: 1, limit })}
+        pageSizeOptions={[50, 200, 1000]}
+      />
 
       {/* Loading indicator */}
       {loading ? (
