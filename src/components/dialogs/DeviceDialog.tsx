@@ -12,7 +12,7 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
-import { DeviceWithTenant, UnregisteredDevice } from '../../commons/models.ts';
+import { DeviceWithTenant, UnregisteredDevice } from '../../commons/models.js';
 
 interface DeviceDialogProps {
   open: boolean;

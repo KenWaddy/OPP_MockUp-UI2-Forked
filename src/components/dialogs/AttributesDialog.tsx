@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../../commons/styles.js';
-import { Attribute, DeviceWithTenant, UnregisteredDevice } from '../../commons/models.ts';
+import { Attribute, DeviceWithTenant, UnregisteredDevice } from '../../commons/models.js';
 
 interface AttributesDialogProps {
   open: boolean;
