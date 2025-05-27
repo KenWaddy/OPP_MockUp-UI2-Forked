@@ -20,7 +20,8 @@ import {
   InputLabel, 
   Select, 
   MenuItem, 
-  CircularProgress 
+  CircularProgress,
+  Chip
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,8 +29,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
 import { BillingService } from '../mockAPI/billing.service.js';
 import { Billing, DeviceContractItem } from '../commons/models.js';
+import { BillingDialog } from '../components/dialogs/BillingDialog';
+import { calculateNextBillingMonth } from '../commons/billing.js';
+import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 
 const billingService = new BillingService();
+const billingTypeOptions = ["Monthly", "Annually", "One-time"];
 
 interface TenantDetailBillingProps {
   tenantId?: string;
@@ -39,50 +44,203 @@ interface TenantDetailBillingProps {
   } | null;
   requestSort: (key: string) => void;
   getSortDirectionIndicator: (key: string) => React.ReactNode;
+  tenantBillingDetails?: any[];
+  setTenantBillingDetails?: React.Dispatch<React.SetStateAction<any[]>>;
+  loading?: boolean;
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+  error?: string | null;
+  setError?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({ 
   tenantId,
   sortConfig,
   requestSort,
-  getSortDirectionIndicator
+  getSortDirectionIndicator,
+  tenantBillingDetails = [],
+  setTenantBillingDetails,
+  loading: propLoading,
+  setLoading: propSetLoading,
+  error: propError,
+  setError: propSetError
 }) => {
-  const [billingRecords, setBillingRecords] = useState<Billing[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [localBillingRecords, setLocalBillingRecords] = useState<Billing[]>([]);
+  const [localLoading, setLocalLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  
+  const billingRecords = tenantBillingDetails || localBillingRecords;
+  const loading = propLoading !== undefined ? propLoading : localLoading;
+  const error = propError !== undefined ? propError : localError;
+  
+  const updateBillingRecords = (records: any[]) => {
+    if (setTenantBillingDetails) {
+      setTenantBillingDetails(records);
+    } else {
+      setLocalBillingRecords(records);
+    }
+  };
+  
+  const updateLoading = (isLoading: boolean) => {
+    if (propSetLoading) {
+      propSetLoading(isLoading);
+    } else {
+      setLocalLoading(isLoading);
+    }
+  };
+  
+  const updateError = (errorMsg: string | null) => {
+    if (propSetError) {
+      propSetError(errorMsg);
+    } else {
+      setLocalError(errorMsg);
+    }
+  };
+  
   const [openBillingDialog, setOpenBillingDialog] = useState(false);
-  const [selectedBilling, setSelectedBilling] = useState<Billing | null>(null);
-  const [editableBilling, setEditableBilling] = useState<Billing | null>(null);
-  const [deviceContract, setDeviceContract] = useState<DeviceContractItem[]>([]);
-  const [newDeviceContract, setNewDeviceContract] = useState<DeviceContractItem>({ type: '', quantity: 0 });
+  const [editableBilling, setEditableBilling] = useState<any | null>(null);
 
   useEffect(() => {
+    if (!tenantId || setTenantBillingDetails) return;
+    
     const fetchBillingData = async () => {
-      if (!tenantId) return;
-      
-      setLoading(true);
+      updateLoading(true);
       try {
         const allBillingItems = await billingService.getAllBillingItems();
         const tenantBillingItems = allBillingItems.filter(item => 
           item.subscriptionId === tenantId
         );
         
-        setBillingRecords(tenantBillingItems);
+        updateBillingRecords(tenantBillingItems);
       } catch (error) {
-        setError(`Error fetching billing data: ${error instanceof Error ? error.message : String(error)}`);
+        updateError(`Error fetching billing data: ${error instanceof Error ? error.message : String(error)}`);
       } finally {
-        setLoading(false);
+        updateLoading(false);
       }
     };
     
     fetchBillingData();
-  }, [tenantId]);
+  }, [tenantId, setTenantBillingDetails]);
 
-  const sortedBilling = useMemo(() => {
-    if (!sortConfig) return billingRecords;
+  const handleOpenBillingDialog = () => {
+    if (!tenantId) return;
+
+    setEditableBilling({
+      id: `BID-${Math.floor(Math.random() * 1000)}`,
+      paymentType: "Monthly",
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
+      dueDay: 15,
+      deviceContract: [{ type: defaultDeviceTypes[0].name, quantity: 1 }],
+      description: ''
+    });
+
+    setOpenBillingDialog(true);
+  };
+
+  const handleCloseBillingDialog = () => {
+    setOpenBillingDialog(false);
+  };
+
+  const handleSaveBilling = () => {
+    if (!tenantId || !editableBilling) return;
+
+    try {
+      updateLoading(true);
+
+      const existingBillingIndex = billingRecords.findIndex(billing => billing.id === editableBilling.id);
+
+      if (existingBillingIndex >= 0) {
+        const updatedBillingDetails = [...billingRecords];
+        updatedBillingDetails[existingBillingIndex] = editableBilling;
+        updateBillingRecords(updatedBillingDetails);
+      } else {
+        const updatedBillingDetails = [
+          ...billingRecords,
+          editableBilling
+        ];
+        updateBillingRecords(updatedBillingDetails);
+      }
+
+      setOpenBillingDialog(false);
+    } catch (err) {
+      updateError(`Error saving billing: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      updateLoading(false);
+    }
+  };
+
+  const handleEditBilling = (billing: any) => {
+    if (!tenantId) return;
+
+    setEditableBilling({
+      ...billing
+    });
+
+    setOpenBillingDialog(true);
+  };
+
+  const handleDeleteBilling = (billingId: string) => {
+    if (!tenantId) return;
+
+    try {
+      updateLoading(true);
+      const updatedBillingDetails = billingRecords.filter(billing => billing.id !== billingId);
+      updateBillingRecords(updatedBillingDetails);
+    } catch (err) {
+      updateError(`Error deleting billing: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      updateLoading(false);
+    }
+  };
+
+  const sortedBillingDetails = useMemo(() => {
+    if (!billingRecords || !sortConfig) return billingRecords || [];
     return [...billingRecords].sort((a, b) => {
-      const aValue = a[sortConfig.key as keyof Billing] as string | number;
-      const bValue = b[sortConfig.key as keyof Billing] as string | number;
+      if (sortConfig.key === 'nextBillingMonth') {
+        const nextBillingMonthA = calculateNextBillingMonth(a);
+        const nextBillingMonthB = calculateNextBillingMonth(b);
+        
+        if (nextBillingMonthA === 'Ended' && nextBillingMonthB !== 'Ended') {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        if (nextBillingMonthA !== 'Ended' && nextBillingMonthB === 'Ended') {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        
+        if (nextBillingMonthA === '—' && nextBillingMonthB !== '—') {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        if (nextBillingMonthA !== '—' && nextBillingMonthB === '—') {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        
+        if (nextBillingMonthA !== '—' && nextBillingMonthA !== 'Ended' && 
+            nextBillingMonthB !== '—' && nextBillingMonthB !== 'Ended') {
+          const [yearA, monthA] = nextBillingMonthA.split('-').map(Number);
+          const [yearB, monthB] = nextBillingMonthB.split('-').map(Number);
+          
+          if (yearA !== yearB) {
+            return (yearA - yearB) * (sortConfig.direction === 'ascending' ? 1 : -1);
+          }
+          return (monthA - monthB) * (sortConfig.direction === 'ascending' ? 1 : -1);
+        }
+        
+        if (nextBillingMonthA < nextBillingMonthB) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (nextBillingMonthA > nextBillingMonthB) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      }
+      
+      const aValue = a[sortConfig.key as keyof typeof a];
+      const bValue = b[sortConfig.key as keyof typeof b];
+      
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+      
       if (aValue < bValue) {
         return sortConfig.direction === 'ascending' ? -1 : 1;
       }
@@ -93,108 +251,20 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
     });
   }, [billingRecords, sortConfig]);
 
-  const handleOpenBillingDialog = (billing?: Billing) => {
-    if (billing) {
-      setSelectedBilling(billing);
-      setEditableBilling({...billing});
-      setDeviceContract([...billing.deviceContract]);
-    } else {
-      setSelectedBilling(null);
-      setEditableBilling({
-        id: '',
-        subscriptionId: tenantId || '',
-        deviceContract: [],
-        paymentType: 'Monthly',
-        startDate: new Date().toISOString().split('T')[0],
-        description: ''
-      } as Billing);
-      setDeviceContract([]);
-    }
-    setOpenBillingDialog(true);
-  };
-
-  const handleCloseBillingDialog = () => {
-    setOpenBillingDialog(false);
-  };
-
-  const handleSaveBilling = async () => {
-    if (editableBilling && tenantId) {
-      try {
-        setLoading(true);
-        
-        const updatedBilling = {
-          ...editableBilling,
-          deviceContract: deviceContract
-        };
-        
-        if (selectedBilling) {
-          await billingService.updateBilling(updatedBilling);
-        } else {
-          await billingService.addBilling(updatedBilling);
-        }
-        
-        setOpenBillingDialog(false);
-        
-        const allBillingItems = await billingService.getAllBillingItems();
-        const tenantBillingItems = allBillingItems.filter(item => 
-          item.subscriptionId === tenantId
-        );
-        setBillingRecords(tenantBillingItems);
-      } catch (err) {
-        setError(`Error saving billing: ${err instanceof Error ? err.message : String(err)}`);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const handleDeleteBilling = async (billingId: string) => {
-    if (!tenantId) return;
-    
-    try {
-      setLoading(true);
-      await billingService.deleteBilling(billingId);
-      
-      const allBillingItems = await billingService.getAllBillingItems();
-      const tenantBillingItems = allBillingItems.filter(item => 
-        item.subscriptionId === tenantId
-      );
-      setBillingRecords(tenantBillingItems);
-    } catch (err) {
-      setError(`Error deleting billing: ${err instanceof Error ? err.message : String(err)}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddDeviceContract = () => {
-    if (newDeviceContract.type && newDeviceContract.quantity > 0) {
-      setDeviceContract([...deviceContract, {...newDeviceContract}]);
-      setNewDeviceContract({ type: '', quantity: 0 });
-    }
-  };
-
-  const handleRemoveDeviceContract = (index: number) => {
-    const updatedContract = [...deviceContract];
-    updatedContract.splice(index, 1);
-    setDeviceContract(updatedContract);
-  };
-
   return (
-    <Box mt={2}>
+    <>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Button 
-          variant="outlined" 
-          size="small" 
+        <Button
+          variant="outlined"
+          size="small"
           startIcon={<AddIcon />}
-          onClick={() => handleOpenBillingDialog()}
-          disabled={!tenantId}
+          onClick={handleOpenBillingDialog}
           sx={{ fontWeight: 'bold' }}
         >
-          Add Billing
+          ADD BILLING
         </Button>
       </Box>
-      
+
       {loading && <CircularProgress size={24} sx={{ display: 'block', margin: '20px auto' }} />}
       
       {error && (
@@ -202,41 +272,54 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
           {error}
         </Typography>
       )}
-      
+
       {!loading && billingRecords.length === 0 && (
-        <Typography variant="body1" sx={{ textAlign: 'center', my: 2 }}>
-          No billing details found for this tenant.
-        </Typography>
+        <Typography align="center">No billing details found</Typography>
       )}
-      
+
       {billingRecords.length > 0 && (
         <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-          <Table>
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell 
-                  sx={tableHeaderCellStyle}
+                  sx={tableHeaderCellStyle} 
+                  onClick={() => requestSort('id')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  Billing ID {getSortDirectionIndicator('id')}
+                </TableCell>
+                <TableCell 
+                  sx={tableHeaderCellStyle} 
                   onClick={() => requestSort('paymentType')}
                   style={{ cursor: 'pointer' }}
                 >
                   Payment Type {getSortDirectionIndicator('paymentType')}
                 </TableCell>
                 <TableCell 
-                  sx={tableHeaderCellStyle}
+                  sx={tableHeaderCellStyle} 
+                  onClick={() => requestSort('nextBillingMonth')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  Next Billing Month {getSortDirectionIndicator('nextBillingMonth')}
+                </TableCell>
+                <TableCell 
+                  sx={tableHeaderCellStyle} 
                   onClick={() => requestSort('startDate')}
                   style={{ cursor: 'pointer' }}
                 >
-                  Start Date {getSortDirectionIndicator('startDate')}
+                  Contract Start {getSortDirectionIndicator('startDate')}
                 </TableCell>
                 <TableCell 
-                  sx={tableHeaderCellStyle}
+                  sx={tableHeaderCellStyle} 
                   onClick={() => requestSort('endDate')}
                   style={{ cursor: 'pointer' }}
                 >
-                  End Date {getSortDirectionIndicator('endDate')}
+                  Contract End {getSortDirectionIndicator('endDate')}
                 </TableCell>
+                <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
                 <TableCell 
-                  sx={tableHeaderCellStyle}
+                  sx={tableHeaderCellStyle} 
                   onClick={() => requestSort('description')}
                   style={{ cursor: 'pointer' }}
                 >
@@ -246,23 +329,44 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedBilling.map((billing) => (
-                <TableRow key={billing.id}>
-                  <TableCell sx={tableBodyCellStyle}>{billing.paymentType}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.startDate || '—'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || '—'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
+              {sortedBillingDetails.map((billing, index) => (
+                <TableRow key={index}>
+                  <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => handleOpenBillingDialog(billing)}
-                      sx={{ mr: 1 }}
+                    <Chip
+                      label={billing.paymentType}
+                      size="small"
+                      color={
+                        billing.paymentType === "Monthly" ? "info" :
+                        billing.paymentType === "Annually" ? "success" :
+                        billing.paymentType === "One-time" ? "warning" :
+                        "default"
+                      }
+                    />
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    {billing.deviceContract && billing.deviceContract.length > 0
+                      ? billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')
+                      : 'No devices'}
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    {billing.description || '—'}
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditBilling(billing)}
+                      aria-label="edit"
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => handleDeleteBilling(billing.id)}
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteBilling(billing.id || '')}
+                      aria-label="delete"
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -273,122 +377,17 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
           </Table>
         </TableContainer>
       )}
-      
+
       {/* Billing Dialog */}
-      <Dialog open={openBillingDialog} onClose={handleCloseBillingDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedBilling ? 'Edit Billing' : 'Add Billing'}</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 1 }}>
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Payment Type</InputLabel>
-              <Select
-                value={editableBilling?.paymentType || 'Monthly'}
-                label="Payment Type"
-                onChange={(e) => setEditableBilling(prev => prev ? 
-                  {...prev, paymentType: e.target.value as "One-time" | "Monthly" | "Annually"} : null
-                )}
-              >
-                <MenuItem value="One-time">One-time</MenuItem>
-                <MenuItem value="Monthly">Monthly</MenuItem>
-                <MenuItem value="Annually">Annually</MenuItem>
-              </Select>
-            </FormControl>
-            
-            <TextField
-              fullWidth
-              margin="normal"
-              label="Start Date"
-              type="date"
-              value={editableBilling?.startDate || ''}
-              onChange={(e) => setEditableBilling(prev => prev ? {...prev, startDate: e.target.value} : null)}
-              InputLabelProps={{ shrink: true }}
-            />
-            
-            <TextField
-              fullWidth
-              margin="normal"
-              label="End Date"
-              type="date"
-              value={editableBilling?.endDate || ''}
-              onChange={(e) => setEditableBilling(prev => prev ? {...prev, endDate: e.target.value} : null)}
-              InputLabelProps={{ shrink: true }}
-            />
-            
-            <TextField
-              fullWidth
-              margin="normal"
-              label="Description"
-              value={editableBilling?.description || ''}
-              onChange={(e) => setEditableBilling(prev => prev ? {...prev, description: e.target.value} : null)}
-            />
-            
-            {/* Device Contract Section */}
-            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Device Contract</Typography>
-            
-            {deviceContract.map((contract, index) => (
-              <Box key={index} sx={{ display: 'flex', mb: 1, gap: 1 }}>
-                <TextField
-                  label="Type"
-                  value={contract.type}
-                  onChange={(e) => {
-                    const updatedContract = [...deviceContract];
-                    updatedContract[index].type = e.target.value;
-                    setDeviceContract(updatedContract);
-                  }}
-                  sx={{ flexGrow: 1 }}
-                />
-                <TextField
-                  label="Quantity"
-                  type="number"
-                  value={contract.quantity}
-                  onChange={(e) => {
-                    const updatedContract = [...deviceContract];
-                    updatedContract[index].quantity = parseInt(e.target.value) || 0;
-                    setDeviceContract(updatedContract);
-                  }}
-                  sx={{ width: '100px' }}
-                />
-                <IconButton onClick={() => handleRemoveDeviceContract(index)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            ))}
-            
-            <Box sx={{ display: 'flex', mb: 2, gap: 1 }}>
-              <TextField
-                label="Type"
-                value={newDeviceContract.type}
-                onChange={(e) => setNewDeviceContract({...newDeviceContract, type: e.target.value})}
-                sx={{ flexGrow: 1 }}
-              />
-              <TextField
-                label="Quantity"
-                type="number"
-                value={newDeviceContract.quantity || ''}
-                onChange={(e) => setNewDeviceContract({...newDeviceContract, quantity: parseInt(e.target.value) || 0})}
-                sx={{ width: '100px' }}
-              />
-              <Button 
-                variant="outlined" 
-                onClick={handleAddDeviceContract}
-                disabled={!newDeviceContract.type || newDeviceContract.quantity <= 0}
-              >
-                Add
-              </Button>
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseBillingDialog}>Cancel</Button>
-          <Button 
-            onClick={handleSaveBilling} 
-            variant="contained" 
-            color="primary"
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      <BillingDialog
+        open={openBillingDialog}
+        onClose={handleCloseBillingDialog}
+        onSave={handleSaveBilling}
+        editableBilling={editableBilling}
+        setEditableBilling={setEditableBilling}
+        selectedTenant={null}
+        tenantBillingDetails={billingRecords}
+      />
+    </>
   );
 };
