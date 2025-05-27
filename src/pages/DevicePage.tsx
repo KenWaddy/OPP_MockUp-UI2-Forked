@@ -37,7 +37,7 @@ import { useSorting } from '../hooks/useSorting';
 import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType } from '../commons/models.js';
 import { defaultDeviceTypes, getDeviceTypeByName } from '../mockAPI/FakerData/deviceTypes.js';
 import { DeviceService, TenantService } from '../mockAPI/index.js';
-import { exportToCsv } from '../commons/export.js';
+import { exportToCsv } from '../commons/export_CSV.js';
 import { AttributesDialog } from '../components/dialogs/AttributesDialog';
 import { DeviceDialog } from '../components/dialogs/DeviceDialog';
 import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';

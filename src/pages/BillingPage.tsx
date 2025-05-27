@@ -28,8 +28,8 @@ import { useSorting } from '../hooks/useSorting';
 import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService, TenantService } from '../mockAPI/index.js';
 import { DeviceContractItem } from '../commons/models.js';
-import { exportToCsv } from '../commons/export.js';
-import { calculateNextBillingMonth } from '../commons/billing.js';
+import { exportToCsv } from '../commons/export_CSV.js';
+import { calculateNextBillingMonth } from '../commons/billing_calc.js';
 
 // Create service instances
 const billingService = new BillingService();
