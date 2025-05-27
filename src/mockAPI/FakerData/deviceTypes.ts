@@ -17,5 +17,3 @@ export const getDeviceTypeByName = (name: string): DeviceType => {
   return defaultDeviceTypes.find(type => type.name === name) || 
     { name, option: "", description: "" };
 };
-
-export type { TenantType, UserType, DeviceType2, Attribute, DeviceContractItem, UnregisteredDeviceType };
