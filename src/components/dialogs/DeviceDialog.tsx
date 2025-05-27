@@ -1,0 +1,129 @@
+import React from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from "@mui/material";
+import { DeviceWithTenant, UnregisteredDevice } from '../../commons/models.ts';
+
+interface DeviceDialogProps {
+  open: boolean;
+  onClose: () => void;
+  device: DeviceWithTenant | UnregisteredDevice | null;
+  editableDevice: DeviceWithTenant | UnregisteredDevice | null;
+  deviceTypes: string[];
+  onSave: () => void;
+  onDeviceChange: (updatedDevice: DeviceWithTenant | UnregisteredDevice) => void;
+}
+
+export const DeviceDialog: React.FC<DeviceDialogProps> = ({
+  open,
+  onClose,
+  device,
+  editableDevice,
+  deviceTypes,
+  onSave,
+  onDeviceChange
+}) => {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        {device ? `Edit Device: ${device.name}` : 'Add New Device'}
+      </DialogTitle>
+      <DialogContent dividers>
+        {editableDevice && (
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Device Name"
+                value={editableDevice.name}
+                onChange={(e) => onDeviceChange({
+                  ...editableDevice,
+                  name: e.target.value
+                })}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={editableDevice.type}
+                  label="Type"
+                  onChange={(e) => onDeviceChange({
+                    ...editableDevice,
+                    type: e.target.value as string
+                  })}
+                >
+                  {deviceTypes.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Device ID"
+                value={editableDevice.id}
+                onChange={(e) => onDeviceChange({
+                  ...editableDevice,
+                  id: e.target.value
+                })}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Serial No."
+                value={editableDevice.serialNo}
+                onChange={(e) => onDeviceChange({
+                  ...editableDevice,
+                  serialNo: e.target.value
+                })}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Description"
+                value={editableDevice.description}
+                onChange={(e) => onDeviceChange({
+                  ...editableDevice,
+                  description: e.target.value
+                })}
+                margin="normal"
+                multiline
+                rows={2}
+              />
+            </Grid>
+          </Grid>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button 
+          onClick={onSave} 
+          variant="contained" 
+          color="primary"
+          disabled={!editableDevice || !editableDevice.name || !editableDevice.id}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
