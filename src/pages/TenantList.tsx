@@ -11,10 +11,10 @@ import {
   TableRow,
   CircularProgress,
 } from "@mui/material";
-import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common.js';
-import { formatContactName } from '../services/utils.js';
-import { TenantService, SubscriptionService } from '../services/index.js';
-import { TenantType, Subscription } from '../types/models.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { formatContactName } from '../mockAPI/utils.js';
+import { TenantService, SubscriptionService } from '../mockAPI/index.js';
+import { TenantType, Subscription } from '../commons/models.js';
 
 const tenantService = new TenantService();
 const subscriptionService = new SubscriptionService();

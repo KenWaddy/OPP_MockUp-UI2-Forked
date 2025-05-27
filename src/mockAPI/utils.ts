@@ -1,4 +1,4 @@
-import { User } from '../types/models.js';
+import { User } from '../commons/models.js';
 
 /**
  * Format contact name based on language preference

@@ -45,13 +45,14 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle, groupTitleStyle } from '../styles/common.js';
-import { TenantType as Tenant, UserType as User, DeviceType2 as Device, Attribute, DeviceContractItem, UnregisteredDeviceType as UnregisteredDevice, defaultDeviceTypes } from '../mocks/index.js';
-import { TenantService, UserService, DeviceService, SubscriptionService } from '../services/index.js';
-import { formatContactName } from '../services/utils.js';
-import { exportToCsv } from '../utils/exportUtils.js';
-import { Subscription } from '../types/models.js';
-import { getNextSubscriptionId } from '../mocks/data/subscriptions.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle, groupTitleStyle } from '../commons/styles.js';
+import { TenantType as Tenant, UserType as User, DeviceType2 as Device, Attribute, DeviceContractItem, UnregisteredDeviceType as UnregisteredDevice } from '../api/mockData/deviceTypes.js';
+import { defaultDeviceTypes } from '../api/mockData/deviceTypes.js';
+import { TenantService, UserService, DeviceService, SubscriptionService } from '../mockAPI/index.js';
+import { formatContactName } from '../mockAPI/utils.js';
+import { exportToCsv } from '../commons/export.js';
+import { Subscription } from '../commons/models.js';
+import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
 
 // Create service instances
 const tenantService = new TenantService();

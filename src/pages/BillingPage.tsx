@@ -25,10 +25,10 @@ import {
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
-import { BillingService, TenantService } from '../services/index.js';
-import { DeviceContractItem } from '../types/models.js';
-import { exportToCsv } from '../utils/exportUtils.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
+import { BillingService, TenantService } from '../mockAPI/index.js';
+import { DeviceContractItem } from '../commons/models.js';
+import { exportToCsv } from '../commons/export.js';
 
 // Create service instances
 const billingService = new BillingService();

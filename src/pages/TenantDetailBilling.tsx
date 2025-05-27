@@ -25,9 +25,9 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common';
-import { BillingService } from '../services/billing.service';
-import { Billing, DeviceContractItem } from '../types/models';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { BillingService } from '../mockAPI/billing.service.js';
+import { Billing, DeviceContractItem } from '../commons/models.js';
 
 const billingService = new BillingService();
 

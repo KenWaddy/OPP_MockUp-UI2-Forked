@@ -37,10 +37,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../styles/common.js';
-import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType, defaultDeviceTypes, getDeviceTypeByName } from '../mocks/index.js';
-import { DeviceService, TenantService } from '../services/index.js';
-import { exportToCsv } from '../utils/exportUtils.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
+import { Attribute, Device, DeviceWithTenant, UnregisteredDevice, DeviceType } from '../commons/models.js';
+import { defaultDeviceTypes, getDeviceTypeByName } from '../api/mockData/deviceTypes.js';
+import { DeviceService, TenantService } from '../mockAPI/index.js';
+import { exportToCsv } from '../commons/export.js';
 
 // Create service instances
 const deviceService = new DeviceService();

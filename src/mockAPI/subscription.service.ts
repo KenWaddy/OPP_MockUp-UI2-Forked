@@ -1,7 +1,7 @@
-import { Subscription } from '../types/models.js';
+import { Subscription } from '../commons/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, ISubscriptionService } from './types.js';
-import { delay } from '../utils/delay.js';
-import { subscriptions } from '../mocks/data/index.js';
+import { delay } from './utils/delay.js';
+import { subscriptions } from './FakerData/index.js';
 
 export class SubscriptionService implements ISubscriptionService {
   /**

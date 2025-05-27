@@ -1,5 +1,5 @@
-import { tenants, users } from '../mocks/data/index.js';
-import { Tenant, User } from '../types/models.js';
+import { tenants, users } from '../mockAPI/FakerData/index.js';
+import { Tenant, User } from '../commons/models.js';
 
 /**
  * Set up test data for edge cases

@@ -1,7 +1,6 @@
-import { mockTenants, mockUnregisteredDevices } from '../mocks/index.js';
-import { DeviceWithTenant, Device, UnregisteredDevice, Tenant } from '../types/models.js';
+import { DeviceWithTenant, Device, UnregisteredDevice, Tenant } from '../commons/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IDeviceService } from './types.js';
-import { delay } from '../utils/delay.js';
+import { delay } from './utils/delay.js';
 import { 
   devices, unregisteredDevices, tenants,
   addDevice as addDeviceToStore,
@@ -12,7 +11,7 @@ import {
   deleteUnregisteredDevice as deleteUnregisteredDeviceFromStore,
   assignDeviceToTenant as assignDeviceToTenantInStore,
   getNextDeviceIdForTenant
-} from '../mocks/data/index.js';
+} from './FakerData/index.js';
 
 export class DeviceService implements IDeviceService {
   /**

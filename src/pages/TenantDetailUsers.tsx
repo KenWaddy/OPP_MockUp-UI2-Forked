@@ -21,9 +21,9 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../styles/common';
-import { UserService } from '../services/user.service';
-import { User } from '../types/models';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { UserService } from '../mockAPI/user.service.js';
+import { User } from '../commons/models.js';
 
 const userService = new UserService();
 

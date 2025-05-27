@@ -1,4 +1,4 @@
-import { TenantService, UserService, DeviceService, BillingService } from '../services/index.js';
+import { TenantService, UserService, DeviceService, BillingService } from '../mockAPI/index.js';
 import { setupTestData } from './testHelpers.js';
 
 const tenantService = new TenantService();
