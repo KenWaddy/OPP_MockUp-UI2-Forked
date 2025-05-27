@@ -838,6 +838,268 @@ export const TenantPage: React.FC = () => {
     });
   }, [tenantBillingDetails, sortConfig]);
 
+  const userColumns = useMemo(() => {
+    const columns: TableColumn<User>[] = [
+      {
+        key: 'name',
+        label: 'Name',
+        sortable: true
+      },
+      {
+        key: 'email',
+        label: 'Email',
+        sortable: true
+      },
+      {
+        key: 'roles',
+        label: 'Roles',
+        sortable: true,
+        render: (value) => (
+          <Box>
+            {Array.isArray(value) && value.map((role, index) => (
+              <Chip 
+                key={index} 
+                label={role} 
+                size="small" 
+                sx={{ mr: 0.5, mb: 0.5 }} 
+              />
+            ))}
+          </Box>
+        )
+      },
+      {
+        key: 'ipWhitelist',
+        label: 'IP Whitelist',
+        sortable: true,
+        render: (value) => (
+          <Box>
+            {Array.isArray(value) && value.map((ip, index) => (
+              <Chip 
+                key={index} 
+                label={ip} 
+                size="small" 
+                sx={{ mr: 0.5, mb: 0.5 }} 
+              />
+            ))}
+          </Box>
+        )
+      },
+      {
+        key: 'mfa',
+        label: 'MFA',
+        sortable: true,
+        render: (value) => (
+          <Chip 
+            label={value ? "Enabled" : "Disabled"} 
+            color={value ? "success" : "default"} 
+            size="small" 
+          />
+        )
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        sortable: false,
+        render: (_, user) => (
+          <>
+            <IconButton
+              size="small"
+              onClick={() => handleEditUser(user)}
+              aria-label="edit"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleDeleteUser(user.id)}
+              aria-label="delete"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </>
+        )
+      }
+    ];
+    return columns;
+  }, [handleEditUser, handleDeleteUser]);
+
+  const deviceColumns = useMemo(() => {
+    const columns: TableColumn<Device>[] = [
+      {
+        key: 'id',
+        label: 'ID',
+        sortable: true
+      },
+      {
+        key: 'name',
+        label: 'Name',
+        sortable: true
+      },
+      {
+        key: 'type',
+        label: 'Type',
+        sortable: true
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        sortable: true,
+        render: (value) => (
+          <Chip 
+            label={value} 
+            color={
+              value === "Active" ? "success" :
+              value === "Inactive" ? "default" :
+              value === "Maintenance" ? "warning" :
+              "error"
+            } 
+            size="small" 
+          />
+        )
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        sortable: false,
+        render: (_, device) => (
+          <>
+            <IconButton
+              size="small"
+              onClick={() => handleUnassignDevice(device.id)}
+              aria-label="unassign"
+            >
+              <LinkOffIcon fontSize="small" />
+            </IconButton>
+          </>
+        )
+      }
+    ];
+    return columns;
+  }, [handleUnassignDevice]);
+
+  const billingColumns = useMemo(() => {
+    const columns: TableColumn<any>[] = [
+      {
+        key: 'id',
+        label: 'ID',
+        sortable: true
+      },
+      {
+        key: 'description',
+        label: 'Description',
+        sortable: true
+      },
+      {
+        key: 'paymentType',
+        label: 'Payment Type',
+        sortable: true
+      },
+      {
+        key: 'amount',
+        label: 'Amount',
+        sortable: true,
+        render: (value) => `$${value.toFixed(2)}`
+      },
+      {
+        key: 'nextBillingMonth',
+        label: 'Next Billing',
+        sortable: true,
+        render: (_, billing) => calculateNextBillingMonth(billing)
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        sortable: false,
+        render: (_, billing) => (
+          <>
+            <IconButton
+              size="small"
+              onClick={() => handleEditBilling(billing)}
+              aria-label="edit"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleDeleteBilling(billing.id)}
+              aria-label="delete"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </>
+        )
+      }
+    ];
+    return columns;
+  }, [calculateNextBillingMonth, handleEditBilling, handleDeleteBilling]);
+
+  const tenantColumns = useMemo(() => {
+    const columns: TableColumn<TenantType>[] = [
+      {
+        key: 'name',
+        label: 'Tenant',
+        sortable: true,
+        render: (_, tenant) => (
+          <Button
+            variant="text"
+            onClick={() => loadTenantById(tenant.id)}
+            sx={{ textAlign: 'left', justifyContent: 'flex-start', textTransform: 'none' }}
+          >
+            {tenant.name}
+          </Button>
+        )
+      },
+      {
+        key: 'contact',
+        label: 'Contact',
+        sortable: true,
+        render: (contact) => formatContactName(contact.first_name, contact.last_name, contact.language)
+      },
+      {
+        key: 'email',
+        label: 'Email',
+        sortable: true,
+        render: (_, tenant) => tenant.contact.email
+      },
+      {
+        key: 'type',
+        label: 'Type',
+        sortable: true,
+        render: () => 'N/A'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        sortable: true,
+        render: () => 'N/A'
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        sortable: false,
+        render: (_, tenant) => (
+          <>
+            <IconButton
+              size="small"
+              onClick={() => handleOpenTenantDialog(tenant)}
+              aria-label="edit"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleDeleteTenant(tenant.id)}
+              aria-label="delete"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </>
+        )
+      }
+    ];
+    return columns;
+  }, [loadTenantById, handleOpenTenantDialog, handleDeleteTenant, currentSubscription]);
+
   return (
     <div className="tenant-list">
 
