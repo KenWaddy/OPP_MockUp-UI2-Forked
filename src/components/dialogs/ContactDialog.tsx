@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button
-} from "@mui/material";
 import { ContactForm } from '../forms/ContactForm';
 import { TenantType as Tenant } from '../../commons/models.js';
+import { BaseDialog } from './BaseDialog';
+import { CommonDialogActions } from './CommonDialogActions';
 
 interface ContactDialogProps {
   open: boolean;
@@ -25,34 +20,25 @@ export const ContactDialog: React.FC<ContactDialogProps> = ({
   setEditableContact
 }) => {
   return (
-    <Dialog
+    <BaseDialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
-      fullWidth
+      title="Edit Contact Information"
+      contentProps={{ dividers: true }}
+      actions={
+        <CommonDialogActions
+          onClose={onClose}
+          onSave={onSave}
+          saveDisabled={!editableContact}
+        />
+      }
     >
-      <DialogTitle>
-        Edit Contact Information
-      </DialogTitle>
-      <DialogContent dividers>
-        {editableContact && (
-          <ContactForm
-            contact={editableContact}
-            onChange={(updatedContact) => setEditableContact(updatedContact)}
-          />
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={onSave}
-          variant="contained"
-          color="primary"
-          disabled={!editableContact}
-        >
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+      {editableContact && (
+        <ContactForm
+          contact={editableContact}
+          onChange={(updatedContact) => setEditableContact(updatedContact)}
+        />
+      )}
+    </BaseDialog>
   );
 };
