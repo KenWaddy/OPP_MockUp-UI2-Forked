@@ -1,54 +1,262 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Box, Tabs, Tab, Button } from "@mui/material";
+import {
+  Box,
+  Tabs,
+  Tab,
+  Button,
+  Paper,
+  Typography,
+  Alert
+} from "@mui/material";
 import { TenantDetailInfo } from './TenantDetailInfo';
 import { TenantDetailUsers } from './TenantDetailUsers';
 import { TenantDetailDevices } from './TenantDetailDevices';
 import { TenantDetailBilling } from './TenantDetailBilling';
 import { useSorting } from '../hooks/useSorting';
+import { TenantType as Tenant, Subscription } from '../commons/models';
+import { ContactDialog } from '../components/dialogs/ContactDialog';
+import { SubscriptionDialog } from '../components/dialogs/SubscriptionDialog';
+import { TenantDialog } from '../components/dialogs/TenantDialog';
 
-export const TenantDetail: React.FC = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [tab, setTab] = useState(0);
+interface TenantDetailProps {
+  selectedTenant: Tenant;
+  currentSubscription: Subscription | null;
+  tenantUsers: any[];
+  tenantDevices: any[];
+  tenantBillingDetails: any[];
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  onBackToList: () => void;
+  setSelectedTenant: React.Dispatch<React.SetStateAction<Tenant | null>>;
+  setTenantUsers: React.Dispatch<React.SetStateAction<any[]>>;
+  setTenantDevices: React.Dispatch<React.SetStateAction<any[]>>;
+  setTenantBillingDetails: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+export const TenantDetail: React.FC<TenantDetailProps> = ({
+  selectedTenant,
+  currentSubscription,
+  tenantUsers,
+  tenantDevices,
+  tenantBillingDetails,
+  loading,
+  setLoading,
+  error,
+  setError,
+  onBackToList,
+  setSelectedTenant,
+  setTenantUsers,
+  setTenantDevices,
+  setTenantBillingDetails
+}) => {
+  const [activeTab, setActiveTab] = useState("info");
   const { sortConfig, requestSort } = useSorting();
+  
+  const [openTenantDialog, setOpenTenantDialog] = useState(false);
+  const [editableTenant, setEditableTenant] = useState<Tenant | null>(null);
+  const [openContactDialog, setOpenContactDialog] = useState(false);
+  const [editableContact, setEditableContact] = useState<Tenant["contact"] | null>(null);
+  const [openSubscriptionDialog, setOpenSubscriptionDialog] = useState(false);
+  const [editableSubscription, setEditableSubscription] = useState<Subscription | null>(null);
 
-  const handleTabChange = (_e: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue);
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
+    setActiveTab(newValue);
+  };
+
+  const handleOpenContactDialog = () => {
+    if (!selectedTenant) return;
+    setEditableContact({...selectedTenant.contact});
+    setOpenContactDialog(true);
+  };
+
+  const handleCloseContactDialog = () => {
+    setOpenContactDialog(false);
+  };
+
+  const handleSaveContact = () => {
+    if (!selectedTenant || !editableContact) return;
+
+    try {
+      setLoading(true);
+      setSelectedTenant({
+        ...selectedTenant,
+        contact: editableContact
+      });
+      setOpenContactDialog(false);
+    } catch (err) {
+      setError(`Error saving contact: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenSubscriptionDialog = () => {
+    if (!selectedTenant || !currentSubscription) return;
+    setEditableSubscription({...currentSubscription});
+    setOpenSubscriptionDialog(true);
+  };
+
+  const handleCloseSubscriptionDialog = () => {
+    setOpenSubscriptionDialog(false);
+  };
+
+  const handleSaveSubscription = async () => {
+    if (!selectedTenant || !editableSubscription) return;
+
+    try {
+      setLoading(true);
+      
+      
+      setOpenSubscriptionDialog(false);
+    } catch (err) {
+      setError(`Error saving subscription: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenTenantDialog = (tenant: Tenant) => {
+    setEditableTenant({...tenant});
+    setActiveTab("info"); // Reset to first tab when opening dialog
+    setOpenTenantDialog(true);
+  };
+
+  const handleCloseTenantDialog = () => {
+    setOpenTenantDialog(false);
+  };
+
+  const handleSaveTenant = async () => {
+    if (editableTenant) {
+      try {
+        setLoading(true);
+        
+        setSelectedTenant(editableTenant);
+        
+        setOpenTenantDialog(false);
+      } catch (err) {
+        setError(`Error saving tenant: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
-    <Box p={3}>
-      <Button onClick={() => navigate(-1)}>Tenant List</Button>
-      <Tabs value={tab} onChange={handleTabChange}>
-        <Tab label="Basic Info" />
-        <Tab label="User List" />
-        <Tab label="Device List" />
-        <Tab label="Billing Info" />
+    <Paper sx={{ p: 2 }} variant="outlined">
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">{selectedTenant.name}</Typography>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={onBackToList}
+          sx={{ ml: 2, fontWeight: 'bold' }}
+        >
+          Back to List
+        </Button>
+      </Box>
+
+      <Tabs
+        value={activeTab}
+        onChange={handleTabChange}
+        aria-label="tenant detail tabs"
+        sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
+      >
+        <Tab value="info" label="Tenant Info" sx={{ fontWeight: 'bold' }} />
+        <Tab value="users" label="Users" sx={{ fontWeight: 'bold' }} />
+        <Tab value="devices" label="Devices" sx={{ fontWeight: 'bold' }} />
+        <Tab value="billing" label="Billing" sx={{ fontWeight: 'bold' }} />
       </Tabs>
 
-      {tab === 0 && <TenantDetailInfo tenantId={id} />}
-      {tab === 1 && (
+      {/* Tenant Info Tab */}
+      {activeTab === "info" && (
+        <TenantDetailInfo 
+          selectedTenant={selectedTenant}
+          currentSubscription={currentSubscription}
+          handleOpenTenantDialog={handleOpenTenantDialog}
+          handleOpenContactDialog={handleOpenContactDialog}
+          handleOpenSubscriptionDialog={handleOpenSubscriptionDialog}
+        />
+      )}
+
+      {/* Users Tab */}
+      {activeTab === "users" && (
         <TenantDetailUsers 
-          tenantId={id}
+          tenantId={selectedTenant?.id}
           sortConfig={sortConfig}
           requestSort={requestSort}
+          tenantUsers={tenantUsers}
+          setTenantUsers={setTenantUsers}
+          selectedTenant={selectedTenant}
+          loading={loading}
+          setLoading={setLoading}
+          error={error}
+          setError={setError}
         />
       )}
-      {tab === 2 && (
+
+      {/* Devices Tab */}
+      {activeTab === "devices" && (
         <TenantDetailDevices 
-          tenantId={id}
+          tenantId={selectedTenant?.id}
           sortConfig={sortConfig}
           requestSort={requestSort}
+          tenantDevices={tenantDevices}
+          setTenantDevices={setTenantDevices}
+          selectedTenant={selectedTenant}
+          loading={loading}
+          setLoading={setLoading}
+          error={error}
+          setError={setError}
         />
       )}
-      {tab === 3 && (
+
+      {/* Billing Tab */}
+      {activeTab === "billing" && (
         <TenantDetailBilling 
-          tenantId={id}
+          tenantId={selectedTenant?.id}
           sortConfig={sortConfig}
           requestSort={requestSort}
+          tenantBillingDetails={tenantBillingDetails}
+          setTenantBillingDetails={setTenantBillingDetails}
+          loading={loading}
+          setLoading={setLoading}
+          error={error}
+          setError={setError}
         />
       )}
-    </Box>
+
+      {/* Tenant Dialog */}
+      <TenantDialog
+        open={openTenantDialog}
+        onClose={handleCloseTenantDialog}
+        editableTenant={editableTenant}
+        editableSubscription={editableSubscription}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onSave={handleSaveTenant}
+        setEditableTenant={setEditableTenant}
+        setEditableSubscription={setEditableSubscription}
+      />
+
+      {/* Contact Dialog */}
+      <ContactDialog
+        open={openContactDialog}
+        onClose={handleCloseContactDialog}
+        onSave={handleSaveContact}
+        editableContact={editableContact}
+        setEditableContact={setEditableContact}
+      />
+
+      {/* Subscription Dialog */}
+      <SubscriptionDialog
+        open={openSubscriptionDialog}
+        onClose={handleCloseSubscriptionDialog}
+        onSave={handleSaveSubscription}
+        editableSubscription={editableSubscription}
+        setEditableSubscription={setEditableSubscription}
+      />
+    </Paper>
   );
 };
