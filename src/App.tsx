@@ -3,7 +3,7 @@ import { TenantPage } from "./pages/TenantPage";
 import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
 import { AppBarHeader } from "./components/headers/AppBarHeader";
-import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "./languages/LanguageContext";
 import { LanguageSelector } from "./components/language/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import { Refine } from "@refinedev/core";
@@ -13,7 +13,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import simpleRestDataProvider from "@refinedev/simple-rest";
 import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import routerBindings from "@refinedev/react-router";
-import i18n from "./i18n";
+import i18n from "./languages/i18n";
 import "./App.css";
 
 interface TenantNavigationEvent extends CustomEvent {

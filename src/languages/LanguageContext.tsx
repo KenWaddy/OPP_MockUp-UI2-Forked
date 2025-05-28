@@ -12,7 +12,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const { i18n } = useTranslation();
   const [language, setLanguageState] = useState<'日本語' | 'English'>('English');
 
-  // Initialize language from localStorage or browser settings
   useEffect(() => {
     const savedLanguage = localStorage.getItem('i18nextLng');
     if (savedLanguage === 'ja') {
@@ -25,14 +24,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const setLanguage = (newLanguage: '日本語' | 'English') => {
     setLanguageState(newLanguage);
     
-    // Update i18next language
     if (newLanguage === '日本語') {
       i18n.changeLanguage('ja');
     } else {
       i18n.changeLanguage('en');
     }
     
-    // Save to localStorage
     localStorage.setItem('userLanguage', newLanguage);
   };
 
