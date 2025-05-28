@@ -72,10 +72,12 @@ const AppContent: React.FC = () => {
   );
 };
 
-export default function App() {
+const App: React.FC = () => {
   return (
     <LanguageProvider>
       <AppContent />
     </LanguageProvider>
   );
-}
+};
+
+export default App;
