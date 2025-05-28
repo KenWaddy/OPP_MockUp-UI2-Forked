@@ -1,0 +1,73 @@
+{
+  "common": {
+    "tenant": "テナント",
+    "device": "デバイス",
+    "billing": "請求",
+    "name": "名前",
+    "description": "説明",
+    "id": "ID",
+    "status": "ステータス",
+    "type": "タイプ",
+    "actions": "アクション",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "edit": "編集",
+    "delete": "削除",
+    "add": "追加",
+    "export": "エクスポート",
+    "search": "検索",
+    "language": "言語"
+  },
+  "tenant": {
+    "addTenant": "テナント追加",
+    "editTenant": "テナント編集",
+    "tenantInfo": "テナント情報",
+    "contactInfo": "連絡先情報",
+    "subscriptionInfo": "サブスクリプション情報",
+    "exportAllTenantList": "全テナントリストをエクスポート",
+    "exportAllUserList": "全ユーザーリストをエクスポート"
+  },
+  "contact": {
+    "firstName": "名",
+    "lastName": "姓",
+    "email": "メール",
+    "company": "会社",
+    "department": "部署",
+    "officePhone": "会社電話",
+    "mobilePhone": "携帯電話",
+    "address1": "住所1",
+    "address2": "住所2",
+    "city": "市区町村",
+    "statePrefecture": "都道府県",
+    "country": "国",
+    "postalCode": "郵便番号"
+  },
+  "device": {
+    "addDevice": "デバイス追加",
+    "addDeviceType": "デバイスタイプ追加",
+    "exportAllDeviceList": "全デバイスリストをエクスポート",
+    "serialNo": "シリアル番号",
+    "deviceId": "デバイスID",
+    "attributes": "属性",
+    "assignToTenant": "テナントに割り当て"
+  },
+  "billing": {
+    "exportAllBillingList": "全請求リストをエクスポート",
+    "billingId": "請求ID",
+    "paymentType": "支払いタイプ",
+    "nextBillingMonth": "次回請求月",
+    "contractStart": "契約開始",
+    "contractEnd": "契約終了",
+    "numberOfDevices": "デバイス数",
+    "textSearch": "テキスト検索",
+    "nextBillingFrom": "次回請求月: 開始"
+  },
+  "subscription": {
+    "startDate": "開始日",
+    "endDate": "終了日",
+    "enabledApplications": "有効なアプリケーション",
+    "configuration": "設定",
+    "sshTerminal": "SSHターミナル",
+    "aiappInstaller": "AIAPPインストーラー"
+  }
+}

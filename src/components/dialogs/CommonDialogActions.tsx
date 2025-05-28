@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 interface CommonDialogActionsProps {
   onClose: () => void;
@@ -15,14 +16,16 @@ export const CommonDialogActions: React.FC<CommonDialogActionsProps> = ({
   onClose,
   onSave,
   saveDisabled = false,
-  saveText = "Save",
-  cancelText = "Cancel",
+  saveText,
+  cancelText,
   saveVariant = "contained",
   saveColor = "primary"
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <>
-      <Button onClick={onClose}>{cancelText}</Button>
+      <Button onClick={onClose}>{cancelText || t('common.cancel')}</Button>
       {onSave && (
         <Button
           onClick={onSave}
@@ -30,7 +33,7 @@ export const CommonDialogActions: React.FC<CommonDialogActionsProps> = ({
           color={saveColor}
           disabled={saveDisabled}
         >
-          {saveText}
+          {saveText || t('common.save')}
         </Button>
       )}
     </>

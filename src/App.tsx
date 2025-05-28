@@ -3,6 +3,8 @@ import { TenantPage } from "./pages/TenantPage";
 import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
 import { AppBarHeader } from "./components/headers/AppBarHeader";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 import "./App.css";
 
 interface TenantNavigationEvent extends CustomEvent {
@@ -11,8 +13,9 @@ interface TenantNavigationEvent extends CustomEvent {
   };
 }
 
-export default function App() {
+const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tenant");
+  const { t } = useTranslation();
   
   useEffect(() => {
     const handleTenantNavigation = (event: TenantNavigationEvent) => {
@@ -46,24 +49,32 @@ export default function App() {
           onClick={() => setActiveTab("tenant")}
           style={{ fontSize: '1.2em' }}
         >
-          Tenant
+          {t('common.tenant')}
         </span>
         <span
           className={activeTab === "device" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("device")}
           style={{ fontSize: '1.2em' }}
         >
-          Device
+          {t('common.device')}
         </span>
         <span
           className={activeTab === "billing" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("billing")}
           style={{ fontSize: '1.2em' }}
         >
-          Billing
+          {t('common.billing')}
         </span>
       </nav>
       <div className="content">{renderPage()}</div>
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }

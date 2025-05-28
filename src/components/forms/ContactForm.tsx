@@ -7,6 +7,8 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 interface ContactData {
   first_name: string;
@@ -36,6 +38,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
   onChange,
   requiredFields = ['first_name', 'last_name', 'email']
 }) => {
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
+
   const handleFieldChange = (field: keyof ContactData, value: string) => {
     onChange({
       ...contact,
@@ -43,12 +48,18 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     });
   };
 
+  const handleLanguageChange = (value: '日本語' | 'English') => {
+    // Update both the contact's language and the global language
+    handleFieldChange('language', value);
+    setLanguage(value);
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="First Name"
+          label={t('contact.firstName')}
           value={contact.first_name}
           onChange={(e) => handleFieldChange('first_name', e.target.value)}
           margin="normal"
@@ -58,7 +69,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Last Name"
+          label={t('contact.lastName')}
           value={contact.last_name}
           onChange={(e) => handleFieldChange('last_name', e.target.value)}
           margin="normal"
@@ -68,7 +79,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Email"
+          label={t('contact.email')}
           value={contact.email}
           onChange={(e) => handleFieldChange('email', e.target.value)}
           margin="normal"
@@ -77,11 +88,11 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       </Grid>
       <Grid item xs={12} sm={6}>
         <FormControl fullWidth margin="normal">
-          <InputLabel>Language</InputLabel>
+          <InputLabel>{t('common.language')}</InputLabel>
           <Select
             value={contact.language}
-            label="Language"
-            onChange={(e) => handleFieldChange('language', e.target.value as '日本語' | 'English')}
+            label={t('common.language')}
+            onChange={(e) => handleLanguageChange(e.target.value as '日本語' | 'English')}
           >
             <MenuItem value="日本語">日本語</MenuItem>
             <MenuItem value="English">English</MenuItem>
@@ -91,7 +102,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Company"
+          label={t('contact.company')}
           value={contact.company}
           onChange={(e) => handleFieldChange('company', e.target.value)}
           margin="normal"
@@ -100,7 +111,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Department"
+          label={t('contact.department')}
           value={contact.department}
           onChange={(e) => handleFieldChange('department', e.target.value)}
           margin="normal"
@@ -109,7 +120,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Office Phone"
+          label={t('contact.officePhone')}
           value={contact.phone_office}
           onChange={(e) => handleFieldChange('phone_office', e.target.value)}
           margin="normal"
@@ -118,7 +129,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Mobile Phone"
+          label={t('contact.mobilePhone')}
           value={contact.phone_mobile}
           onChange={(e) => handleFieldChange('phone_mobile', e.target.value)}
           margin="normal"
@@ -127,7 +138,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Address Line 1"
+          label={t('contact.address1')}
           value={contact.address1}
           onChange={(e) => handleFieldChange('address1', e.target.value)}
           margin="normal"
@@ -136,7 +147,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Address Line 2"
+          label={t('contact.address2')}
           value={contact.address2}
           onChange={(e) => handleFieldChange('address2', e.target.value)}
           margin="normal"
@@ -145,7 +156,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="City"
+          label={t('contact.city')}
           value={contact.city}
           onChange={(e) => handleFieldChange('city', e.target.value)}
           margin="normal"
@@ -154,7 +165,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="State/Prefecture"
+          label={t('contact.statePrefecture')}
           value={contact.state_prefecture}
           onChange={(e) => handleFieldChange('state_prefecture', e.target.value)}
           margin="normal"
@@ -163,7 +174,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Country"
+          label={t('contact.country')}
           value={contact.country}
           onChange={(e) => handleFieldChange('country', e.target.value)}
           margin="normal"
@@ -172,7 +183,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Postal Code"
+          label={t('contact.postalCode')}
           value={contact.postal_code}
           onChange={(e) => handleFieldChange('postal_code', e.target.value)}
           margin="normal"
