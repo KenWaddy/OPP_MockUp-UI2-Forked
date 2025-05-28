@@ -33,7 +33,10 @@
     "subscriptionInfo": "サブスクリプション情報",
     "exportAllTenantList": "全テナントリストをエクスポート",
     "exportAllUserList": "全ユーザーリストをエクスポート",
-    "contact": "連絡先"
+    "contact": "連絡先",
+    "textSearchPlaceholder": "テナント名、連絡先名、またはメールアドレスで検索",
+    "subscriptionType": "サブスクリプションタイプ",
+    "subscriptionStatus": "サブスクリプションステータス"
   },
   "contact": {
     "firstName": "名",
@@ -59,7 +62,8 @@
     "attributes": "属性",
     "assignToTenant": "テナントに割り当て",
     "typeName": "タイプ名",
-    "option": "オプション"
+    "option": "オプション",
+    "textSearchPlaceholder": "テナント、名前、デバイスID、シリアル番号、説明で検索"
   },
   "billing": {
     "exportAllBillingList": "全請求リストをエクスポート",
