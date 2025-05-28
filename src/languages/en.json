@@ -20,7 +20,7 @@
     "filters": "Filters",
     "resetFilters": "Reset Filters",
     "rows": "Rows",
-    "backToList": "Back to List",
+    "backToList": "Back to Tenant List",
     "users": "USERS",
     "devices": "DEVICES",
     "subscription": "Subscription"
@@ -31,8 +31,8 @@
     "tenantInfo": "Tenant Info",
     "contactInfo": "Contact Info",
     "subscriptionInfo": "Subscription Info",
-    "exportAllTenantList": "Export All Tenant List",
-    "exportAllUserList": "Export All User List",
+    "exportAllTenantList": "Export All Tenant List to CSV",
+    "exportAllUserList": "Export All User List to CSV",
     "contact": "Contact",
     "textSearchPlaceholder": "Search by Tenant Name, Contact Name, or Email Address",
     "subscriptionType": "Subscription Type",
@@ -56,7 +56,7 @@
   "device": {
     "addDevice": "Add Device",
     "addDeviceType": "Add Device Type",
-    "exportAllDeviceList": "Export All Device List",
+    "exportAllDeviceList": "Export All Device List to CSV",
     "serialNo": "Serial No.",
     "deviceId": "Device ID",
     "attributes": "Attributes",

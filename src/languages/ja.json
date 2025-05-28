@@ -2,7 +2,7 @@
   "common": {
     "tenant": "テナント",
     "device": "デバイス",
-    "billing": "請求",
+    "billing": "請求情報",
     "name": "名前",
     "description": "説明",
     "id": "ID",
@@ -18,9 +18,9 @@
     "search": "検索",
     "language": "言語",
     "filters": "フィルタ",
-    "resetFilters": "フィルタをリセット",
-    "rows": "行",
-    "backToList": "リストに戻る",
+    "resetFilters": "フィルタを解除",
+    "rows": "行数",
+    "backToList": "テナントリストに戻る",
     "users": "ユーザー",
     "devices": "デバイス",
     "subscription": "サブスクリプション"
@@ -31,10 +31,10 @@
     "tenantInfo": "テナント情報",
     "contactInfo": "連絡先情報",
     "subscriptionInfo": "サブスクリプション情報",
-    "exportAllTenantList": "全テナントリストをエクスポート",
-    "exportAllUserList": "全ユーザーリストをエクスポート",
+    "exportAllTenantList": "全テナントをCSV取得",
+    "exportAllUserList": "全ユーザーをCSV取得",
     "contact": "連絡先",
-    "textSearchPlaceholder": "テナント名、連絡先名、またはメールアドレスで検索",
+    "textSearchPlaceholder": "テキスト検索",
     "subscriptionType": "サブスクリプションタイプ",
     "subscriptionStatus": "サブスクリプションステータス"
   },
@@ -49,34 +49,34 @@
     "address1": "住所1",
     "address2": "住所2",
     "city": "市区町村",
-    "statePrefecture": "都道府県",
+    "statePrefecture": "都道府県／州",
     "country": "国",
     "postalCode": "郵便番号"
   },
   "device": {
     "addDevice": "デバイス追加",
     "addDeviceType": "デバイスタイプ追加",
-    "exportAllDeviceList": "全デバイスリストをエクスポート",
+    "exportAllDeviceList": "全デバイスをCSV取得",
     "serialNo": "シリアル番号",
     "deviceId": "デバイスID",
     "attributes": "属性",
     "assignToTenant": "テナントに割り当て",
-    "typeName": "タイプ名",
+    "typeName": "デバイスタイプ",
     "option": "オプション",
-    "textSearchPlaceholder": "テナント、名前、デバイスID、シリアル番号、説明で検索"
+    "textSearchPlaceholder": "テキスト検索"
   },
   "billing": {
-    "exportAllBillingList": "全請求リストをエクスポート",
-    "billingId": "請求ID",
+    "exportAllBillingList": "全請求情報をCSV取得",
+    "billingId": "請求管理番号",
     "paymentType": "支払いタイプ",
     "nextBillingMonth": "次回請求月",
-    "contractStart": "契約開始",
-    "contractEnd": "契約終了",
+    "contractStart": "契約開始日",
+    "contractEnd": "契約終了日",
     "numberOfDevices": "デバイス数",
     "textSearch": "テキスト検索",
-    "nextBillingFrom": "次回請求月: 開始",
+    "nextBillingFrom": "次回請求月(以降)",
     "deviceType": "デバイスタイプ",
-    "quantity": "数量"
+    "quantity": "台数"
   },
   "user": {
     "roles": "ロール",
@@ -90,7 +90,7 @@
   "subscription": {
     "startDate": "開始日",
     "endDate": "終了日",
-    "enabledApplications": "有効なアプリケーション",
+    "enabledApplications": "有効なアプリ",
     "configuration": "設定",
     "sshTerminal": "SSHターミナル",
     "aiappInstaller": "AIAPPインストーラー"
