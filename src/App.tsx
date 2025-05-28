@@ -2,16 +2,15 @@ import React, { useState, useEffect } from "react";
 import { TenantPage } from "./pages/TenantPage";
 import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
-import { AppBarHeader } from "./components/headers/AppBarHeader";
 import { LanguageProvider, useLanguage } from "./languages/LanguageContext";
 import { LanguageSelector } from "./components/language/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
-import { RefineThemes, ThemedLayoutV2 } from "@refinedev/mui";
+import { RefineThemes } from "@refinedev/mui";
 import { ThemeProvider } from "@mui/material/styles";
 import simpleRestDataProvider from "@refinedev/simple-rest";
-import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import routerBindings from "@refinedev/react-router";
 import i18n from "./languages/i18n";
 import "./App.css";
@@ -120,17 +119,7 @@ const App: React.FC = () => {
           >
             <LanguageProvider>
               <Routes>
-                <Route
-                  element={
-                    <ThemedLayoutV2 
-                      Header={AppBarHeader}
-                    >
-                      <Outlet />
-                    </ThemedLayoutV2>
-                  }
-                >
-                  <Route path="/" element={<AppContent />} />
-                </Route>
+                <Route path="/" element={<AppContent />} />
               </Routes>
             </LanguageProvider>
           </Refine>
