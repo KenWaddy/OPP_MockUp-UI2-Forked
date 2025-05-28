@@ -156,38 +156,18 @@ export const BillingPage: React.FC = () => {
     if (!billing) return 'N/A';
 
     const paymentType = billing.paymentType || 'N/A';
-    let additionalInfo = '';
-
-    if (billing.paymentType === 'One-time' && billing.billingDate) {
-      additionalInfo = ` | Billing Date: ${billing.billingDate}`;
-    }
-
-    if (billing.paymentType === 'Annually' && billing.dueMonth) {
-      const months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      const month = typeof billing.dueMonth === 'number' && billing.dueMonth >= 1 && billing.dueMonth <= 12
-        ? months[billing.dueMonth - 1]
-        : billing.dueMonth;
-
-      additionalInfo = ` | Due Month: ${month}`;
-    }
-
+    
     return (
-      <>
-        <Chip
-          label={paymentType}
-          size="small"
-          color={
-            paymentType === "Monthly" ? "info" :
-            paymentType === "Annually" ? "success" :
-            paymentType === "One-time" ? "warning" :
-            "default"
-          }
-        />
-        {additionalInfo && <span style={{ marginLeft: '8px' }}>{additionalInfo}</span>}
-      </>
+      <Chip
+        label={paymentType}
+        size="small"
+        color={
+          paymentType === "Monthly" ? "info" :
+          paymentType === "Annually" ? "success" :
+          paymentType === "One-time" ? "warning" :
+          "default"
+        }
+      />
     );
   };
 

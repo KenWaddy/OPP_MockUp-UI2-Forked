@@ -43,11 +43,6 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
       paymentType
     };
     
-    if (paymentType === "One-time") {
-      billing.billingDate = startDate;
-    } else if (paymentType === "Annually") {
-      billing.dueMonth = faker.number.int({ min: 1, max: 12 });
-    }
     
     billingRecords.push(billing);
   }

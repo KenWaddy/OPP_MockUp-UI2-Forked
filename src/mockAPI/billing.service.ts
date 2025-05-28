@@ -90,10 +90,10 @@ export class BillingService implements IBillingService {
       let nextBillingDate = '';
       if (billingItem.paymentType === 'Monthly') {
         nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billingItem.paymentType === 'Annually' && billingItem.dueMonth) {
+      } else if (billingItem.paymentType === 'Annually') {
         nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billingItem.paymentType === 'One-time' && billingItem.billingDate) {
-        nextBillingDate = billingItem.billingDate;
+      } else if (billingItem.paymentType === 'One-time') {
+        nextBillingDate = billingItem.startDate || '';
       }
       
       billingItems.push({
@@ -104,8 +104,6 @@ export class BillingService implements IBillingService {
         startDate: billingItem.startDate || '',
         endDate: billingItem.endDate || '',
         paymentType: billingItem.paymentType || 'Monthly',
-        billingDate: billingItem.billingDate,
-        dueMonth: billingItem.dueMonth,
         description: billingItem.description,
         nextBillingDate,
         totalDevices
@@ -272,32 +270,13 @@ export class BillingService implements IBillingService {
         startDate: billingItem.startDate || '',
         endDate: billingItem.endDate || '',
         paymentType: billingItem.paymentType || 'Monthly',
-        billingDate: billingItem.billingDate,
-        dueMonth: billingItem.dueMonth,
         description: billingItem.description,
         nextBillingDate: '',
         totalDevices
       });
       
+      // Payment settings now only show the payment type without additional date/month information
       let paymentSettings = billingItem.paymentType || 'N/A';
-      
-      if (billingItem.paymentType === 'One-time' && billingItem.billingDate) {
-        paymentSettings += ` | Billing Date: ${billingItem.billingDate}`;
-      }
-      
-
-      
-      if (billingItem.paymentType === 'Annually' && billingItem.dueMonth) {
-        const months = [
-          'January', 'February', 'March', 'April', 'May', 'June',
-          'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-        const month = typeof billingItem.dueMonth === 'number' && billingItem.dueMonth >= 1 && billingItem.dueMonth <= 12
-          ? months[billingItem.dueMonth - 1]
-          : billingItem.dueMonth;
-        
-        paymentSettings += ` | Due Month: ${month}`;
-      }
       
       billingItems.push({
         subscriptionId: tenant.id,
