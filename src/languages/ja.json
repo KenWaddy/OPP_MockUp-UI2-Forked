@@ -16,7 +16,14 @@
     "add": "追加",
     "export": "エクスポート",
     "search": "検索",
-    "language": "言語"
+    "language": "言語",
+    "filters": "フィルタ",
+    "resetFilters": "フィルタをリセット",
+    "rows": "行",
+    "backToList": "リストに戻る",
+    "users": "ユーザー",
+    "devices": "デバイス",
+    "subscription": "サブスクリプション"
   },
   "tenant": {
     "addTenant": "テナント追加",
