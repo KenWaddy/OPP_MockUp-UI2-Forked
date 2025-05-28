@@ -4,6 +4,7 @@ import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
 import { AppBarHeader } from "./components/headers/AppBarHeader";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { LanguageSelector } from "./components/language/LanguageSelector";
 import { useTranslation } from "react-i18next";
 import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
@@ -74,6 +75,9 @@ const AppContent: React.FC = () => {
         >
           {t('common.billing')}
         </span>
+        <div style={{ marginLeft: 'auto' }}>
+          <LanguageSelector variant="outlined" size="small" />
+        </div>
       </nav>
       <div className="content">{renderPage()}</div>
     </div>

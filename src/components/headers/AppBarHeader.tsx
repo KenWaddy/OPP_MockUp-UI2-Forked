@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography";
 import { useGetIdentity } from "@refinedev/core";
 import { HamburgerMenu, RefineThemedLayoutV2HeaderProps } from "@refinedev/mui";
 import React from "react";
-import { LanguageSelector } from "../language/LanguageSelector";
 
 type IUser = {
   id: number;
@@ -37,7 +36,6 @@ export const AppBarHeader: React.FC<RefineThemedLayoutV2HeaderProps> = ({
             alignItems="center"
             spacing={2}
           >
-            <LanguageSelector />
             {(user?.avatar || user?.name) && (
               <Stack
                 direction="row"
