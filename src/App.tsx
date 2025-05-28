@@ -5,6 +5,14 @@ import { BillingPage } from "./pages/BillingPage";
 import { AppBarHeader } from "./components/headers/AppBarHeader";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useTranslation } from "react-i18next";
+import { Refine } from "@refinedev/core";
+import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
+import { RefineThemes, ThemedLayoutV2 } from "@refinedev/mui";
+import { ThemeProvider } from "@mui/material/styles";
+import simpleRestDataProvider from "@refinedev/simple-rest";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
+import routerBindings from "@refinedev/react-router";
+import i18n from "./i18n";
 import "./App.css";
 
 interface TenantNavigationEvent extends CustomEvent {
@@ -44,18 +52,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px', backgroundColor: '#f5f5f5' }}>
-        <div style={{ marginRight: '20px' }}>
-          <select 
-            value={language} 
-            onChange={(e) => setLanguage(e.target.value as '日本語' | 'English')}
-            style={{ padding: '5px' }}
-          >
-            <option value="English">English</option>
-            <option value="日本語">日本語</option>
-          </select>
-        </div>
-      </div>
       <nav className="nav">
         <span
           className={activeTab === "tenant" ? "nav-link active" : "nav-link"}
@@ -85,10 +81,58 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const API_URL = "https://api.fake-rest.refine.dev";
+  
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <BrowserRouter>
+      <RefineKbarProvider>
+        <ThemeProvider theme={RefineThemes.Blue}>
+          <Refine
+            dataProvider={simpleRestDataProvider(API_URL)}
+            routerProvider={routerBindings}
+            i18nProvider={{
+              translate: (key, params) => String(i18n.t(key, params)),
+              changeLocale: (lang) => i18n.changeLanguage(lang),
+              getLocale: () => i18n.language,
+            }}
+            resources={[
+              {
+                name: "tenants",
+                list: "/",
+              },
+              {
+                name: "devices",
+                list: "/devices",
+              },
+              {
+                name: "billing",
+                list: "/billing",
+              }
+            ]}
+            options={{
+              syncWithLocation: true,
+              warnWhenUnsavedChanges: true,
+            }}
+          >
+            <LanguageProvider>
+              <Routes>
+                <Route
+                  element={
+                    <ThemedLayoutV2 
+                      Header={AppBarHeader}
+                    >
+                      <Outlet />
+                    </ThemedLayoutV2>
+                  }
+                >
+                  <Route path="/" element={<AppContent />} />
+                </Route>
+              </Routes>
+            </LanguageProvider>
+          </Refine>
+        </ThemeProvider>
+      </RefineKbarProvider>
+    </BrowserRouter>
   );
 };
 
