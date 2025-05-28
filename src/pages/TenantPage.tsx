@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Alert
+  Alert,
+  Tabs,
+  Tab
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { TenantType as Tenant, UserType as User, DeviceType2 as Device } from '../commons/models';
@@ -12,6 +14,7 @@ import { Subscription } from '../commons/models';
 import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
 import { TenantList } from './TenantList';
 import { TenantDetail } from './TenantDetail';
+import { TenantDialog } from '../components/dialogs/TenantDialog';
 
 // Create service instances
 const tenantService = new TenantService();
@@ -27,6 +30,11 @@ export const TenantPage: React.FC = () => {
   const [tenantUsers, setTenantUsers] = useState<User[]>([]);
   const [tenantDevices, setTenantDevices] = useState<Device[]>([]);
   const [tenantBillingDetails, setTenantBillingDetails] = useState<any[]>([]);
+  
+  const [openTenantDialog, setOpenTenantDialog] = useState(false);
+  const [editableTenant, setEditableTenant] = useState<Tenant | null>(null);
+  const [editableSubscription, setEditableSubscription] = useState<Subscription | null>(null);
+  const [activeTab, setActiveTab] = useState("info");
   
   useEffect(() => {
     const selectedTenantId = localStorage.getItem('selectedTenantId');
@@ -141,10 +149,10 @@ export const TenantPage: React.FC = () => {
 
   const handleOpenTenantDialog = (tenant?: Tenant) => {
     if (tenant) {
-      setSelectedTenant(tenant);
+      setEditableTenant({...tenant});
     } else {
       // Create a new tenant template
-      const newTenant: Tenant = {
+      setEditableTenant({
         id: `t-new-${Math.floor(Math.random() * 1000)}`,
         name: '',
         description: '',
@@ -165,10 +173,10 @@ export const TenantPage: React.FC = () => {
           postal_code: ''
         },
         subscriptionId: ''
-      };
+      });
       
       // Create a new subscription template
-      const newSubscription: Subscription = {
+      setEditableSubscription({
         id: `sub-new-${Math.floor(Math.random() * 1000)}`,
         name: '',
         description: '',
@@ -182,10 +190,53 @@ export const TenantPage: React.FC = () => {
         enabled_app_AIAMS: false,
         config_SSH_terminal: false,
         config_AIAPP_installer: false
-      };
-      
-      setSelectedTenant(newTenant);
-      setCurrentSubscription(newSubscription);
+      });
+    }
+    setActiveTab("info");
+    setOpenTenantDialog(true);
+  };
+
+  const handleCloseTenantDialog = () => {
+    setOpenTenantDialog(false);
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
+    setActiveTab(newValue);
+  };
+
+  const handleSaveTenant = async () => {
+    if (editableTenant) {
+      try {
+        setLoading(true);
+        
+        if (editableTenant.id.startsWith('t-new-')) {
+          const newSubscription = {
+            id: getNextSubscriptionId(),
+            name: 'Standard Plan',
+            description: 'Standard subscription plan',
+            type: 'Evergreen',
+            status: 'Active',
+            start_date: new Date().toISOString().split('T')[0],
+            end_date: '',
+            enabled_app_DMS: true,
+            enabled_app_eVMS: true,
+            enabled_app_CVR: false,
+            enabled_app_AIAMS: false,
+            config_SSH_terminal: true,
+            config_AIAPP_installer: false
+          };
+          
+          await tenantService.addTenant(editableTenant, newSubscription);
+        } else {
+          await tenantService.updateTenant(editableTenant);
+        }
+
+        setOpenTenantDialog(false);
+      } catch (err) {
+        setError(`Error saving tenant: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -255,6 +306,19 @@ export const TenantPage: React.FC = () => {
           />
         </>
       )}
+      
+      {/* Tenant Dialog */}
+      <TenantDialog
+        open={openTenantDialog}
+        onClose={handleCloseTenantDialog}
+        editableTenant={editableTenant}
+        editableSubscription={editableSubscription}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onSave={handleSaveTenant}
+        setEditableTenant={setEditableTenant}
+        setEditableSubscription={setEditableSubscription}
+      />
     </div>
   );
 };
