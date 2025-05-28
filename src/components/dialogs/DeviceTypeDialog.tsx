@@ -15,6 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../../commons/styles.js';
 import { DeviceType } from '../../commons/models.js';
 import { BaseDialog } from './BaseDialog';
+import { useTranslation } from "react-i18next";
 
 interface DeviceTypeDialogProps {
   open: boolean;
@@ -37,6 +38,7 @@ export const DeviceTypeDialog: React.FC<DeviceTypeDialogProps> = ({
   onDeviceTypeChange,
   onNewDeviceTypeChange
 }) => {
+  const { t } = useTranslation();
   return (
     <BaseDialog
       open={open}
@@ -49,10 +51,10 @@ export const DeviceTypeDialog: React.FC<DeviceTypeDialogProps> = ({
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={tableHeaderCellStyle}>Type Name</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Option</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Description</TableCell>
-              <TableCell sx={tableHeaderCellStyle}>Action</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>{t('device.typeName')}</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>{t('device.option')}</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>{t('common.description')}</TableCell>
+              <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -14,6 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { FilterSection } from '../components/tables/filter_section';
 import { useSorting } from '../hooks/useSorting';
 import { CommonTable, ColumnDefinition } from '../components/tables';
+import { useTranslation } from "react-i18next";
 
 const tenantService = new TenantService();
 const subscriptionService = new SubscriptionService();
@@ -27,6 +28,7 @@ export const TenantList: React.FC<{
   onDeleteTenant?: (tenantId: string) => void;
   onTenantSelect?: (tenantId: string) => void;
 }> = ({ onEditTenant, onDeleteTenant, onTenantSelect }) => {
+  const { t } = useTranslation();
   const [tenants, setTenants] = useState<TenantType[]>([]);
   const [subscriptions, setSubscriptions] = useState<SubscriptionMap>({});
   const [loading, setLoading] = useState<boolean>(true);
@@ -133,7 +135,7 @@ export const TenantList: React.FC<{
   const columns: ColumnDefinition<TenantType>[] = [
     {
       key: 'name',
-      label: 'Tenant',
+      label: t('common.tenant'),
       sortable: true,
       sortKey: 'tenant',
       render: (tenant) => (
@@ -148,7 +150,7 @@ export const TenantList: React.FC<{
     },
     {
       key: 'contact',
-      label: 'Contact',
+      label: t('tenant.contact'),
       sortable: true,
       render: (tenant) => formatContactName(
         tenant.contact.first_name,
@@ -158,13 +160,13 @@ export const TenantList: React.FC<{
     },
     {
       key: 'email',
-      label: 'Email',
+      label: t('contact.email'),
       sortable: true,
       render: (tenant) => tenant.contact.email
     },
     {
       key: 'type',
-      label: 'Type',
+      label: t('common.type'),
       sortable: true,
       render: (tenant) => {
         const subscription = subscriptions[tenant.subscriptionId];
@@ -173,7 +175,7 @@ export const TenantList: React.FC<{
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('common.status'),
       sortable: true,
       render: (tenant) => {
         const subscription = subscriptions[tenant.subscriptionId];
@@ -192,7 +194,7 @@ export const TenantList: React.FC<{
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('common.actions'),
       render: (tenant) => (
         <>
           {onEditTenant && (

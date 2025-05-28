@@ -25,7 +25,8 @@
     "contactInfo": "Contact Info",
     "subscriptionInfo": "Subscription Info",
     "exportAllTenantList": "Export All Tenant List",
-    "exportAllUserList": "Export All User List"
+    "exportAllUserList": "Export All User List",
+    "contact": "Contact"
   },
   "contact": {
     "firstName": "First Name",
@@ -49,7 +50,9 @@
     "serialNo": "Serial No.",
     "deviceId": "Device ID",
     "attributes": "Attributes",
-    "assignToTenant": "Assign to Tenant"
+    "assignToTenant": "Assign to Tenant",
+    "typeName": "Type Name",
+    "option": "Option"
   },
   "billing": {
     "exportAllBillingList": "Export All Billing List",
@@ -60,7 +63,18 @@
     "contractEnd": "Contract End",
     "numberOfDevices": "Number of Devices",
     "textSearch": "Text Search",
-    "nextBillingFrom": "Next Billing Month: From"
+    "nextBillingFrom": "Next Billing Month: From",
+    "deviceType": "Device Type",
+    "quantity": "Quantity"
+  },
+  "user": {
+    "roles": "Roles",
+    "ipWhitelist": "IP Whitelist",
+    "mfa": "MFA"
+  },
+  "attribute": {
+    "key": "Key",
+    "value": "Value"
   },
   "subscription": {
     "startDate": "Start Date",

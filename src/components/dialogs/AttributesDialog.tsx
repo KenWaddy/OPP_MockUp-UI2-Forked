@@ -15,6 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../../commons/styles.js';
 import { Attribute, DeviceWithTenant, UnregisteredDevice } from '../../commons/models.js';
 import { BaseDialog } from './BaseDialog';
+import { useTranslation } from "react-i18next";
 
 interface AttributesDialogProps {
   open: boolean;
@@ -45,6 +46,7 @@ export const AttributesDialog: React.FC<AttributesDialogProps> = ({
   onAttributeChange,
   onNewAttributeChange
 }) => {
+  const { t } = useTranslation();
   const actions = editMode ? (
     <>
       <Button onClick={onClose}>Cancel</Button>
@@ -71,9 +73,9 @@ export const AttributesDialog: React.FC<AttributesDialogProps> = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
-                <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
-                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('attribute.key')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('attribute.value')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -144,8 +146,8 @@ export const AttributesDialog: React.FC<AttributesDialogProps> = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
-                <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('attribute.key')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('attribute.value')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
