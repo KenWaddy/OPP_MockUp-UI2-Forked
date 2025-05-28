@@ -28,6 +28,7 @@ import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { UserService } from '../mockAPI/user.service.js';
 import { UserType as User, TenantType as Tenant } from '../commons/models.js';
 import { UserDialog } from '../components/dialogs/UserDialog';
+import { templates } from '../commons/templates';
 
 const userService = new UserService();
 
@@ -115,14 +116,7 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
 
     const isFirstUser = users.length === 0;
 
-    setEditableUser({
-      id: `u-new-${Math.floor(Math.random() * 1000)}`,
-      name: '',
-      email: '',
-      roles: isFirstUser ? ['Owner'] : ['Member'], // Set 'Owner' role for first user, otherwise 'Member'
-      ipWhitelist: [],
-      mfaEnabled: false
-    });
+    setEditableUser(templates.createNewUser(isFirstUser));
 
     setOpenUserDialog(true);
   };

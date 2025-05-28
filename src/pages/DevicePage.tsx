@@ -41,6 +41,7 @@ import { exportToCsv } from '../commons/export_CSV.js';
 import { AttributesDialog } from '../components/dialogs/AttributesDialog';
 import { DeviceDialog } from '../components/dialogs/DeviceDialog';
 import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';
+import { templates } from '../commons/templates';
 
 // Create service instances
 const deviceService = new DeviceService();
@@ -223,17 +224,7 @@ export const DevicePage: React.FC = () => {
       setEditableDevice({...device});
     } else {
       setSelectedDevice(null);
-      setEditableDevice({
-        id: `d-new-${Math.floor(Math.random() * 1000)}`,
-        name: '',
-        type: "Server",
-        deviceId: `DEV-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-        serialNo: '',
-        description: '',
-        status: "Registered",
-        attributes: [],
-        isUnregistered: true
-      } as UnregisteredDevice);
+      setEditableDevice(templates.createNewDevice());
     }
     setOpenDeviceDialog(true);
   };
