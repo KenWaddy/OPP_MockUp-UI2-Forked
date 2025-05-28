@@ -42,12 +42,14 @@ import { AttributesDialog } from '../components/dialogs/AttributesDialog';
 import { DeviceDialog } from '../components/dialogs/DeviceDialog';
 import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';
 import { templates } from '../commons/templates';
+import { useTranslation } from "react-i18next";
 
 // Create service instances
 const deviceService = new DeviceService();
 const tenantService = new TenantService();
 
 export const DevicePage: React.FC = () => {
+  const { t } = useTranslation();
   const [allDevices, setAllDevices] = useState<(DeviceWithTenant | UnregisteredDevice)[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<DeviceWithTenant | UnregisteredDevice | null>(null);
   const [openAttributesDialog, setOpenAttributesDialog] = useState(false);
@@ -362,7 +364,7 @@ export const DevicePage: React.FC = () => {
           onClick={() => handleOpenDeviceDialog()}
           sx={{ fontWeight: 'bold' }}
         >
-          Add Device
+          {t('device.addDevice')}
         </Button>
         <Button 
           variant="outlined" 
@@ -371,7 +373,7 @@ export const DevicePage: React.FC = () => {
           onClick={handleOpenDeviceTypeDialog}
           sx={{ fontWeight: 'bold' }}
         >
-          Add Device Type
+          {t('device.addDeviceType')}
         </Button>
         <Button 
           variant="outlined" 
@@ -379,7 +381,7 @@ export const DevicePage: React.FC = () => {
           onClick={handleExportAllDevices}
           sx={{ fontWeight: 'bold' }}
         >
-          Export All Device List
+          {t('device.exportAllDeviceList')}
         </Button>
       </Box>
       
@@ -449,7 +451,7 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Tenant
+                    {t('common.tenant')}
                   </SortableTableCell>
                   <SortableTableCell 
                     sortKey="name"
@@ -457,7 +459,7 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Name
+                    {t('common.name')}
                   </SortableTableCell>
                   <SortableTableCell 
                     sortKey="type"
@@ -465,7 +467,7 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Type
+                    {t('common.type')}
                   </SortableTableCell>
                   <SortableTableCell 
                     sortKey="deviceId"
@@ -473,7 +475,7 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Device ID
+                    {t('device.deviceId')}
                   </SortableTableCell>
                   <SortableTableCell 
                     sortKey="serialNo"
@@ -481,7 +483,7 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Serial No.
+                    {t('device.serialNo')}
                   </SortableTableCell>
                   <SortableTableCell 
                     sortKey="description"
@@ -489,7 +491,7 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Description
+                    {t('common.description')}
                   </SortableTableCell>
                   <SortableTableCell 
                     sortKey="status"
@@ -497,10 +499,10 @@ export const DevicePage: React.FC = () => {
                     onRequestSort={requestSort}
                     sx={tableHeaderCellStyle}
                   >
-                    Status
+                    {t('common.status')}
                   </SortableTableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
-                  <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>{t('device.attributes')}</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -525,7 +527,7 @@ export const DevicePage: React.FC = () => {
                               }}
                             >
                               <MenuItem value="" disabled>
-                                <em>Assign to Tenant</em>
+                                <em>{t('device.assignToTenant')}</em>
                               </MenuItem>
                               {tenantOptions.map((tenant) => (
                                 <MenuItem key={tenant.id} value={tenant.id}>
