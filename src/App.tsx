@@ -3,7 +3,7 @@ import { TenantPage } from "./pages/TenantPage";
 import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
 import { AppBarHeader } from "./components/headers/AppBarHeader";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useTranslation } from "react-i18next";
 import "./App.css";
 
@@ -16,6 +16,7 @@ interface TenantNavigationEvent extends CustomEvent {
 const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tenant");
   const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   
   useEffect(() => {
     const handleTenantNavigation = (event: TenantNavigationEvent) => {
@@ -43,7 +44,18 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app">
-      <AppBarHeader />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px', backgroundColor: '#f5f5f5' }}>
+        <div style={{ marginRight: '20px' }}>
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value as '日本語' | 'English')}
+            style={{ padding: '5px' }}
+          >
+            <option value="English">English</option>
+            <option value="日本語">日本語</option>
+          </select>
+        </div>
+      </div>
       <nav className="nav">
         <span
           className={activeTab === "tenant" ? "nav-link active" : "nav-link"}
