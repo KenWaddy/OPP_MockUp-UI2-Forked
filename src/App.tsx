@@ -43,6 +43,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app">
+      <AppBarHeader />
       <nav className="nav">
         <span
           className={activeTab === "tenant" ? "nav-link active" : "nav-link"}
