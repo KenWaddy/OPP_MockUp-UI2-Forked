@@ -1,4 +1,4 @@
-import { TenantType, DeviceContractItem } from '../commons/models.js';
+import { TenantType, DeviceContractItem, BillingWithTenant } from '../commons/models.js';
 import { PaginationParams, PaginatedResponse, ItemResponse, IBillingService } from './types.js';
 import { delay } from './utils/delay.js';
 import { 
@@ -9,12 +9,6 @@ import {
   getNextBillingIdForTenant
 } from './FakerData/index.js';
 import { Billing } from '../commons/models.js';
-
-interface BillingWithTenant extends Billing {
-  tenantName: string;
-  nextBillingDate: string;
-  totalDevices: number;
-}
 
 export class BillingService implements IBillingService {
   /**
