@@ -3,6 +3,8 @@ import { TenantPage } from "./pages/TenantPage";
 import { DevicePage } from "./pages/DevicePage";
 import { BillingPage } from "./pages/BillingPage";
 import { AppBarHeader } from "./components/headers/AppBarHeader";
+import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 import "./App.css";
 
 interface TenantNavigationEvent extends CustomEvent {
@@ -11,8 +13,10 @@ interface TenantNavigationEvent extends CustomEvent {
   };
 }
 
-export default function App() {
+const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tenant");
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   
   useEffect(() => {
     const handleTenantNavigation = (event: TenantNavigationEvent) => {
@@ -40,30 +44,52 @@ export default function App() {
 
   return (
     <div className="app">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px', backgroundColor: '#f5f5f5' }}>
+        <div style={{ marginRight: '20px' }}>
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value as '日本語' | 'English')}
+            style={{ padding: '5px' }}
+          >
+            <option value="English">English</option>
+            <option value="日本語">日本語</option>
+          </select>
+        </div>
+      </div>
       <nav className="nav">
         <span
           className={activeTab === "tenant" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("tenant")}
           style={{ fontSize: '1.2em' }}
         >
-          Tenant
+          {t('common.tenant')}
         </span>
         <span
           className={activeTab === "device" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("device")}
           style={{ fontSize: '1.2em' }}
         >
-          Device
+          {t('common.device')}
         </span>
         <span
           className={activeTab === "billing" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("billing")}
           style={{ fontSize: '1.2em' }}
         >
-          Billing
+          {t('common.billing')}
         </span>
       </nav>
       <div className="content">{renderPage()}</div>
     </div>
   );
-}
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+};
+
+export default App;

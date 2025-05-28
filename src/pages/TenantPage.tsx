@@ -15,6 +15,7 @@ import { templates } from '../commons/templates';
 import { TenantList } from './TenantList';
 import { TenantDetail } from './TenantDetail';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
+import { useTranslation } from "react-i18next";
 
 // Create service instances
 const tenantService = new TenantService();
@@ -23,6 +24,7 @@ const deviceService = new DeviceService();
 const subscriptionService = new SubscriptionService();
 
 export const TenantPage: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -229,7 +231,7 @@ export const TenantPage: React.FC = () => {
               onClick={() => handleOpenTenantDialog()}
               sx={{ fontWeight: 'bold' }}
             >
-              Add Tenant
+              {t('tenant.addTenant')}
             </Button>
             <Button
               variant="outlined"
@@ -237,7 +239,7 @@ export const TenantPage: React.FC = () => {
               onClick={handleExportAllTenants}
               sx={{ fontWeight: 'bold' }}
             >
-              Export All Tenant List
+              {t('tenant.exportAllTenantList')}
             </Button>
             <Button
               variant="outlined"
@@ -245,7 +247,7 @@ export const TenantPage: React.FC = () => {
               onClick={handleExportAllUsers}
               sx={{ fontWeight: 'bold' }}
             >
-              Export All User List
+              {t('tenant.exportAllUserList')}
             </Button>
           </Box>
 

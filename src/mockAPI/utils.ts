@@ -1,4 +1,5 @@
 import { User } from '../commons/models.js';
+import i18n from '../i18n';
 
 /**
  * Format contact name based on language preference

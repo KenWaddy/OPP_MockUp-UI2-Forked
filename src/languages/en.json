@@ -1,0 +1,73 @@
+{
+  "common": {
+    "tenant": "Tenant",
+    "device": "Device",
+    "billing": "Billing",
+    "name": "Name",
+    "description": "Description",
+    "id": "ID",
+    "status": "Status",
+    "type": "Type",
+    "actions": "Actions",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "export": "Export",
+    "search": "Search",
+    "language": "Language"
+  },
+  "tenant": {
+    "addTenant": "Add Tenant",
+    "editTenant": "Edit Tenant",
+    "tenantInfo": "Tenant Info",
+    "contactInfo": "Contact Info",
+    "subscriptionInfo": "Subscription Info",
+    "exportAllTenantList": "Export All Tenant List",
+    "exportAllUserList": "Export All User List"
+  },
+  "contact": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "company": "Company",
+    "department": "Department",
+    "officePhone": "Office Phone",
+    "mobilePhone": "Mobile Phone",
+    "address1": "Address Line 1",
+    "address2": "Address Line 2",
+    "city": "City",
+    "statePrefecture": "State/Prefecture",
+    "country": "Country",
+    "postalCode": "Postal Code"
+  },
+  "device": {
+    "addDevice": "Add Device",
+    "addDeviceType": "Add Device Type",
+    "exportAllDeviceList": "Export All Device List",
+    "serialNo": "Serial No.",
+    "deviceId": "Device ID",
+    "attributes": "Attributes",
+    "assignToTenant": "Assign to Tenant"
+  },
+  "billing": {
+    "exportAllBillingList": "Export All Billing List",
+    "billingId": "Billing ID",
+    "paymentType": "Payment Type",
+    "nextBillingMonth": "Next Billing Month",
+    "contractStart": "Contract Start",
+    "contractEnd": "Contract End",
+    "numberOfDevices": "Number of Devices",
+    "textSearch": "Text Search",
+    "nextBillingFrom": "Next Billing Month: From"
+  },
+  "subscription": {
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "enabledApplications": "Enabled Applications",
+    "configuration": "Configuration",
+    "sshTerminal": "SSH Terminal",
+    "aiappInstaller": "AIAPP Installer"
+  }
+}
