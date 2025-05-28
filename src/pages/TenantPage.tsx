@@ -11,7 +11,7 @@ import { TenantType as Tenant, UserType as User, DeviceType2 as Device } from '.
 import { TenantService, UserService, DeviceService, SubscriptionService } from '../mockAPI/index.js';
 import { exportToCsv } from '../commons/export_CSV.js';
 import { Subscription } from '../commons/models';
-import { getNextSubscriptionId } from '../mockAPI/FakerData/subscriptions.js';
+import { templates } from '../commons/templates';
 import { TenantList } from './TenantList';
 import { TenantDetail } from './TenantDetail';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
@@ -152,45 +152,10 @@ export const TenantPage: React.FC = () => {
       setEditableTenant({...tenant});
     } else {
       // Create a new tenant template
-      setEditableTenant({
-        id: `t-new-${Math.floor(Math.random() * 1000)}`,
-        name: '',
-        description: '',
-        contact: {
-          first_name: '',
-          last_name: '',
-          department: '',
-          language: 'English',
-          email: '',
-          phone_office: '',
-          phone_mobile: '',
-          company: '',
-          address1: '',
-          address2: '',
-          city: '',
-          state_prefecture: '',
-          country: '',
-          postal_code: ''
-        },
-        subscriptionId: ''
-      });
+      setEditableTenant(templates.createNewTenant());
       
       // Create a new subscription template
-      setEditableSubscription({
-        id: `sub-new-${Math.floor(Math.random() * 1000)}`,
-        name: '',
-        description: '',
-        type: 'Evergreen',
-        status: 'Active',
-        start_date: '',
-        end_date: '',
-        enabled_app_DMS: false,
-        enabled_app_eVMS: false,
-        enabled_app_CVR: false,
-        enabled_app_AIAMS: false,
-        config_SSH_terminal: false,
-        config_AIAPP_installer: false
-      });
+      setEditableSubscription(templates.createNewSubscription());
     }
     setActiveTab("info");
     setOpenTenantDialog(true);
@@ -210,21 +175,7 @@ export const TenantPage: React.FC = () => {
         setLoading(true);
         
         if (editableTenant.id.startsWith('t-new-')) {
-          const newSubscription = {
-            id: getNextSubscriptionId(),
-            name: 'Standard Plan',
-            description: 'Standard subscription plan',
-            type: 'Evergreen',
-            status: 'Active',
-            start_date: new Date().toISOString().split('T')[0],
-            end_date: '',
-            enabled_app_DMS: true,
-            enabled_app_eVMS: true,
-            enabled_app_CVR: false,
-            enabled_app_AIAMS: false,
-            config_SSH_terminal: true,
-            config_AIAPP_installer: false
-          };
+          const newSubscription = templates.createStandardSubscription();
           
           await tenantService.addTenant(editableTenant, newSubscription);
         } else {
