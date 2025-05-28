@@ -23,6 +23,7 @@ import { TenantType as Tenant } from '../../commons/models.js';
 import { defaultDeviceTypes } from '../../mockAPI/FakerData/deviceTypes.js';
 import { BaseDialog } from './BaseDialog';
 import { CommonDialogActions } from './CommonDialogActions';
+import { useTranslation } from "react-i18next";
 
 interface BillingDialogProps {
   open: boolean;
@@ -43,6 +44,7 @@ export const BillingDialog: React.FC<BillingDialogProps> = ({
   selectedTenant,
   tenantBillingDetails
 }) => {
+  const { t } = useTranslation();
   const title = editableBilling && tenantBillingDetails?.find((billing: {id: string}) => billing.id === editableBilling.id)
     ? `Edit Billing: ${editableBilling.id}`
     : `Add Billing to ${selectedTenant?.name}`;
@@ -129,9 +131,9 @@ export const BillingDialog: React.FC<BillingDialogProps> = ({
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={tableHeaderCellStyle}>Device Type</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Quantity</TableCell>
-                    <TableCell sx={tableHeaderCellStyle}>Action</TableCell>
+                    <TableCell sx={tableHeaderCellStyle}>{t('billing.deviceType')}</TableCell>
+                    <TableCell sx={tableHeaderCellStyle}>{t('billing.quantity')}</TableCell>
+                    <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

@@ -30,6 +30,7 @@ import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { DeviceService } from '../mockAPI/index.js';
 import { DeviceAssignmentDialog } from '../components/dialogs/DeviceAssignmentDialog';
 import { DeviceType2 as Device, TenantType as Tenant, UnregisteredDeviceType as UnregisteredDevice } from '../commons/models.js';
+import { useTranslation } from "react-i18next";
 
 const deviceService = new DeviceService();
 
@@ -61,6 +62,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
   error,
   setError
 }) => {
+  const { t } = useTranslation();
   const [devicePagination, setDevicePagination] = useState({
     page: 1,
     limit: 500, // Default to 500 rows as requested
@@ -228,7 +230,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Name
+                  {t('common.name')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="type"
@@ -236,7 +238,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Type
+                  {t('common.type')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="id"
@@ -244,7 +246,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Device ID
+                  {t('device.deviceId')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="serialNo"
@@ -252,7 +254,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Serial No.
+                  {t('device.serialNo')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="description"
@@ -260,7 +262,7 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Description
+                  {t('common.description')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="status"
@@ -268,10 +270,10 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Status
+                  {t('common.status')}
                 </SortableTableCell>
-                <TableCell sx={tableHeaderCellStyle}>Attributes</TableCell>
-                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('device.attributes')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

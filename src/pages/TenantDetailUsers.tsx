@@ -29,6 +29,7 @@ import { UserService } from '../mockAPI/user.service.js';
 import { UserType as User, TenantType as Tenant } from '../commons/models.js';
 import { UserDialog } from '../components/dialogs/UserDialog';
 import { templates } from '../commons/templates';
+import { useTranslation } from "react-i18next";
 
 const userService = new UserService();
 
@@ -60,6 +61,7 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
   error: externalError,
   setError: externalSetError
 }) => {
+  const { t } = useTranslation();
   const [localUsers, setLocalUsers] = useState<User[]>([]);
   const [localLoading, setLocalLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -227,7 +229,7 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Name
+                  {t('common.name')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="email"
@@ -235,7 +237,7 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Email
+                  {t('contact.email')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="roles"
@@ -243,7 +245,7 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Roles
+                  {t('user.roles')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="ipWhitelist"
@@ -251,7 +253,7 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  IP Whitelist
+                  {t('user.ipWhitelist')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="mfa"
@@ -259,9 +261,9 @@ export const TenantDetailUsers: React.FC<TenantDetailUsersProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  MFA
+                  {t('user.mfa')}
                 </SortableTableCell>
-                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

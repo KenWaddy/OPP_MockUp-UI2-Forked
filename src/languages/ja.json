@@ -25,7 +25,8 @@
     "contactInfo": "連絡先情報",
     "subscriptionInfo": "サブスクリプション情報",
     "exportAllTenantList": "全テナントリストをエクスポート",
-    "exportAllUserList": "全ユーザーリストをエクスポート"
+    "exportAllUserList": "全ユーザーリストをエクスポート",
+    "contact": "連絡先"
   },
   "contact": {
     "firstName": "名",
@@ -49,7 +50,9 @@
     "serialNo": "シリアル番号",
     "deviceId": "デバイスID",
     "attributes": "属性",
-    "assignToTenant": "テナントに割り当て"
+    "assignToTenant": "テナントに割り当て",
+    "typeName": "タイプ名",
+    "option": "オプション"
   },
   "billing": {
     "exportAllBillingList": "全請求リストをエクスポート",
@@ -60,7 +63,18 @@
     "contractEnd": "契約終了",
     "numberOfDevices": "デバイス数",
     "textSearch": "テキスト検索",
-    "nextBillingFrom": "次回請求月: 開始"
+    "nextBillingFrom": "次回請求月: 開始",
+    "deviceType": "デバイスタイプ",
+    "quantity": "数量"
+  },
+  "user": {
+    "roles": "ロール",
+    "ipWhitelist": "IP ホワイトリスト",
+    "mfa": "MFA"
+  },
+  "attribute": {
+    "key": "キー",
+    "value": "値"
   },
   "subscription": {
     "startDate": "開始日",
