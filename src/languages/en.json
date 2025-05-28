@@ -16,7 +16,14 @@
     "add": "Add",
     "export": "Export",
     "search": "Search",
-    "language": "Language"
+    "language": "Language",
+    "filters": "Filters",
+    "resetFilters": "Reset Filters",
+    "rows": "Rows",
+    "backToList": "Back to List",
+    "users": "USERS",
+    "devices": "DEVICES",
+    "subscription": "Subscription"
   },
   "tenant": {
     "addTenant": "Add Tenant",

@@ -7,6 +7,7 @@ import {
   MenuItem,
   Pagination
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export interface PaginationState {
   page: number;
@@ -30,6 +31,7 @@ export const PaginationComponent: React.FC<PaginationComponentProps> = ({
   pageSizeOptions = [100, 500, 2000],
   sx
 }) => {
+  const { t } = useTranslation();
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -41,11 +43,11 @@ export const PaginationComponent: React.FC<PaginationComponentProps> = ({
       ...sx 
     }}>
       <FormControl size="small" sx={{ minWidth: 120 }}>
-        <InputLabel id="rows-per-page-label">Rows</InputLabel>
+        <InputLabel id="rows-per-page-label">{t('common.rows')}</InputLabel>
         <Select
           labelId="rows-per-page-label"
           value={pagination.limit}
-          label="Rows"
+          label={t('common.rows')}
           onChange={(e) => onLimitChange(Number(e.target.value))}
           sx={{ backgroundColor: "white" }}
         >

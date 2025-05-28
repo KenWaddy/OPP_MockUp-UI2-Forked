@@ -17,6 +17,7 @@ import { TenantType as Tenant, Subscription } from '../commons/models';
 import { ContactDialog } from '../components/dialogs/ContactDialog';
 import { SubscriptionDialog } from '../components/dialogs/SubscriptionDialog';
 import { TenantDialog } from '../components/dialogs/TenantDialog';
+import { useTranslation } from 'react-i18next';
 
 interface TenantDetailProps {
   selectedTenant: Tenant;
@@ -51,6 +52,7 @@ export const TenantDetail: React.FC<TenantDetailProps> = ({
   setTenantDevices,
   setTenantBillingDetails
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("info");
   const { sortConfig, requestSort } = useSorting();
   
@@ -153,7 +155,7 @@ export const TenantDetail: React.FC<TenantDetailProps> = ({
           onClick={onBackToList}
           sx={{ ml: 2, fontWeight: 'bold' }}
         >
-          Back to List
+          {t('common.backToList')}
         </Button>
       </Box>
 
@@ -163,10 +165,10 @@ export const TenantDetail: React.FC<TenantDetailProps> = ({
         aria-label="tenant detail tabs"
         sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
       >
-        <Tab value="info" label="Tenant Info" sx={{ fontWeight: 'bold' }} />
-        <Tab value="users" label="Users" sx={{ fontWeight: 'bold' }} />
-        <Tab value="devices" label="Devices" sx={{ fontWeight: 'bold' }} />
-        <Tab value="billing" label="Billing" sx={{ fontWeight: 'bold' }} />
+        <Tab value="info" label={t('tenant.tenantInfo')} sx={{ fontWeight: 'bold' }} />
+        <Tab value="users" label={t('common.users')} sx={{ fontWeight: 'bold' }} />
+        <Tab value="devices" label={t('common.devices')} sx={{ fontWeight: 'bold' }} />
+        <Tab value="billing" label={t('common.billing')} sx={{ fontWeight: 'bold' }} />
       </Tabs>
 
       {/* Tenant Info Tab */}

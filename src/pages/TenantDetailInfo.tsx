@@ -14,6 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { paperStyle, secondaryTypographyStyle, groupTitleStyle } from '../commons/styles';
 import { formatContactName } from '../mockAPI/utils';
 import { TenantType as Tenant, Subscription } from '../commons/models';
+import { useTranslation } from 'react-i18next';
 
 interface TenantDetailInfoProps {
   tenantId?: string;
@@ -32,6 +33,7 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
   handleOpenContactDialog, 
   handleOpenSubscriptionDialog 
 }) => {
+  const { t } = useTranslation();
   const tenant = selectedTenant || {
     id: 'N/A',
     name: 'N/A',
@@ -62,7 +64,7 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
       <Grid item xs={12}>
         <Paper sx={paperStyle} variant="outlined">
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Tenant</Typography>
+            <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>{t('common.tenant')}</Typography>
             <IconButton
               size="small"
               onClick={() => handleTenantDialog(tenant as Tenant)}
@@ -74,19 +76,19 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2}>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.id')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.id}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Name:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.name')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.name}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.description')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.description}</Typography>
@@ -98,7 +100,7 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
       <Grid item xs={12}>
         <Paper sx={paperStyle} variant="outlined">
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Contact</Typography>
+            <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>{t('tenant.contact')}</Typography>
             <IconButton
               size="small"
               onClick={() => handleContactDialog()}
@@ -110,7 +112,7 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2}>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Name:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.name')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>
@@ -122,43 +124,43 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Company:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.company')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.company || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Department:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.department')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.department}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Email:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.email')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.email}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Office Phone:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.officePhone')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.phone_office || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Mobile Phone:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.mobilePhone')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.phone_mobile || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Company:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.company')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.company || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Address:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.address1')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>
@@ -167,31 +169,31 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>City:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.city')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.city || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>State/Prefecture:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.statePrefecture')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.state_prefecture || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Country:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.country')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.country || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Postal Code:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('contact.postalCode')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.postal_code || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={4}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Language:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.language')}:</Typography>
             </Grid>
             <Grid item xs={8}>
               <Typography>{tenant.contact.language || 'N/A'}</Typography>
@@ -203,7 +205,7 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
       <Grid item xs={12}>
         <Paper sx={paperStyle} variant="outlined">
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>Subscription</Typography>
+            <Typography sx={{ ...groupTitleStyle, fontWeight: "bold", fontSize: "1rem", flexGrow: 1 }}>{t('common.subscription')}</Typography>
             <IconButton
               size="small"
               onClick={() => handleSubscriptionDialog()}
@@ -215,19 +217,19 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Name:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.name')}:</Typography>
               <Typography>{currentSubscription?.name || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>ID:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.id')}:</Typography>
               <Typography>{currentSubscription?.id || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Description:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.description')}:</Typography>
               <Typography>{currentSubscription?.description || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Status:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.status')}:</Typography>
               <Chip
                 label={currentSubscription?.status || 'N/A'}
                 color={
@@ -239,15 +241,15 @@ export const TenantDetailInfo: React.FC<TenantDetailInfoProps> = ({
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Type:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('common.type')}:</Typography>
               <Typography>{currentSubscription?.type || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>Start Date:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('subscription.startDate')}:</Typography>
               <Typography>{currentSubscription?.start_date || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>End Date:</Typography>
+              <Typography sx={{ ...secondaryTypographyStyle, fontWeight: "bold" }}>{t('subscription.endDate')}:</Typography>
               <Typography>{currentSubscription?.end_date || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12}>

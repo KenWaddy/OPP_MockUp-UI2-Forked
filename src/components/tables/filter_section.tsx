@@ -13,6 +13,7 @@ import {
   Button
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { useTranslation } from 'react-i18next';
 
 export interface FilterField {
   type: 'text' | 'select' | 'date';
@@ -33,12 +34,13 @@ export interface FilterSectionProps<T extends Record<string, any> = Record<strin
 }
 
 export const FilterSection = <T extends Record<string, any> = Record<string, any>>({
-  title = "Filters",
+  title,
   filters,
   onFiltersChange,
   onResetFilters,
   filterFields
 }: FilterSectionProps<T>) => {
+  const { t } = useTranslation();
   const handleFilterChange = (key: string, value: any) => {
     if (typeof onFiltersChange === 'function') {
       const updatedFilters = { ...filters, [key]: value } as T;
@@ -119,7 +121,7 @@ export const FilterSection = <T extends Record<string, any> = Record<string, any
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-          {title}
+          {title || t('common.filters')}
         </Typography>
         <Button
           variant="outlined"
@@ -128,7 +130,7 @@ export const FilterSection = <T extends Record<string, any> = Record<string, any
           startIcon={<FilterListIcon />}
           sx={{ fontWeight: 'bold' }}
         >
-          Reset Filters
+          {t('common.resetFilters')}
         </Button>
       </Box>
       <Divider sx={{ mb: 2 }} />
