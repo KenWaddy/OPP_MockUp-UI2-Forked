@@ -8,7 +8,7 @@ import {
   MenuItem
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useLanguage } from "../../contexts/LanguageContext";
+import { useLanguage } from "../../languages/LanguageContext";
 
 interface ContactData {
   first_name: string;

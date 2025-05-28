@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormControl, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '../../languages/LanguageContext';
 
 interface LanguageSelectorProps {
   variant?: 'standard' | 'outlined' | 'filled';
@@ -25,7 +25,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         value={language}
         onChange={handleChange}
         displayEmpty
-        sx={{ minWidth: '120px' }}
+        sx={{ 
+          minWidth: '120px',
+          color: 'white',
+          '& .MuiSelect-icon': {
+            color: 'white'
+          }
+        }}
       >
         <MenuItem value="English">English</MenuItem>
         <MenuItem value="日本語">日本語</MenuItem>
