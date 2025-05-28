@@ -33,6 +33,7 @@ import { Billing, DeviceContractItem } from '../commons/models.js';
 import { BillingDialog } from '../components/dialogs/BillingDialog';
 import { calculateNextBillingMonth } from '../commons/billing_calc.js';
 import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
+import { useTranslation } from "react-i18next";
 
 const billingService = new BillingService();
 const billingTypeOptions = ["Monthly", "Annually", "One-time"];
@@ -63,6 +64,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
   error: propError,
   setError: propSetError
 }) => {
+  const { t } = useTranslation();
   const [localBillingRecords, setLocalBillingRecords] = useState<Billing[]>([]);
   const [localLoading, setLocalLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -286,7 +288,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Billing ID
+                  {t('billing.billingId')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="paymentType"
@@ -294,7 +296,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Payment Type
+                  {t('billing.paymentType')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="nextBillingMonth"
@@ -302,7 +304,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Next Billing Month
+                  {t('billing.nextBillingMonth')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="startDate"
@@ -310,7 +312,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Contract Start
+                  {t('billing.contractStart')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="endDate"
@@ -318,18 +320,18 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Contract End
+                  {t('billing.contractEnd')}
                 </SortableTableCell>
-                <TableCell sx={tableHeaderCellStyle}>Number of Devices</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('billing.numberOfDevices')}</TableCell>
                 <SortableTableCell 
                   sortKey="description"
                   sortConfig={sortConfig}
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  Description
+                  {t('common.description')}
                 </SortableTableCell>
-                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
