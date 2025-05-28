@@ -27,7 +27,7 @@ import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerSty
 import { useSorting } from '../hooks/useSorting';
 import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService, TenantService } from '../mockAPI/index.js';
-import { DeviceContractItem } from '../commons/models.js';
+import { DeviceContractItem, BillingWithTenant } from '../commons/models.js';
 import { exportToCsv } from '../commons/export_CSV.js';
 import { calculateNextBillingMonth } from '../commons/billing_calc.js';
 import { useTranslation } from "react-i18next";
@@ -38,24 +38,8 @@ const tenantService = new TenantService();
 
 export const BillingPage: React.FC = () => {
   const { t } = useTranslation();
-  
-  type BillingDetailItem = {
-    id?: string;
-    deviceContract?: { type: string; quantity: number }[];
-    startDate?: string;
-    endDate?: string;
-    paymentType?: "One-time" | "Monthly" | "Annually";
-    billingDate?: string;
-    dueMonth?: number;
-    description?: string;
-  };
 
-  type AggregatedBillingItem = BillingDetailItem & {
-    tenantId: string;
-    tenantName: string;
-  };
-
-  const [allBillings, setAllBillings] = useState<AggregatedBillingItem[]>([]);
+  const [allBillings, setAllBillings] = useState<BillingWithTenant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
@@ -125,7 +109,7 @@ export const BillingPage: React.FC = () => {
         sort: serviceSort
       });
 
-      setAllBillings(response.data as unknown as AggregatedBillingItem[]);
+      setAllBillings(response.data as unknown as BillingWithTenant[]);
       setPagination({
         ...pagination,
         total: response.meta.total,
@@ -135,7 +119,7 @@ export const BillingPage: React.FC = () => {
       // Extract all device types for the filter dropdown
       const types = new Set<string>();
       response.data.forEach(billing => {
-        const billingItem = billing as unknown as AggregatedBillingItem;
+        const billingItem = billing as unknown as BillingWithTenant;
         if (billingItem.deviceContract) {
           (billingItem.deviceContract as { type: string; quantity: number }[]).forEach(contract => {
             types.add(contract.type);
@@ -168,7 +152,7 @@ export const BillingPage: React.FC = () => {
     return deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
   };
 
-  const renderPaymentSettings = (billing: AggregatedBillingItem) => {
+  const renderPaymentSettings = (billing: BillingWithTenant) => {
     if (!billing) return 'N/A';
 
     const paymentType = billing.paymentType || 'N/A';
@@ -374,10 +358,10 @@ export const BillingPage: React.FC = () => {
                         <span
                           className="clickable"
                           onClick={() => {
-                            localStorage.setItem('selectedTenantId', billing.tenantId);
+                            localStorage.setItem('selectedTenantId', billing.subscriptionId);
                             window.history.pushState({}, '', '/');
                             const tenantPageEvent = new CustomEvent('navigate-to-tenant', {
-                              detail: { tenant: { id: billing.tenantId } }
+                              detail: { tenant: { id: billing.subscriptionId } }
                             });
                             window.dispatchEvent(tenantPageEvent);
                           }}

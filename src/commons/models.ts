@@ -123,6 +123,16 @@ export type DeviceWithTenant = Device & {
 };
 
 /**
+ * Billing with tenant information for display purposes
+ */
+export type BillingWithTenant = Billing & {
+  tenantId?: string; // Optional as subscriptionId is used in most places
+  tenantName: string;
+  nextBillingDate: string;
+  totalDevices: number;
+};
+
+/**
  * Unregistered device data structure
  * @note Consolidated from UnregisteredDeviceType - using interface matching data usage
  */
