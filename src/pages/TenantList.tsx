@@ -241,21 +241,21 @@ export const TenantList: React.FC<{
           {
             type: 'text',
             key: 'textSearch',
-            label: 'Text Search',
-            placeholder: 'Search by Tenant Name, Contact Name, or Email Address',
+            label: t('common.search'),
+            placeholder: t('tenant.textSearchPlaceholder'),
             gridSize: 3
           },
           {
             type: 'select',
             key: 'contractType',
-            label: 'Subscription Type',
+            label: t('tenant.subscriptionType'),
             options: contractTypeOptions,
             gridSize: 3
           },
           {
             type: 'select',
             key: 'status',
-            label: 'Subscription Status',
+            label: t('tenant.subscriptionStatus'),
             options: statusOptions,
             gridSize: 3
           }

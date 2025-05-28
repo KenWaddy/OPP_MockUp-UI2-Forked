@@ -33,7 +33,10 @@
     "subscriptionInfo": "Subscription Info",
     "exportAllTenantList": "Export All Tenant List",
     "exportAllUserList": "Export All User List",
-    "contact": "Contact"
+    "contact": "Contact",
+    "textSearchPlaceholder": "Search by Tenant Name, Contact Name, or Email Address",
+    "subscriptionType": "Subscription Type",
+    "subscriptionStatus": "Subscription Status"
   },
   "contact": {
     "firstName": "First Name",
@@ -59,7 +62,8 @@
     "attributes": "Attributes",
     "assignToTenant": "Assign to Tenant",
     "typeName": "Type Name",
-    "option": "Option"
+    "option": "Option",
+    "textSearchPlaceholder": "Search in Tenant, Name, Device ID, Serial No, Description"
   },
   "billing": {
     "exportAllBillingList": "Export All Billing List",

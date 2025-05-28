@@ -398,22 +398,22 @@ export const DevicePage: React.FC = () => {
           {
             type: 'text',
             key: 'searchText',
-            label: 'Search',
-            placeholder: 'Search in Tenant, Name, Device ID, Serial No, Description',
+            label: t('common.search'),
+            placeholder: t('device.textSearchPlaceholder'),
             startAdornment: true,
             gridSize: 4
           },
           {
             type: 'select',
             key: 'type',
-            label: 'Type',
+            label: t('common.type'),
             options: deviceTypes,
             gridSize: 4
           },
           {
             type: 'select',
             key: 'status',
-            label: 'Status',
+            label: t('common.status'),
             options: statusOptions,
             gridSize: 4
           }
