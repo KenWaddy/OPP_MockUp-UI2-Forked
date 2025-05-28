@@ -128,7 +128,6 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
       paymentType: "Monthly",
       startDate: new Date().toISOString().split('T')[0],
       endDate: '',
-      dueDay: 15,
       deviceContract: [{ type: defaultDeviceTypes[0].name, quantity: 1 }],
       description: ''
     });
