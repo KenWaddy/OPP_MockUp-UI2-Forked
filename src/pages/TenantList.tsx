@@ -2,28 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  CircularProgress,
-  Typography,
-  Divider,
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
   Alert,
   IconButton,
   Chip
 } from "@mui/material";
-import { PaginationComponent } from '../components/tables/pagination';
-import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
 import { formatContactName } from '../mockAPI/utils.js';
 import { TenantService, SubscriptionService } from '../mockAPI/index.js';
 import { TenantType, Subscription } from '../commons/models.js';
@@ -31,7 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { FilterSection } from '../components/tables/filter_section';
 import { useSorting } from '../hooks/useSorting';
-import { SortableTableCell } from '../components/tables/SortableTableCell';
+import { CommonTable, ColumnDefinition } from '../components/tables';
 
 const tenantService = new TenantService();
 const subscriptionService = new SubscriptionService();
@@ -148,6 +130,100 @@ export const TenantList: React.FC<{
   };
   
 
+  const columns: ColumnDefinition<TenantType>[] = [
+    {
+      key: 'name',
+      label: 'Tenant',
+      sortable: true,
+      sortKey: 'tenant',
+      render: (tenant) => (
+        <span
+          className="clickable"
+          onClick={() => handleRowClick(tenant.id)}
+          style={{ cursor: 'pointer', color: 'blue' }}
+        >
+          {tenant.name}
+        </span>
+      )
+    },
+    {
+      key: 'contact',
+      label: 'Contact',
+      sortable: true,
+      render: (tenant) => formatContactName(
+        tenant.contact.first_name,
+        tenant.contact.last_name,
+        tenant.contact.language
+      )
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      sortable: true,
+      render: (tenant) => tenant.contact.email
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      sortable: true,
+      render: (tenant) => {
+        const subscription = subscriptions[tenant.subscriptionId];
+        return subscription?.type || 'N/A';
+      }
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (tenant) => {
+        const subscription = subscriptions[tenant.subscriptionId];
+        return (
+          <Chip
+            label={subscription?.status || 'N/A'}
+            color={
+              subscription?.status === "Active" ? "success" :
+              subscription?.status === "Cancelled" ? "error" :
+              "default"
+            }
+            size="small"
+          />
+        );
+      }
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (tenant) => (
+        <>
+          {onEditTenant && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditTenant(tenant);
+              }}
+              aria-label="edit"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          )}
+          {onDeleteTenant && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteTenant(tenant.id);
+              }}
+              aria-label="delete"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
+        </>
+      )
+    }
+  ];
+
   return (
     <div className="tenant-list">
       {/* Filter section */}
@@ -189,140 +265,20 @@ export const TenantList: React.FC<{
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>{error}</Alert>
       )}
 
-      {/* Pagination - Positioned above the table */}
-      <PaginationComponent
+      {/* Common Table */}
+      <CommonTable
+        data={tenants}
+        columns={columns}
+        loading={loading}
+        error={error}
+        emptyMessage="No tenants match the filter criteria"
+        sortConfig={sortConfig || null}
+        onRequestSort={requestSort}
         pagination={pagination}
         onPageChange={handlePageChange}
         onLimitChange={(limit) => setPagination({ ...pagination, page: 1, limit })}
         pageSizeOptions={[20, 100, 500]}
       />
-
-      {/* Loading indicator */}
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
-          <Table size="small" aria-label="tenant list table">
-            <TableHead>
-              <TableRow>
-                <SortableTableCell
-                  sortKey="tenant"
-                  sortConfig={sortConfig}
-                  onRequestSort={requestSort}
-                  sx={tableHeaderCellStyle}
-                >
-                  Tenant
-                </SortableTableCell>
-                <SortableTableCell
-                  sortKey="contact"
-                  sortConfig={sortConfig}
-                  onRequestSort={requestSort}
-                  sx={tableHeaderCellStyle}
-                >
-                  Contact
-                </SortableTableCell>
-                <SortableTableCell
-                  sortKey="email"
-                  sortConfig={sortConfig}
-                  onRequestSort={requestSort}
-                  sx={tableHeaderCellStyle}
-                >
-                  Email
-                </SortableTableCell>
-                <SortableTableCell
-                  sortKey="type"
-                  sortConfig={sortConfig}
-                  onRequestSort={requestSort}
-                  sx={tableHeaderCellStyle}
-                >
-                  Type
-                </SortableTableCell>
-                <SortableTableCell
-                  sortKey="status"
-                  sortConfig={sortConfig}
-                  onRequestSort={requestSort}
-                  sx={tableHeaderCellStyle}
-                >
-                  Status
-                </SortableTableCell>
-                <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tenants.length > 0 ? (
-                tenants.map((tenant) => {
-                  const subscription = subscriptions[tenant.subscriptionId];
-                  return (
-                    <TableRow key={tenant.id}>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <span
-                          className="clickable"
-                          onClick={() => handleRowClick(tenant.id)}
-                          style={{ cursor: 'pointer', color: 'blue' }}
-                        >
-                          {tenant.name}
-                        </span>
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        {formatContactName(
-                          tenant.contact.first_name,
-                          tenant.contact.last_name,
-                          tenant.contact.language
-                        )}
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{tenant.contact.email}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{subscription?.type || 'N/A'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <Chip
-                          label={subscription?.status || 'N/A'}
-                          color={
-                            subscription?.status === "Active" ? "success" :
-                            subscription?.status === "Cancelled" ? "error" :
-                            "default"
-                          }
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>
-                        {onEditTenant && (
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEditTenant(tenant);
-                            }}
-                            aria-label="edit"
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                        {onDeleteTenant && (
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteTenant(tenant.id);
-                            }}
-                            aria-label="delete"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={tableBodyCellStyle}>No tenants match the filter criteria</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
     </div>
   );
 };
