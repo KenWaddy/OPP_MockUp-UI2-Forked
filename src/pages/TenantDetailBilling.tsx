@@ -31,7 +31,7 @@ import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService } from '../mockAPI/billing.service.js';
 import { Billing, DeviceContractItem } from '../commons/models.js';
 import { BillingDialog } from '../components/dialogs/BillingDialog';
-import { calculateNextBillingMonth } from '../commons/billing_calc.js';
+import { calculateNextBillingDate } from '../commons/billing_calc.js';
 import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 import { useTranslation } from "react-i18next";
 
@@ -196,39 +196,38 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
   const sortedBillingDetails = useMemo(() => {
     if (!billingRecords || !sortConfig) return billingRecords || [];
     return [...billingRecords].sort((a, b) => {
-      if (sortConfig.key === 'nextBillingMonth') {
-        const nextBillingMonthA = calculateNextBillingMonth(a);
-        const nextBillingMonthB = calculateNextBillingMonth(b);
+      if (sortConfig.key === 'nextBillingDate') {
+        const nextBillingDateA = calculateNextBillingDate(a);
+        const nextBillingDateB = calculateNextBillingDate(b);
         
-        if (nextBillingMonthA === 'Ended' && nextBillingMonthB !== 'Ended') {
+        if (nextBillingDateA === 'Ended' && nextBillingDateB !== 'Ended') {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
-        if (nextBillingMonthA !== 'Ended' && nextBillingMonthB === 'Ended') {
+        if (nextBillingDateA !== 'Ended' && nextBillingDateB === 'Ended') {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
         
-        if (nextBillingMonthA === '—' && nextBillingMonthB !== '—') {
+        if (nextBillingDateA === '—' && nextBillingDateB !== '—') {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
-        if (nextBillingMonthA !== '—' && nextBillingMonthB === '—') {
+        if (nextBillingDateA !== '—' && nextBillingDateB === '—') {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
         
-        if (nextBillingMonthA !== '—' && nextBillingMonthA !== 'Ended' && 
-            nextBillingMonthB !== '—' && nextBillingMonthB !== 'Ended') {
-          const [yearA, monthA] = nextBillingMonthA.split('-').map(Number);
-          const [yearB, monthB] = nextBillingMonthB.split('-').map(Number);
-          
-          if (yearA !== yearB) {
-            return (yearA - yearB) * (sortConfig.direction === 'ascending' ? 1 : -1);
+        if (nextBillingDateA !== '—' && nextBillingDateA !== 'Ended' && 
+            nextBillingDateB !== '—' && nextBillingDateB !== 'Ended') {
+          if (nextBillingDateA < nextBillingDateB) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
           }
-          return (monthA - monthB) * (sortConfig.direction === 'ascending' ? 1 : -1);
+          if (nextBillingDateA > nextBillingDateB) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
         }
         
-        if (nextBillingMonthA < nextBillingMonthB) {
+        if (nextBillingDateA < nextBillingDateB) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (nextBillingMonthA > nextBillingMonthB) {
+        if (nextBillingDateA > nextBillingDateB) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -299,12 +298,12 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   {t('billing.paymentType')}
                 </SortableTableCell>
                 <SortableTableCell 
-                  sortKey="nextBillingMonth"
+                  sortKey="nextBillingDate"
                   sortConfig={sortConfig}
                   onRequestSort={requestSort}
                   sx={tableHeaderCellStyle}
                 >
-                  {t('billing.nextBillingMonth')}
+                  {t('billing.nextBillingDate')}
                 </SortableTableCell>
                 <SortableTableCell 
                   sortKey="startDate"
@@ -350,7 +349,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                       }
                     />
                   </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingMonth(billing)}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>

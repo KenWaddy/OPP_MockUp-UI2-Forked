@@ -69,7 +69,7 @@
     "exportAllBillingList": "全請求情報をCSV取得",
     "billingId": "請求管理番号",
     "paymentType": "支払いタイプ",
-    "nextBillingMonth": "次回請求月",
+    "nextBillingDate": "次回請求日",
     "contractStart": "契約開始日",
     "contractEnd": "契約終了日",
     "numberOfDevices": "デバイス数",

@@ -12,16 +12,12 @@ import { Billing } from '../commons/models.js';
 
 export class BillingService implements IBillingService {
   /**
-   * Calculate the next billing month for a billing item
+   * Calculate the next billing date for a billing item
    * @param item The billing item
-   * @returns The next billing month in YYYY-MM format
+   * @returns The next billing date in YYYY-MM-DD format, "Ended" for ended contracts, or "—" for invalid data
    */
-  private calculateNextBillingMonth(item: BillingWithTenant): string {
+  private calculateNextBillingDate(item: BillingWithTenant): string {
     if (!item) return '—';
-    
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // 0-11
     
     if (item.endDate) {
       try {
@@ -35,34 +31,39 @@ export class BillingService implements IBillingService {
       }
     }
     
-    if (item.paymentType === 'Monthly') {
-      let nextBillingYear = currentYear;
-      let nextBillingMonth = currentMonth;
+    if (item.paymentType === 'One-time') {
+      return '—';
+    } 
+    else if (item.paymentType === 'Monthly') {
+      if (!item.endDate) return '—';
       
-      return `${nextBillingYear}-${String(nextBillingMonth + 1).padStart(2, '0')}`;
+      try {
+        const endDate = new Date(item.endDate);
+        const endDay = endDate.getDate();
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth(); // 0-indexed
+        
+        const candidateDate = new Date(currentYear, currentMonth, endDay);
+        
+        if (candidateDate <= today) {
+          candidateDate.setMonth(currentMonth + 1);
+        }
+        
+        return candidateDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      } catch (e) {
+        return '—';
+      }
     } 
     else if (item.paymentType === 'Annually') {
       if (!item.endDate) return '—';
       
       try {
         const endDate = new Date(item.endDate);
-        const endYear = endDate.getFullYear();
-        const endMonth = endDate.getMonth(); // 0-11
+        const nextBillingDate = new Date(endDate);
+        nextBillingDate.setMonth(endDate.getMonth() - 1);
         
-        return `${endYear}-${String(endMonth + 1).padStart(2, '0')}`;
-      } catch (e) {
-        return '—';
-      }
-    } 
-    else if (item.paymentType === 'One-time') {
-      if (!item.startDate) return '—';
-      
-      try {
-        const startDate = new Date(item.startDate);
-        const startYear = startDate.getFullYear();
-        const startMonth = startDate.getMonth(); // 0-11
-        
-        return `${startYear}-${String(startMonth + 1).padStart(2, '0')}`;
+        return nextBillingDate.toISOString().split('T')[0]; // YYYY-MM-DD format
       } catch (e) {
         return '—';
       }
@@ -135,13 +136,13 @@ export class BillingService implements IBillingService {
             );
           } else if (key === 'nextBillingFrom') {
             result = result.filter(item => {
-              const nextBillingMonth = this.calculateNextBillingMonth(item);
-              return nextBillingMonth !== '—' && nextBillingMonth >= String(value);
+              const nextBillingDate = this.calculateNextBillingDate(item);
+              return nextBillingDate !== '—' && nextBillingDate >= String(value);
             });
           } else if (key === 'nextBillingTo') {
             result = result.filter(item => {
-              const nextBillingMonth = this.calculateNextBillingMonth(item);
-              return nextBillingMonth !== '—' && nextBillingMonth <= String(value);
+              const nextBillingDate = this.calculateNextBillingDate(item);
+              return nextBillingDate !== '—' && nextBillingDate <= String(value);
             });
           } else {
             result = result.filter(item => 
@@ -159,38 +160,38 @@ export class BillingService implements IBillingService {
         if (field === 'contractStart') field = 'startDate';
         if (field === 'contractEnd') field = 'endDate';
         
-        if (field === 'nextBillingMonth') {
-          const nextBillingMonthA = this.calculateNextBillingMonth(a);
-          const nextBillingMonthB = this.calculateNextBillingMonth(b);
+        if (field === 'nextBillingDate') {
+          const nextBillingDateA = this.calculateNextBillingDate(a);
+          const nextBillingDateB = this.calculateNextBillingDate(b);
           
-          if (nextBillingMonthA === 'Ended' && nextBillingMonthB !== 'Ended') {
+          if (nextBillingDateA === 'Ended' && nextBillingDateB !== 'Ended') {
             return params.sort!.order === 'asc' ? 1 : -1;
           }
-          if (nextBillingMonthA !== 'Ended' && nextBillingMonthB === 'Ended') {
+          if (nextBillingDateA !== 'Ended' && nextBillingDateB === 'Ended') {
             return params.sort!.order === 'asc' ? -1 : 1;
           }
-          if (nextBillingMonthA === '—' && nextBillingMonthB !== '—') {
+          if (nextBillingDateA === '—' && nextBillingDateB !== '—') {
             return params.sort!.order === 'asc' ? 1 : -1;
           }
-          if (nextBillingMonthA !== '—' && nextBillingMonthB === '—') {
+          if (nextBillingDateA !== '—' && nextBillingDateB === '—') {
             return params.sort!.order === 'asc' ? -1 : 1;
           }
           
-          if (nextBillingMonthA !== '—' && nextBillingMonthA !== 'Ended' && 
-              nextBillingMonthB !== '—' && nextBillingMonthB !== 'Ended') {
-            const [yearA, monthA] = nextBillingMonthA.split('-').map(Number);
-            const [yearB, monthB] = nextBillingMonthB.split('-').map(Number);
-            
-            if (yearA !== yearB) {
-              return (yearA - yearB) * (params.sort!.order === 'asc' ? 1 : -1);
+          if (nextBillingDateA !== '—' && nextBillingDateA !== 'Ended' && 
+              nextBillingDateB !== '—' && nextBillingDateB !== 'Ended') {
+            // For ISO date strings (YYYY-MM-DD), string comparison works for sorting
+            if (nextBillingDateA < nextBillingDateB) {
+              return params.sort!.order === 'asc' ? -1 : 1;
             }
-            return (monthA - monthB) * (params.sort!.order === 'asc' ? 1 : -1);
+            if (nextBillingDateA > nextBillingDateB) {
+              return params.sort!.order === 'asc' ? 1 : -1;
+            }
           }
           
-          if (nextBillingMonthA < nextBillingMonthB) {
+          if (nextBillingDateA < nextBillingDateB) {
             return params.sort!.order === 'asc' ? -1 : 1;
           }
-          if (nextBillingMonthA > nextBillingMonthB) {
+          if (nextBillingDateA > nextBillingDateB) {
             return params.sort!.order === 'asc' ? 1 : -1;
           }
           return 0;
@@ -262,7 +263,7 @@ export class BillingService implements IBillingService {
         `${contract.type}: ${contract.quantity}`
       ).join(', ') || '';
       
-      const nextBillingMonth = this.calculateNextBillingMonth({
+      const nextBillingDate = this.calculateNextBillingDate({
         id: billingItem.id,
         subscriptionId: tenant.id,
         tenantName: tenant.name,
@@ -284,7 +285,7 @@ export class BillingService implements IBillingService {
         id: billingItem.id || '',
         startDate: billingItem.startDate || '',
         endDate: billingItem.endDate || '',
-        nextBillingMonth,
+        nextBillingDate,
         paymentSettings,
         numberOfDevices: totalDevices,
         deviceContractDetails: deviceContractFormatted
