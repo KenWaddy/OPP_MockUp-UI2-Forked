@@ -150,6 +150,12 @@ export const TenantList: React.FC<{
       )
     },
     {
+      key: 'company',
+      label: t('contact.company'),
+      sortable: true,
+      render: (tenant) => tenant.contact.company
+    },
+    {
       key: 'contact',
       label: t('tenant.contact'),
       sortable: true,
@@ -158,12 +164,6 @@ export const TenantList: React.FC<{
         tenant.contact.last_name,
         tenant.contact.language
       )
-    },
-    {
-      key: 'company',
-      label: t('contact.company'),
-      sortable: true,
-      render: (tenant) => tenant.contact.company
     },
     {
       key: 'email',
