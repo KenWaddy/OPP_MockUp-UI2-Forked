@@ -69,7 +69,7 @@
     "exportAllBillingList": "Export All Billing List to CSV",
     "billingId": "Billing ID",
     "paymentType": "Payment Type",
-    "nextBillingMonth": "Next Billing Month",
+    "nextBillingDate": "Next Billing Date",
     "contractStart": "Contract Start",
     "contractEnd": "Contract End",
     "numberOfDevices": "Number of Devices",
