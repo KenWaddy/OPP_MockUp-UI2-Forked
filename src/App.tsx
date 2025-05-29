@@ -50,9 +50,23 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const getCurrentTabName = () => {
+    switch (activeTab) {
+      case "device":
+        return t('common.device');
+      case "billing":
+        return t('common.billing');
+      default:
+        return t('common.tenant');
+    }
+  };
+
   return (
     <div className="app">
       <nav className="nav">
+        <span style={{ fontSize: '1.2em', color: '#FFFFFF', fontWeight: 'bold' }}>
+          {t('common.operationPortal')} &gt;&gt; {getCurrentTabName()}
+        </span>
         <span
           className={activeTab === "tenant" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("tenant")}

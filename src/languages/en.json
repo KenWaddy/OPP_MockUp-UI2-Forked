@@ -1,5 +1,6 @@
 {
   "common": {
+    "operationPortal": "Operation Portal",
     "tenant": "Tenant",
     "device": "Device",
     "billing": "Billing",
