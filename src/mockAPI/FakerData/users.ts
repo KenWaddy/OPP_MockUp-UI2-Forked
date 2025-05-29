@@ -12,7 +12,7 @@ export function generateUsersForTenant(subscriptionId: string, count: number): U
   const users: User[] = [];
   
   users.push({
-    id: `user-${subscriptionId}-owner`,
+    id: faker.string.uuid(),
     subscriptionId,
     name: faker.person.fullName(),
     email: faker.internet.email(),
@@ -35,7 +35,7 @@ export function generateUsersForTenant(subscriptionId: string, count: number): U
     }
     
     users.push({
-      id: `user-${subscriptionId}-${i}`,
+      id: faker.string.uuid(),
       subscriptionId,
       name: faker.person.fullName(),
       email: faker.internet.email(),
@@ -82,8 +82,7 @@ export const deleteUser = (id: string) => {
   mutableUsers = mutableUsers.filter(u => u.id !== id);
 };
 export const getNextUserIdForTenant = (subscriptionId: string) => {
-  const tenantUsers = mutableUsers.filter(u => u.subscriptionId === subscriptionId);
-  return `user-${subscriptionId}-${tenantUsers.length}`;
+  return faker.string.uuid();
 };
 
 export const users = mutableUsers;
