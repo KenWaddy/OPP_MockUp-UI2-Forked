@@ -200,13 +200,6 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
         const nextBillingDateA = calculateNextBillingDate(a);
         const nextBillingDateB = calculateNextBillingDate(b);
         
-        if (nextBillingDateA === 'Ended' && nextBillingDateB !== 'Ended') {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        if (nextBillingDateA !== 'Ended' && nextBillingDateB === 'Ended') {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        
         if (nextBillingDateA === '—' && nextBillingDateB !== '—') {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
@@ -214,8 +207,8 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
         
-        if (nextBillingDateA !== '—' && nextBillingDateA !== 'Ended' && 
-            nextBillingDateB !== '—' && nextBillingDateB !== 'Ended') {
+        if (nextBillingDateA !== '—' && 
+            nextBillingDateB !== '—') {
           if (nextBillingDateA < nextBillingDateB) {
             return sortConfig.direction === 'ascending' ? -1 : 1;
           }

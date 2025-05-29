@@ -7,7 +7,7 @@ import { Billing } from './models';
 /**
  * Calculate the next billing date based on billing details
  * @param billing The billing details object
- * @returns Formatted string representing the next billing date (YYYY-MM-DD), "Ended" for ended contracts, or "—" for invalid data
+ * @returns Formatted string representing the next billing date (YYYY-MM-DD), "—" for ended contracts or invalid data
  */
 export function calculateNextBillingDate(billing: any): string {
   if (!billing) return '—';
@@ -17,7 +17,7 @@ export function calculateNextBillingDate(billing: any): string {
       const endDate = new Date(billing.endDate);
       const currentDate = new Date();
       if (currentDate > endDate) {
-        return "Ended";
+        return "—";
       }
     } catch (e) {
       // Invalid date format, continue with other calculations

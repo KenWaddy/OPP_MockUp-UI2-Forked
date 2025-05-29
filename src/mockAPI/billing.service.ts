@@ -14,7 +14,7 @@ export class BillingService implements IBillingService {
   /**
    * Calculate the next billing date for a billing item
    * @param item The billing item
-   * @returns The next billing date in YYYY-MM-DD format, "Ended" for ended contracts, or "—" for invalid data
+   * @returns The next billing date in YYYY-MM-DD format, "—" for ended contracts or invalid data
    */
   private calculateNextBillingDate(item: BillingWithTenant): string {
     if (!item) return '—';
@@ -25,7 +25,7 @@ export class BillingService implements IBillingService {
         const currentDate = new Date();
         
         if (currentDate > endDate) {
-          return 'Ended';
+          return '—';
         }
       } catch (e) {
       }
@@ -89,14 +89,18 @@ export class BillingService implements IBillingService {
         (sum: number, contract: DeviceContractItem) => sum + contract.quantity, 0
       ) || 0;
       
-      let nextBillingDate = '';
-      if (billingItem.paymentType === 'Monthly') {
-        nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billingItem.paymentType === 'Annually') {
-        nextBillingDate = new Date().toISOString().split('T')[0]; // Placeholder
-      } else if (billingItem.paymentType === 'One-time') {
-        nextBillingDate = billingItem.startDate || '';
-      }
+      const nextBillingDate = this.calculateNextBillingDate({
+        id: billingItem.id,
+        subscriptionId: tenant.id,
+        tenantName: tenant.name,
+        deviceContract: billingItem.deviceContract || [],
+        startDate: billingItem.startDate || '',
+        endDate: billingItem.endDate || '',
+        paymentType: billingItem.paymentType || 'Monthly',
+        description: billingItem.description,
+        nextBillingDate: '',
+        totalDevices
+      });
       
       billingItems.push({
         id: billingItem.id,
@@ -165,12 +169,6 @@ export class BillingService implements IBillingService {
           const nextBillingDateA = this.calculateNextBillingDate(a);
           const nextBillingDateB = this.calculateNextBillingDate(b);
           
-          if (nextBillingDateA === 'Ended' && nextBillingDateB !== 'Ended') {
-            return params.sort!.order === 'asc' ? 1 : -1;
-          }
-          if (nextBillingDateA !== 'Ended' && nextBillingDateB === 'Ended') {
-            return params.sort!.order === 'asc' ? -1 : 1;
-          }
           if (nextBillingDateA === '—' && nextBillingDateB !== '—') {
             return params.sort!.order === 'asc' ? 1 : -1;
           }
@@ -178,8 +176,8 @@ export class BillingService implements IBillingService {
             return params.sort!.order === 'asc' ? -1 : 1;
           }
           
-          if (nextBillingDateA !== '—' && nextBillingDateA !== 'Ended' && 
-              nextBillingDateB !== '—' && nextBillingDateB !== 'Ended') {
+          if (nextBillingDateA !== '—' && 
+              nextBillingDateB !== '—') {
             // For ISO date strings (YYYY-MM-DD), string comparison works for sorting
             if (nextBillingDateA < nextBillingDateB) {
               return params.sort!.order === 'asc' ? -1 : 1;
