@@ -70,6 +70,7 @@ export const TenantList: React.FC<{
         field: sortConfig.key === 'tenant' ? 'name' :
                sortConfig.key === 'owner' ? 'owner' :
                sortConfig.key === 'email' ? 'email' :
+               sortConfig.key === 'company' ? 'company' :
                sortConfig.key === 'subscription.status' ? 'status' :
                sortConfig.key,
         order: sortConfig.direction === 'ascending' ? 'asc' : 'desc' as 'asc' | 'desc'
@@ -157,6 +158,12 @@ export const TenantList: React.FC<{
         tenant.contact.last_name,
         tenant.contact.language
       )
+    },
+    {
+      key: 'company',
+      label: t('contact.company'),
+      sortable: true,
+      render: (tenant) => tenant.contact.company
     },
     {
       key: 'email',

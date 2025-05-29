@@ -57,7 +57,8 @@ export class TenantService implements ITenantService {
               tenant.name.toLowerCase().includes(searchValue) ||
               tenant.contact.first_name.toLowerCase().includes(searchValue) ||
               tenant.contact.last_name.toLowerCase().includes(searchValue) ||
-              tenant.contact.email.toLowerCase().includes(searchValue)
+              tenant.contact.email.toLowerCase().includes(searchValue) ||
+              tenant.contact.company.toLowerCase().includes(searchValue)
             );
           } else if (key === 'contractType') {
             result = result.filter(tenant => {
@@ -94,6 +95,10 @@ export class TenantService implements ITenantService {
           case 'email':
             valueA = a.contact.email;
             valueB = b.contact.email;
+            break;
+          case 'company':
+            valueA = a.contact.company;
+            valueB = b.contact.company;
             break;
           case 'type':
           case 'status':
