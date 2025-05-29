@@ -74,7 +74,7 @@
     "contractEnd": "Contract End",
     "numberOfDevices": "Number of Devices",
     "textSearch": "Text Search",
-    "nextBillingFrom": "Next Billing Month(On or After)",
+    "nextBillingFrom": "Next Billing Date(On or After)",
     "deviceType": "Device Type",
     "quantity": "Quantity"
   },

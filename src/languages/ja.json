@@ -74,7 +74,7 @@
     "contractEnd": "契約終了日",
     "numberOfDevices": "デバイス数",
     "textSearch": "テキスト検索",
-    "nextBillingFrom": "次回請求月(以降)",
+    "nextBillingFrom": "次回請求日(以降)",
     "deviceType": "デバイスタイプ",
     "quantity": "台数"
   },
