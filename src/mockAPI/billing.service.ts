@@ -48,13 +48,14 @@ export class BillingService implements IBillingService {
         
         if (candidateDate <= today) {
           candidateDate.setMonth(currentMonth + 1);
+          candidateDate.setDate(endDay);
         }
         
         return candidateDate.toISOString().split('T')[0]; // YYYY-MM-DD format
       } catch (e) {
         return '—';
       }
-    } 
+    }
     else if (item.paymentType === 'Annually') {
       if (!item.endDate) return '—';
       
