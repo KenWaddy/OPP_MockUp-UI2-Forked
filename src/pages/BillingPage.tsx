@@ -367,7 +367,7 @@ export const BillingPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate, billing.endDate)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate || 'N/A', billing.endDate)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
                     </TableRow>
