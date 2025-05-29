@@ -1,5 +1,6 @@
 {
   "common": {
+    "operationPortal": "オペレーションポータル",
     "tenant": "テナント",
     "device": "デバイス",
     "billing": "請求情報",
