@@ -141,24 +141,41 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
     setOpenBillingDialog(false);
   };
 
-  const handleSaveBilling = () => {
+  const handleSaveBilling = async () => {
     if (!tenantId || !editableBilling) return;
 
     try {
       updateLoading(true);
 
+      const billingWithTenant = {
+        ...editableBilling,
+        subscriptionId: tenantId
+      };
+
       const existingBillingIndex = billingRecords.findIndex(billing => billing.id === editableBilling.id);
 
       if (existingBillingIndex >= 0) {
-        const updatedBillingDetails = [...billingRecords];
-        updatedBillingDetails[existingBillingIndex] = editableBilling;
-        updateBillingRecords(updatedBillingDetails);
+        const response = await billingService.updateBilling(billingWithTenant);
+        
+        if (response.success) {
+          const updatedBillingDetails = [...billingRecords];
+          updatedBillingDetails[existingBillingIndex] = response.data;
+          updateBillingRecords(updatedBillingDetails);
+        } else {
+          updateError(`Failed to update billing: ${response.message}`);
+        }
       } else {
-        const updatedBillingDetails = [
-          ...billingRecords,
-          editableBilling
-        ];
-        updateBillingRecords(updatedBillingDetails);
+        const response = await billingService.addBilling(billingWithTenant);
+        
+        if (response.success) {
+          const updatedBillingDetails = [
+            ...billingRecords,
+            response.data
+          ];
+          updateBillingRecords(updatedBillingDetails);
+        } else {
+          updateError(`Failed to add billing: ${response.message}`);
+        }
       }
 
       setOpenBillingDialog(false);
@@ -179,13 +196,20 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
     setOpenBillingDialog(true);
   };
 
-  const handleDeleteBilling = (billingId: string) => {
+  const handleDeleteBilling = async (billingId: string) => {
     if (!tenantId) return;
 
     try {
       updateLoading(true);
-      const updatedBillingDetails = billingRecords.filter(billing => billing.id !== billingId);
-      updateBillingRecords(updatedBillingDetails);
+      
+      const response = await billingService.deleteBilling(billingId);
+      
+      if (response.success) {
+        const updatedBillingDetails = billingRecords.filter(billing => billing.id !== billingId);
+        updateBillingRecords(updatedBillingDetails);
+      } else {
+        updateError(`Failed to delete billing: ${response.message}`);
+      }
     } catch (err) {
       updateError(`Error deleting billing: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
