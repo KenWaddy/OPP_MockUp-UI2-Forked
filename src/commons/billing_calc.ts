@@ -77,3 +77,35 @@ export function calculateNextBillingDate(billing: any): string {
 
   return "—"; // Default fallback
 }
+
+/**
+ * Calculate the contract period between start and end dates
+ * @param startDate The contract start date (YYYY-MM-DD format)
+ * @param endDate The contract end date (YYYY-MM-DD format) 
+ * @returns Formatted string in "XX months (XXXX days)" format, or "N/A" for invalid/missing dates
+ */
+export function calculateContractPeriod(startDate: string, endDate: string | null | undefined): string {
+  if (!startDate || !endDate || endDate === 'N/A') {
+    return 'N/A';
+  }
+
+  try {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) {
+      return 'N/A';
+    }
+
+    const yearDiff = end.getFullYear() - start.getFullYear();
+    const monthDiff = end.getMonth() - start.getMonth();
+    const totalMonths = yearDiff * 12 + monthDiff;
+
+    const timeDiff = end.getTime() - start.getTime();
+    const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return `${totalMonths} months (${totalDays} days)`;
+  } catch (e) {
+    return 'N/A';
+  }
+}

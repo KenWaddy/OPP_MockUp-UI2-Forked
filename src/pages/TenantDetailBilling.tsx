@@ -31,7 +31,7 @@ import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService } from '../mockAPI/billing.service.js';
 import { Billing, DeviceContractItem } from '../commons/models.js';
 import { BillingDialog } from '../components/dialogs/BillingDialog';
-import { calculateNextBillingDate } from '../commons/billing_calc.js';
+import { calculateNextBillingDate, calculateContractPeriod } from '../commons/billing_calc.js';
 import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 import { useTranslation } from "react-i18next";
 import { faker } from '@faker-js/faker';
@@ -252,6 +252,26 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
         return 0;
       }
       
+      if (sortConfig.key === 'contractPeriod') {
+        const contractPeriodA = calculateContractPeriod(a.startDate, a.endDate);
+        const contractPeriodB = calculateContractPeriod(b.startDate, b.endDate);
+        
+        if (contractPeriodA === 'N/A' && contractPeriodB !== 'N/A') {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        if (contractPeriodA !== 'N/A' && contractPeriodB === 'N/A') {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        
+        if (contractPeriodA < contractPeriodB) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (contractPeriodA > contractPeriodB) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      }
+      
       const aValue = a[sortConfig.key as keyof typeof a];
       const bValue = b[sortConfig.key as keyof typeof b];
       
@@ -348,6 +368,14 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                 >
                   {t('billing.contractEnd')}
                 </SortableTableCell>
+                <SortableTableCell 
+                  sortKey="contractPeriod"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
+                >
+                  {t('billing.contractPeriod')}
+                </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>{t('billing.numberOfDevices')}</TableCell>
                 <SortableTableCell 
                   sortKey="description"
@@ -380,6 +408,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate, billing.endDate)}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>
                     {billing.deviceContract && billing.deviceContract.length > 0
                       ? billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')

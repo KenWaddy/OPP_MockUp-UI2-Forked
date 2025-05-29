@@ -29,7 +29,7 @@ import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService, TenantService } from '../mockAPI/index.js';
 import { DeviceContractItem, BillingWithTenant } from '../commons/models.js';
 import { exportToCsv } from '../commons/export_CSV.js';
-import { calculateNextBillingDate } from '../commons/billing_calc.js';
+import { calculateNextBillingDate, calculateContractPeriod } from '../commons/billing_calc.js';
 import { useTranslation } from "react-i18next";
 
 // Create service instances
@@ -174,7 +174,7 @@ export const BillingPage: React.FC = () => {
       const allBillingItems = await billingService.getAllBillingItems();
 
       const headers = [
-        'tenantName', 'billingId', 'startDate', 'endDate',
+        'tenantName', 'billingId', 'startDate', 'endDate', 'contractPeriod',
         'nextBillingDate', 'paymentSettings',
         'numberOfDevices', 'deviceContractDetails', 'description'
       ];
@@ -317,6 +317,14 @@ export const BillingPage: React.FC = () => {
                       {t('billing.contractEnd')}
                     </SortableTableCell>
                     <SortableTableCell
+                      sortKey="contractPeriod"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
+                      sx={tableHeaderCellStyle}
+                    >
+                      {t('billing.contractPeriod')}
+                    </SortableTableCell>
+                    <SortableTableCell
                       sortKey="numberOfDevices"
                       sortConfig={sortConfig}
                       onRequestSort={requestSort}
@@ -359,6 +367,7 @@ export const BillingPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate || 'N/A', billing.endDate)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
                     </TableRow>

@@ -74,6 +74,7 @@
     "nextBillingDate": "Next Billing Date",
     "contractStart": "Contract Start",
     "contractEnd": "Contract End",
+    "contractPeriod": "Contract Period",
     "numberOfDevices": "Number of Devices",
     "textSearch": "Text Search",
     "nextBillingFrom": "Next Billing Date(On or After)",
