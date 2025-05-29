@@ -49,18 +49,13 @@ export const BillingPage: React.FC = () => {
     totalPages: 0
   });
 
-  const getCurrentMonth = (): string => {
-    const today = new Date();
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-  };
-
   const [filters, setFilters] = useState<{
     searchText: string;
     nextBillingFrom: string;
     paymentType: string;
   }>({
     searchText: "",
-    nextBillingFrom: getCurrentMonth(), // Default to current month
+    nextBillingFrom: "", // Default to blank
     paymentType: "",
   });
 
@@ -228,7 +223,7 @@ export const BillingPage: React.FC = () => {
             type: 'date',
             key: 'nextBillingFrom',
             label: t('billing.nextBillingFrom'),
-            placeholder: 'YYYY-MM',
+            placeholder: 'YYYY-MM-DD',
             gridSize: 3
           },
           {
