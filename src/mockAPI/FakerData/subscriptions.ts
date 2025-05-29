@@ -26,7 +26,7 @@ export function generateSubscriptions(count: number = 100): Subscription[] {
     const isJapanese = faker.datatype.boolean(0.4); // 40% chance of Japanese descriptions
     
     subscriptions.push({
-      id: `sub-${i}`,
+      id: faker.string.uuid(),
       name: faker.helpers.arrayElement(['Enterprise Plan', 'Standard Plan', 'Basic Plan', 'Premium Plan']),
       description: isJapanese ? faker.helpers.arrayElement(japaneseSubscriptionDescriptions) : faker.lorem.sentence(),
       type,
@@ -60,6 +60,6 @@ export const updateSubscription = (updatedSubscription: Subscription) => {
 export const deleteSubscription = (id: string) => {
   mutableSubscriptions = mutableSubscriptions.filter(s => s.id !== id);
 };
-export const getNextSubscriptionId = () => `sub-${mutableSubscriptions.length}`;
+export const getNextSubscriptionId = () => faker.string.uuid();
 
 export const subscriptions = mutableSubscriptions;

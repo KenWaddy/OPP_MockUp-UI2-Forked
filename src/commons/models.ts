@@ -101,6 +101,7 @@ export interface Device {
  */
 export interface Billing {
   id: string;
+  billingManageNo: string;
   subscriptionId: string; // Reference to parent subscription
   deviceContract: {
     type: string; // References DeviceType.name

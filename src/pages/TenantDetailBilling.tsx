@@ -34,6 +34,7 @@ import { BillingDialog } from '../components/dialogs/BillingDialog';
 import { calculateNextBillingDate } from '../commons/billing_calc.js';
 import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 import { useTranslation } from "react-i18next";
+import { faker } from '@faker-js/faker';
 
 const billingService = new BillingService();
 const billingTypeOptions = ["Monthly", "Annually", "One-time"];
@@ -126,7 +127,8 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
     if (!tenantId) return;
 
     setEditableBilling({
-      id: `BID-${Math.floor(Math.random() * 1000)}`,
+      id: faker.string.uuid(),
+      billingManageNo: `AMOR-${String(billingRecords.length + 1).padStart(3, '0')}`,
       paymentType: "Monthly",
       startDate: new Date().toISOString().split('T')[0],
       endDate: '',
@@ -307,6 +309,14 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   {t('billing.billingId')}
                 </SortableTableCell>
                 <SortableTableCell 
+                  sortKey="billingManageNo"
+                  sortConfig={sortConfig}
+                  onRequestSort={requestSort}
+                  sx={tableHeaderCellStyle}
+                >
+                  {t('billing.billingManageNo')}
+                </SortableTableCell>
+                <SortableTableCell 
                   sortKey="paymentType"
                   sortConfig={sortConfig}
                   onRequestSort={requestSort}
@@ -354,6 +364,7 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
               {sortedBillingDetails.map((billing, index) => (
                 <TableRow key={index}>
                   <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
+                  <TableCell sx={tableBodyCellStyle}>{billing.billingManageNo || '—'}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>
                     <Chip
                       label={billing.paymentType}

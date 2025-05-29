@@ -35,7 +35,8 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
     });
     
     const billing: Billing = {
-      id: `${subscriptionId}-${i}`,
+      id: faker.string.uuid(),
+      billingManageNo: `AMOR-${String(i + 1).padStart(3, '0')}`,
       subscriptionId,
       deviceContract,
       startDate,
@@ -82,8 +83,7 @@ export const deleteBilling = (id: string) => {
   mutableBilling = mutableBilling.filter(b => b.id !== id);
 };
 export const getNextBillingIdForTenant = (subscriptionId: string) => {
-  const tenantBilling = mutableBilling.filter(b => b.subscriptionId === subscriptionId);
-  return `billing-${subscriptionId}-${tenantBilling.length}`;
+  return faker.string.uuid();
 };
 
 export const billing = mutableBilling;

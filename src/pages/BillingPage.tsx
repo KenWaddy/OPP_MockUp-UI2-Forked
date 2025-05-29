@@ -277,6 +277,14 @@ export const BillingPage: React.FC = () => {
                       {t('billing.billingId')}
                     </SortableTableCell>
                     <SortableTableCell
+                      sortKey="billingManageNo"
+                      sortConfig={sortConfig}
+                      onRequestSort={requestSort}
+                      sx={tableHeaderCellStyle}
+                    >
+                      {t('billing.billingManageNo')}
+                    </SortableTableCell>
+                    <SortableTableCell
                       sortKey="paymentType"
                       sortConfig={sortConfig}
                       onRequestSort={requestSort}
@@ -346,6 +354,7 @@ export const BillingPage: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.id || 'N/A'}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{billing.billingManageNo || '—'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>

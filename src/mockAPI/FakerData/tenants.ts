@@ -73,7 +73,7 @@ export function generateTenants(count: number = 100): Tenant[] {
   const japanesePrefectures = ['東京都', '大阪府', '神奈川県', '愛知県', '北海道', '兵庫県', '京都府', '福岡県', '埼玉県', '千葉県'];
   
   for (let i = 0; i < count; i++) {
-    const id = `tenant-${i + 1}`;
+    const id = faker.string.uuid();
     const language = faker.helpers.arrayElement(['日本語', 'English']);
     const subscription = faker.helpers.arrayElement(subscriptions);
     
@@ -121,6 +121,6 @@ export const updateTenant = (updatedTenant: Tenant) => {
 export const deleteTenant = (id: string) => {
   mutableTenants = mutableTenants.filter(t => t.id !== id);
 };
-export const getNextTenantId = () => `tenant-${mutableTenants.length + 1}`;
+export const getNextTenantId = () => faker.string.uuid();
 
 export const tenants = mutableTenants;
