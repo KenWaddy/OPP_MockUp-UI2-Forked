@@ -42,6 +42,7 @@ export function calculateNextBillingDate(billing: any): string {
       
       if (candidateDate <= today) {
         candidateDate.setMonth(currentMonth + 1);
+        candidateDate.setDate(endDay);
       }
       
       return candidateDate.toISOString().split('T')[0]; // YYYY-MM-DD format
