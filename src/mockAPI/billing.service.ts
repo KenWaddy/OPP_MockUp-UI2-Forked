@@ -101,6 +101,7 @@ export class BillingService implements IBillingService {
       
       const nextBillingDate = this.calculateNextBillingDate({
         id: billingItem.id,
+        billingManageNo: billingItem.billingManageNo || '',
         subscriptionId: tenant.id,
         tenantName: tenant.name,
         deviceContract: billingItem.deviceContract || [],
@@ -114,6 +115,7 @@ export class BillingService implements IBillingService {
       
       billingItems.push({
         id: billingItem.id,
+        billingManageNo: billingItem.billingManageNo || '',
         subscriptionId: tenant.id,
         tenantName: tenant.name,
         deviceContract: billingItem.deviceContract || [],
@@ -135,7 +137,8 @@ export class BillingService implements IBillingService {
             const searchValue = String(value).toLowerCase();
             result = result.filter(item => 
               item.tenantName.toLowerCase().includes(searchValue) || 
-              item.id.toLowerCase().includes(searchValue)
+              item.id.toLowerCase().includes(searchValue) ||
+              (item.billingManageNo && item.billingManageNo.toLowerCase().includes(searchValue))
             );
           } else if (key === 'tenantName') {
             result = result.filter(item => 
@@ -274,6 +277,7 @@ export class BillingService implements IBillingService {
       
       const nextBillingDate = this.calculateNextBillingDate({
         id: billingItem.id,
+        billingManageNo: billingItem.billingManageNo || '',
         subscriptionId: tenant.id,
         tenantName: tenant.name,
         deviceContract: billingItem.deviceContract || [],

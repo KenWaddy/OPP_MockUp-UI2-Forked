@@ -69,6 +69,7 @@
   "billing": {
     "exportAllBillingList": "Export All Billing List to CSV",
     "billingId": "Billing ID",
+    "billingManageNo": "Billing Manage No",
     "paymentType": "Payment Type",
     "nextBillingDate": "Next Billing Date",
     "contractStart": "Contract Start",

@@ -68,9 +68,22 @@ export const BillingDialog: React.FC<BillingDialogProps> = ({
             <TextField
               label="Billing ID"
               value={editableBilling.id || ''}
+              fullWidth
+              margin="normal"
+              disabled
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Billing Manage No"
+              value={editableBilling.billingManageNo || ''}
               onChange={(e) => setEditableBilling({
                 ...editableBilling,
-                id: e.target.value
+                billingManageNo: e.target.value
               })}
               fullWidth
               margin="normal"

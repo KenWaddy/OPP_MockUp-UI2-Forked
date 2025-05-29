@@ -74,7 +74,7 @@ export function generateDevicesForTenant(subscriptionId: string, count: number):
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
-    const id = `device-${subscriptionId}-${i}`;
+    const id = faker.string.uuid();
     
     const attributes: Attribute[] = generateAttributesForDeviceType(type);
     
@@ -121,7 +121,7 @@ export function generateRegisteredDevices(count: number = 30): UnregisteredDevic
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
-    const id = `reg-${i}`;
+    const id = faker.string.uuid();
     
     const attributes: Attribute[] = generateAttributesForDeviceType(type);
     
@@ -152,7 +152,7 @@ export function generateUnregisteredDevices(count: number = 20): UnregisteredDev
   
   for (let i = 0; i < count; i++) {
     const type = faker.helpers.arrayElement(deviceTypes);
-    const id = `unreg-${i}`;
+    const id = faker.string.uuid();
     
     const attributes: Attribute[] = generateAttributesForDeviceType(type);
     
@@ -221,8 +221,7 @@ export const assignDeviceToTenant = (deviceId: string, subscriptionId: string) =
   return null;
 };
 export const getNextDeviceIdForTenant = (subscriptionId: string) => {
-  const tenantDevices = mutableDevices.filter(d => d.subscriptionId === subscriptionId);
-  return `device-${subscriptionId}-${tenantDevices.length}`;
+  return faker.string.uuid();
 };
 
 export const devices = mutableDevices;
