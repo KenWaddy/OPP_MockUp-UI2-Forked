@@ -334,16 +334,62 @@ export const DevicePage: React.FC = () => {
     setOpenBulkDeviceDialog(false);
   };
   
-  const handleSaveBulkDevice = async (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[], quantity: number) => {
+  const incrementValue = (value: string, type: 'Decimal' | 'Hex' | 'Alphabet', startValue: string, endValue: string): string => {
+    if (type === 'Decimal') {
+      const num = parseInt(value) + 1;
+      const end = parseInt(endValue);
+      return num > end ? startValue : num.toString();
+    } else if (type === 'Hex') {
+      const num = parseInt(value, 16) + 1;
+      const end = parseInt(endValue, 16);
+      return num > end ? startValue : num.toString(16).toUpperCase();
+    } else if (type === 'Alphabet') {
+      const char = value.charCodeAt(0) + 1;
+      const endChar = endValue.charCodeAt(0);
+      return char > endChar ? startValue : String.fromCharCode(char);
+    }
+    return value;
+  };
+
+  const applyZeroPadding = (value: string, digits: number, type: string): string => {
+    if (digits === 0 || type === 'Alphabet') return value;
+    
+    if (type === 'Decimal' || type === 'Hex') {
+      return value.padStart(digits, '0');
+    }
+    return value;
+  };
+
+  const generateDeviceNameForIndex = (template: string, fields: any[], index: number): string => {
+    let result = template;
+    fields.forEach(field => {
+      if (field.startValue && field.name === 'field1') {
+        let currentValue = field.startValue;
+        for (let i = 0; i < index; i++) {
+          currentValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
+        }
+        const paddedValue = applyZeroPadding(currentValue, field.digits || 0, field.type);
+        result = result.replace(`{${field.name}}`, paddedValue);
+      }
+    });
+    return result;
+  };
+
+  const handleSaveBulkDevice = async (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[], quantity: number, deviceNameFields?: any[], deviceNameTemplate?: string) => {
     try {
       console.log(`Creating ${quantity} devices with name: ${deviceName}, type: ${deviceType}`);
       setLoading(true);
       
       // Create multiple devices based on quantity
       for (let i = 0; i < quantity; i++) {
+        let actualDeviceName = deviceName;
+        if (deviceNameFields && deviceNameTemplate) {
+          actualDeviceName = generateDeviceNameForIndex(deviceNameTemplate, deviceNameFields, i);
+        }
+        
         const newDevice: UnregisteredDevice = {
           id: faker.string.uuid(), // Auto-generated unique deviceId for each device
-          name: deviceName, // From preview
+          name: actualDeviceName,
           type: deviceType,
           serialNo: serialNo, // From preview  
           description: description,
@@ -352,7 +398,7 @@ export const DevicePage: React.FC = () => {
           isUnregistered: true
         };
         
-        console.log(`Adding device ${i+1}/${quantity}: ${newDevice.id}`);
+        console.log(`Adding device ${i+1}/${quantity}: ${newDevice.name}`);
         await deviceService.addDevice(newDevice);
       }
       
