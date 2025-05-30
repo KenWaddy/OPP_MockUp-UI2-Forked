@@ -19,11 +19,13 @@ import {
   Grid,
   CircularProgress,
   Alert,
-  Chip
+  Chip,
+  Checkbox,
+  FormControlLabel
 } from "@mui/material";
 import { PaginationComponent } from '../components/tables/pagination';
 import { FilterSection } from '../components/tables/filter_section';
-import { tableHeaderCellStyle, tableBodyCellStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, oldRowStyle, paperStyle, tableContainerStyle, primaryTypographyStyle, secondaryTypographyStyle, formControlStyle, actionButtonStyle, dialogContentStyle, listItemStyle } from '../commons/styles.js';
 import { useSorting } from '../hooks/useSorting';
 import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService, TenantService } from '../mockAPI/index.js';
@@ -45,6 +47,7 @@ export const BillingPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deviceListDialogOpen, setDeviceListDialogOpen] = useState(false);
   const [selectedDeviceIds, setSelectedDeviceIds] = useState<string[]>([]);
+  const [oldStatusMap, setOldStatusMap] = useState<Record<string, boolean>>({});
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 200, // Default to 200 rows
@@ -376,39 +379,63 @@ export const BillingPage: React.FC = () => {
                     >
                       {t('common.description')}
                     </SortableTableCell>
+                    <TableCell sx={tableHeaderCellStyle}>
+                      {t('billing.old')}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {allBillings.map((billing) => (
-                    <TableRow key={`${billing.tenantId}-${billing.id}`}>
-                      <TableCell sx={tableBodyCellStyle}>
-                        <span
-                          className="clickable"
-                          onClick={() => {
-                            localStorage.setItem('selectedTenantId', billing.subscriptionId);
-                            window.history.pushState({}, '', '/');
-                            const tenantPageEvent = new CustomEvent('navigate-to-tenant', {
-                              detail: { tenant: { id: billing.subscriptionId } }
-                            });
-                            window.dispatchEvent(tenantPageEvent);
-                          }}
-                          style={{ cursor: 'pointer', color: 'blue' }}
-                        >
-                          {billing.tenantName}
-                        </span>
-                      </TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.id || 'N/A'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.billingManageNo || '—'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate || 'N/A', billing.endDate)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{renderContractedDevices(billing)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{renderLinkedDevices(billing)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
-                    </TableRow>
-                  ))}
+                  {allBillings.map((billing) => {
+                    const isOld: boolean = oldStatusMap[billing.id] !== undefined 
+                      ? oldStatusMap[billing.id] 
+                      : !!(billing.isOld || (billing.endDate && new Date(billing.endDate) < new Date()));
+                    
+                    return (
+                      <TableRow 
+                        key={`${billing.tenantId}-${billing.id}`}
+                        sx={isOld ? oldRowStyle : undefined}
+                      >
+                        <TableCell sx={tableBodyCellStyle}>
+                          <span
+                            className="clickable"
+                            onClick={() => {
+                              localStorage.setItem('selectedTenantId', billing.subscriptionId);
+                              window.history.pushState({}, '', '/');
+                              const tenantPageEvent = new CustomEvent('navigate-to-tenant', {
+                                detail: { tenant: { id: billing.subscriptionId } }
+                              });
+                              window.dispatchEvent(tenantPageEvent);
+                            }}
+                            style={{ cursor: 'pointer', color: 'blue' }}
+                          >
+                            {billing.tenantName}
+                          </span>
+                        </TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{billing.id || 'N/A'}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{billing.billingManageNo || '—'}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{renderPaymentSettings(billing)}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate || 'N/A', billing.endDate)}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{renderContractedDevices(billing)}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{renderLinkedDevices(billing)}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
+                        <TableCell sx={tableBodyCellStyle}>
+                          <Checkbox 
+                            checked={isOld}
+                            onChange={(e) => {
+                              setOldStatusMap(prev => ({
+                                ...prev,
+                                [billing.id]: e.target.checked
+                              }));
+                            }}
+                            inputProps={{ 'aria-label': 'mark as old' }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>

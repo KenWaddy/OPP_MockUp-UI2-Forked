@@ -114,6 +114,7 @@ export interface Billing {
   endDate?: string;
   paymentType: "One-time" | "Monthly" | "Annually";
   description?: string; // Description of the billing
+  isOld?: boolean; // Indicates if this is an old/expired contract
 }
 
 /**

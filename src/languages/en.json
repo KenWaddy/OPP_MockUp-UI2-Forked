@@ -80,7 +80,8 @@
     "textSearch": "Text Search",
     "nextBillingFrom": "Next Billing Date(On or After)",
     "deviceType": "Device Type",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "old": "Old"
   },
   "user": {
     "roles": "Roles",
