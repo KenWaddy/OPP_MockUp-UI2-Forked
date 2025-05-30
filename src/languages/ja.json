@@ -80,7 +80,8 @@
     "textSearch": "テキスト検索",
     "nextBillingFrom": "次回請求日(以降)",
     "deviceType": "デバイスタイプ",
-    "quantity": "台数"
+    "quantity": "台数",
+    "old": "旧情報"
   },
   "user": {
     "roles": "ロール",

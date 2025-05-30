@@ -21,12 +21,14 @@ import {
   Select, 
   MenuItem, 
   CircularProgress,
-  Chip
+  Chip,
+  Checkbox,
+  FormControlLabel
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../commons/styles.js';
+import { tableHeaderCellStyle, tableBodyCellStyle, oldRowStyle, tableContainerStyle } from '../commons/styles.js';
 import { SortableTableCell } from '../components/tables/SortableTableCell';
 import { BillingService } from '../mockAPI/billing.service.js';
 import { Billing, DeviceContractItem } from '../commons/models.js';
@@ -72,6 +74,7 @@ const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
   const [localError, setLocalError] = useState<string | null>(null);
   const [deviceListDialogOpen, setDeviceListDialogOpen] = useState(false);
   const [selectedDeviceIds, setSelectedDeviceIds] = useState<string[]>([]);
+  const [oldStatusMap, setOldStatusMap] = useState<Record<string, boolean>>({});
   
   const billingRecords = tenantBillingDetails || localBillingRecords;
   const loading = propLoading !== undefined ? propLoading : localLoading;
@@ -390,76 +393,98 @@ const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   {t('common.description')}
                 </SortableTableCell>
                 <TableCell sx={tableHeaderCellStyle}>{t('common.actions')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('billing.old')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedBillingDetails.map((billing, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.billingManageNo || '—'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <Chip
-                      label={billing.paymentType}
-                      size="small"
-                      color={
-                        billing.paymentType === "Monthly" ? "info" :
-                        billing.paymentType === "Annually" ? "success" :
-                        billing.paymentType === "One-time" ? "warning" :
-                        "default"
-                      }
-                    />
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate, billing.endDate)}</TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {billing.deviceContract && billing.deviceContract.length > 0 ? (
-                      billing.deviceContract
-                        .sort((a: {type: string, quantity: number}, b: {type: string, quantity: number}) => a.type.localeCompare(b.type))
-                        .map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`)
-                        .join(', ')
-                    ) : 'No devices'}
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {billing.deviceIds && Object.keys(billing.deviceIds).length > 0 ? (
-                      <span
-                        style={{ cursor: 'pointer', color: 'blue' }}
-                        onClick={() => {
-                          const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
-                          setSelectedDeviceIds(allDeviceIds);
-                          setDeviceListDialogOpen(true);
-                        }}
+              {sortedBillingDetails.map((billing, index) => {
+                const isOld: boolean = oldStatusMap[billing.id] !== undefined 
+                  ? oldStatusMap[billing.id] 
+                  : !!(billing.isOld || (billing.endDate && new Date(billing.endDate) < new Date()));
+                
+                return (
+                  <TableRow 
+                    key={index}
+                    sx={isOld ? oldRowStyle : undefined}
+                  >
+                    <TableCell sx={tableBodyCellStyle}>{billing.id}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{billing.billingManageNo || '—'}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <Chip
+                        label={billing.paymentType}
+                        size="small"
+                        color={
+                          billing.paymentType === "Monthly" ? "info" :
+                          billing.paymentType === "Annually" ? "success" :
+                          billing.paymentType === "One-time" ? "warning" :
+                          "default"
+                        }
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{calculateNextBillingDate(billing)}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{billing.startDate}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate, billing.endDate)}</TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      {billing.deviceContract && billing.deviceContract.length > 0 ? (
+                        billing.deviceContract
+                          .sort((a: {type: string, quantity: number}, b: {type: string, quantity: number}) => a.type.localeCompare(b.type))
+                          .map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`)
+                          .join(', ')
+                      ) : 'No devices'}
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      {billing.deviceIds && Object.keys(billing.deviceIds).length > 0 ? (
+                        <span
+                          style={{ cursor: 'pointer', color: 'blue' }}
+                          onClick={() => {
+                            const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
+                            setSelectedDeviceIds(allDeviceIds);
+                            setDeviceListDialogOpen(true);
+                          }}
+                        >
+                          {Object.entries(billing.deviceIds)
+                            .sort(([typeA], [typeB]) => typeA.localeCompare(typeB))
+                            .map(([type, deviceIdArray]) => 
+                              `${type} (${(deviceIdArray as string[]).length})`
+                            ).join(', ')}
+                        </span>
+                      ) : 'No devices'}
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      {billing.description || '—'}
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditBilling(billing)}
+                        aria-label="edit"
                       >
-                        {Object.entries(billing.deviceIds)
-                          .sort(([typeA], [typeB]) => typeA.localeCompare(typeB))
-                          .map(([type, deviceIdArray]) => 
-                            `${type} (${(deviceIdArray as string[]).length})`
-                          ).join(', ')}
-                      </span>
-                    ) : 'No devices'}
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    {billing.description || '—'}
-                  </TableCell>
-                  <TableCell sx={tableBodyCellStyle}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditBilling(billing)}
-                      aria-label="edit"
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteBilling(billing.id || '')}
-                      aria-label="delete"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteBilling(billing.id || '')}
+                        aria-label="delete"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <Checkbox 
+                        checked={isOld}
+                        onChange={(e) => {
+                          setOldStatusMap(prev => ({
+                            ...prev,
+                            [billing.id]: e.target.checked
+                          }));
+                        }}
+                        inputProps={{ 'aria-label': 'mark as old' }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

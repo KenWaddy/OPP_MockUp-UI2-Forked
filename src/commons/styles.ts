@@ -13,6 +13,10 @@ export const tableBodyCellStyle: SxProps<Theme> = {
   color: "text.primary",
 };
 
+export const oldRowStyle: SxProps<Theme> = {
+  backgroundColor: "#f5f5f5",
+};
+
 export const paperStyle: SxProps<Theme> = {
   border: "1px solid",
   borderColor: "divider",

@@ -29,23 +29,41 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
   
   for (let i = 0; i < count; i++) {
     const paymentType = faker.helpers.arrayElement(["One-time", "Monthly", "Annually"]);
-    const startDate = faker.date.past().toISOString().split('T')[0];
-    const endDate = faker.date.future().toISOString().split('T')[0];
     
-    const deviceContract = Object.entries(deviceCountsByType).map(([type, count]) => ({
-      type: type as Billing["deviceContract"][0]["type"],
-      quantity: count
-    }));
+    let startDate, endDate;
+    if (faker.datatype.boolean(0.3)) {
+      endDate = faker.date.past().toISOString().split('T')[0];
+      startDate = faker.date.past({ refDate: endDate }).toISOString().split('T')[0];
+    } else {
+      startDate = faker.date.past().toISOString().split('T')[0];
+      endDate = faker.date.future().toISOString().split('T')[0];
+    }
     
-    deviceContract.forEach(contract => {
-      const adjustment = faker.number.int({ min: -20, max: 20 }) / 100;
-      contract.quantity = Math.max(1, Math.round(contract.quantity * (1 + adjustment)));
-    });
+    let deviceContract: Billing["deviceContract"];
+    let deviceIds: { [deviceType: string]: string[] };
     
-    const deviceIds: { [deviceType: string]: string[] } = {};
-    Object.entries(devicesByType).forEach(([type, typeDevices]) => {
-      deviceIds[type] = typeDevices.map(device => device.id);
-    });
+    if (i > 0 && faker.datatype.boolean(0.2)) {
+      const previousContract = billingRecords[billingRecords.length - 1];
+      deviceContract = [...previousContract.deviceContract];
+      deviceIds = { ...previousContract.deviceIds };
+    } else {
+      deviceContract = Object.entries(deviceCountsByType).map(([type, count]) => ({
+        type: type as Billing["deviceContract"][0]["type"],
+        quantity: count
+      }));
+      
+      deviceContract.forEach(contract => {
+        const adjustment = faker.number.int({ min: -20, max: 20 }) / 100;
+        contract.quantity = Math.max(1, Math.round(contract.quantity * (1 + adjustment)));
+      });
+      
+      deviceIds = {};
+      Object.entries(devicesByType).forEach(([type, typeDevices]) => {
+        deviceIds[type] = typeDevices.map(device => device.id);
+      });
+    }
+    
+    const isOld: boolean = endDate ? new Date(endDate) < new Date() : false;
     
     const billing: Billing = {
       id: faker.string.uuid(),
@@ -55,9 +73,9 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
       deviceIds,
       startDate,
       endDate,
-      paymentType
+      paymentType,
+      isOld
     };
-    
     
     billingRecords.push(billing);
   }

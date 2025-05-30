@@ -114,6 +114,10 @@ export class BillingService implements IBillingService {
         totalDevices
       });
       
+      const isOld = billingItem.isOld !== undefined 
+        ? billingItem.isOld 
+        : (billingItem.endDate && new Date(billingItem.endDate) < new Date());
+      
       billingItems.push({
         id: billingItem.id,
         billingManageNo: billingItem.billingManageNo || '',
@@ -126,7 +130,8 @@ export class BillingService implements IBillingService {
         paymentType: billingItem.paymentType || 'Monthly',
         description: billingItem.description,
         nextBillingDate,
-        totalDevices
+        totalDevices,
+        isOld
       });
     });
     
