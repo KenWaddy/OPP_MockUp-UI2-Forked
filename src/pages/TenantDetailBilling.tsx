@@ -379,7 +379,8 @@ const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                 >
                   {t('billing.contractPeriod')}
                 </SortableTableCell>
-                <TableCell sx={tableHeaderCellStyle}>{t('billing.numberOfDevices')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('billing.contractedDevices')}</TableCell>
+                <TableCell sx={tableHeaderCellStyle}>{t('billing.linkedDevices')}</TableCell>
                 <SortableTableCell 
                   sortKey="description"
                   sortConfig={sortConfig}
@@ -425,6 +426,22 @@ const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                         }}
                       >
                         {billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')}
+                      </span>
+                    ) : 'No devices'}
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    {billing.deviceIds && Object.keys(billing.deviceIds).length > 0 ? (
+                      <span
+                        style={{ cursor: 'pointer', color: 'blue' }}
+                        onClick={() => {
+                          const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
+                          setSelectedDeviceIds(allDeviceIds);
+                          setDeviceListDialogOpen(true);
+                        }}
+                      >
+                        {Object.entries(billing.deviceIds).map(([type, deviceIdArray]) => 
+                          `${type} (${(deviceIdArray as string[]).length})`
+                        ).join(', ')}
                       </span>
                     ) : 'No devices'}
                   </TableCell>
