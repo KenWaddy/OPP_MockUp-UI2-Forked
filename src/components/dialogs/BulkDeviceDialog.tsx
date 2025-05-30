@@ -201,7 +201,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   multiline
-                  rows={2}
+                  rows={1}
                 />
               </Grid>
               
@@ -531,7 +531,6 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                   Number of devices to add
                 </Typography>
                 <TextField
-                  fullWidth
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 2000))}
@@ -546,8 +545,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                   variant="contained" 
                   color="primary" 
                   size="large" 
-                  fullWidth
-                  sx={{ mt: 3 }}
+                  sx={{ mt: 0.5 }}
                   onClick={onSave}
                 >
                   ADD DEVICE
