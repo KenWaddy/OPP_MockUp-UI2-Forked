@@ -41,7 +41,7 @@ interface BulkDeviceDialogProps {
   open: boolean;
   onClose: () => void;
   deviceTypes: string[];
-  onSave?: () => void;
+  onSave?: (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[]) => void;
 }
 
 export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
@@ -155,7 +155,13 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
       actions={
         <CommonDialogActions
           onClose={onClose}
-          onSave={onSave}
+          onSave={onSave ? () => onSave(
+            generateDeviceNamePreview(),
+            generateSerialNoPreview(),
+            deviceType,
+            description,
+            attributes
+          ) : undefined}
           saveText="Create Devices"
         />
       }
@@ -568,7 +574,13 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                   color="primary" 
                   size="large" 
                   sx={{ mt: 0.5 }}
-                  onClick={onSave}
+                  onClick={() => onSave && onSave(
+                    generateDeviceNamePreview(),
+                    generateSerialNoPreview(),
+                    deviceType,
+                    description,
+                    attributes
+                  )}
                 >
                   ADD DEVICE
                 </Button>
