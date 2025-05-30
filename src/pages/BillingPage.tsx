@@ -31,6 +31,7 @@ import { DeviceContractItem, BillingWithTenant } from '../commons/models.js';
 import { exportToCsv } from '../commons/export_CSV.js';
 import { calculateNextBillingDate, calculateContractPeriod } from '../commons/billing_calc.js';
 import { useTranslation } from "react-i18next";
+import { DeviceListDialog } from '../components/dialogs/DeviceListDialog';
 
 // Create service instances
 const billingService = new BillingService();
@@ -42,6 +43,8 @@ export const BillingPage: React.FC = () => {
   const [allBillings, setAllBillings] = useState<BillingWithTenant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deviceListDialogOpen, setDeviceListDialogOpen] = useState(false);
+  const [selectedDeviceIds, setSelectedDeviceIds] = useState<string[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 200, // Default to 200 rows
@@ -141,10 +144,27 @@ export const BillingPage: React.FC = () => {
   };
 
 
-  const renderNumberOfDevices = (deviceContract: { type: string; quantity: number }[] | undefined) => {
-    if (!deviceContract || deviceContract.length === 0) return 'No devices';
+  const renderNumberOfDevices = (billing: BillingWithTenant) => {
+    if (!billing.deviceContract || billing.deviceContract.length === 0) return 'No devices';
 
-    return deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
+    const handleDeviceCountClick = () => {
+      if (billing.deviceIds) {
+        const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
+        setSelectedDeviceIds(allDeviceIds);
+        setDeviceListDialogOpen(true);
+      }
+    };
+
+    const deviceSummary = billing.deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
+    
+    return (
+      <span 
+        style={{ cursor: 'pointer', color: 'blue' }}
+        onClick={handleDeviceCountClick}
+      >
+        {deviceSummary}
+      </span>
+    );
   };
 
   const renderPaymentSettings = (billing: BillingWithTenant) => {
@@ -368,7 +388,7 @@ export const BillingPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate || 'N/A', billing.endDate)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing.deviceContract)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
                     </TableRow>
                   ))}
@@ -382,6 +402,12 @@ export const BillingPage: React.FC = () => {
           )}
         </>
       )}
+      <DeviceListDialog
+        open={deviceListDialogOpen}
+        onClose={() => setDeviceListDialogOpen(false)}
+        deviceIds={selectedDeviceIds}
+        title="Billing Devices"
+      />
     </div>
   );
 };

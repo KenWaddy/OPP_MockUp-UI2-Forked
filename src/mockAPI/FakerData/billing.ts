@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Billing } from '../../commons/models.js';
+import { Billing, Device } from '../../commons/models.js';
 import { tenants } from './tenants.js';
 import { devices } from './devices.js';
 
@@ -14,9 +14,17 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
   
   const subscriptionDevices = devices.filter(device => device.subscriptionId === subscriptionId);
   
-  const devicesByType: Record<string, number> = {};
+  const devicesByType: Record<string, Device[]> = {};
   subscriptionDevices.forEach(device => {
-    devicesByType[device.type] = (devicesByType[device.type] || 0) + 1;
+    if (!devicesByType[device.type]) {
+      devicesByType[device.type] = [];
+    }
+    devicesByType[device.type].push(device);
+  });
+  
+  const deviceCountsByType: Record<string, number> = {};
+  Object.entries(devicesByType).forEach(([type, devices]) => {
+    deviceCountsByType[type] = devices.length;
   });
   
   for (let i = 0; i < count; i++) {
@@ -24,7 +32,7 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
     const startDate = faker.date.past().toISOString().split('T')[0];
     const endDate = faker.date.future().toISOString().split('T')[0];
     
-    const deviceContract = Object.entries(devicesByType).map(([type, count]) => ({
+    const deviceContract = Object.entries(deviceCountsByType).map(([type, count]) => ({
       type: type as Billing["deviceContract"][0]["type"],
       quantity: count
     }));
@@ -34,11 +42,17 @@ export function generateBillingForTenant(subscriptionId: string, count: number):
       contract.quantity = Math.max(1, Math.round(contract.quantity * (1 + adjustment)));
     });
     
+    const deviceIds: { [deviceType: string]: string[] } = {};
+    Object.entries(devicesByType).forEach(([type, typeDevices]) => {
+      deviceIds[type] = typeDevices.map(device => device.id);
+    });
+    
     const billing: Billing = {
       id: faker.string.uuid(),
       billingManageNo: `AMOR-${String(i + 1).padStart(3, '0')}`,
       subscriptionId,
       deviceContract,
+      deviceIds,
       startDate,
       endDate,
       paymentType

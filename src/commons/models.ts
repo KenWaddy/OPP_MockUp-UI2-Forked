@@ -107,6 +107,9 @@ export interface Billing {
     type: string; // References DeviceType.name
     quantity: number;
   }[];
+  deviceIds: {
+    [deviceType: string]: string[]; // Array of device IDs grouped by device type
+  };
   startDate?: string;
   endDate?: string;
   paymentType: "One-time" | "Monthly" | "Annually";

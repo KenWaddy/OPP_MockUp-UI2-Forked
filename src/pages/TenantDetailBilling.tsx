@@ -35,6 +35,7 @@ import { calculateNextBillingDate, calculateContractPeriod } from '../commons/bi
 import { defaultDeviceTypes } from '../mockAPI/FakerData/deviceTypes.js';
 import { useTranslation } from "react-i18next";
 import { faker } from '@faker-js/faker';
+import { DeviceListDialog } from '../components/dialogs/DeviceListDialog';
 
 const billingService = new BillingService();
 const billingTypeOptions = ["Monthly", "Annually", "One-time"];
@@ -54,7 +55,7 @@ interface TenantDetailBillingProps {
   setError?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({ 
+const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({ 
   tenantId,
   sortConfig,
   requestSort,
@@ -69,6 +70,8 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
   const [localBillingRecords, setLocalBillingRecords] = useState<Billing[]>([]);
   const [localLoading, setLocalLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [deviceListDialogOpen, setDeviceListDialogOpen] = useState(false);
+  const [selectedDeviceIds, setSelectedDeviceIds] = useState<string[]>([]);
   
   const billingRecords = tenantBillingDetails || localBillingRecords;
   const loading = propLoading !== undefined ? propLoading : localLoading;
@@ -410,9 +413,20 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate, billing.endDate)}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>
-                    {billing.deviceContract && billing.deviceContract.length > 0
-                      ? billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')
-                      : 'No devices'}
+                    {billing.deviceContract && billing.deviceContract.length > 0 ? (
+                      <span
+                        style={{ cursor: 'pointer', color: 'blue' }}
+                        onClick={() => {
+                          if (billing.deviceIds) {
+                            const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
+                            setSelectedDeviceIds(allDeviceIds);
+                            setDeviceListDialogOpen(true);
+                          }
+                        }}
+                      >
+                        {billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')}
+                      </span>
+                    ) : 'No devices'}
                   </TableCell>
                   <TableCell sx={tableBodyCellStyle}>
                     {billing.description || '—'}
@@ -450,6 +464,14 @@ export const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
         selectedTenant={null}
         tenantBillingDetails={billingRecords}
       />
+      
+      <DeviceListDialog
+        open={deviceListDialogOpen}
+        onClose={() => setDeviceListDialogOpen(false)}
+        deviceIds={selectedDeviceIds}
+        title="Billing Devices"
+      />
     </>
   );
 };
+export { TenantDetailBilling };
