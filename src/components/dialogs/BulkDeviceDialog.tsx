@@ -536,7 +536,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
         <Grid item xs={12}>
           <Box>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Number of Devices
+              Add Devices(Bulk)
             </Typography>
             <Divider sx={{ mb: 2 }} />
             
@@ -569,7 +569,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                     attributes
                   )}
                 >
-                  ADD DEVICE
+                  RUN DEVICE CREATION
                 </Button>
               </Grid>
             </Grid>
