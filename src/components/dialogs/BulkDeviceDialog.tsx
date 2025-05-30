@@ -152,19 +152,6 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
       title="Bulk Device Creation"
       contentProps={{ dividers: true }}
       maxWidth="lg"
-      actions={
-        <CommonDialogActions
-          onClose={onClose}
-          onSave={onSave ? () => onSave(
-            generateDeviceNamePreview(),
-            generateSerialNoPreview(),
-            deviceType,
-            description,
-            attributes
-          ) : undefined}
-          saveText="Create Devices"
-        />
-      }
     >
       <Grid container spacing={3}>
         {/* Common Section */}
