@@ -383,19 +383,31 @@ export const DevicePage: React.FC = () => {
       
       // Update field values for next iteration
       fields.forEach(field => {
-        if (field.startValue) {
+        if (field.startValue && !field.incrementBy) {
           const currentValue = fieldValues[field.name];
           const newValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
-          
+          fieldValues[field.name] = newValue;
+        }
+      });
+      
+      fields.forEach(field => {
+        if (field.startValue && !field.incrementBy) {
+          const currentValue = fieldValues[field.name];
+          const newValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
           const didWrapAround = (currentValue === field.endValue && newValue === field.startValue);
           
-          fieldValues[field.name] = newValue;
-          
           if (didWrapAround) {
-            const field1 = fields.find(f => f.name === 'field1');
-            if (field1 && field1.incrementBy === field.name) {
-              fieldValues['field1'] = incrementValue(fieldValues['field1'], field1.type, field1.startValue, field1.endValue);
-            }
+            const fieldsToIncrement = fields.filter(f => f.incrementBy === field.name);
+            fieldsToIncrement.forEach(targetField => {
+              if (targetField.startValue) {
+                fieldValues[targetField.name] = incrementValue(
+                  fieldValues[targetField.name], 
+                  targetField.type, 
+                  targetField.startValue, 
+                  targetField.endValue
+                );
+              }
+            });
           }
         }
       });
