@@ -57,20 +57,20 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [newAttribute, setNewAttribute] = useState<Attribute>({ key: '', value: '' });
   
-  const [deviceNameTemplate, setDeviceNameTemplate] = useState<string>('管理番号-{field1}_{field2}-{field3}');
+  const [deviceNameTemplate, setDeviceNameTemplate] = useState<string>('管理番号-{field1}');
   const [deviceNameFields, setDeviceNameFields] = useState<TemplateField[]>([
     { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 3, enableLooping: false },
-    { name: 'field2', type: 'Hex', startValue: 'A', endValue: 'F', digits: 2, enableLooping: true },
-    { name: 'field3', type: 'Alphabet', startValue: 'A', endValue: 'Z', enableLooping: true },
+    { name: 'field2', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
+    { name: 'field3', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
     { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
     { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false }
   ]);
   
-  const [serialNoTemplate, setSerialNoTemplate] = useState<string>('SN-{field1}-{field2}');
+  const [serialNoTemplate, setSerialNoTemplate] = useState<string>('SN-{field1}');
   const [serialNoFields, setSerialNoFields] = useState<TemplateField[]>([
     { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 4, enableLooping: false },
-    { name: 'field2', type: 'Hex', startValue: '00', endValue: 'FF', digits: 2, enableLooping: true },
-    { name: 'field3', type: 'Alphabet', startValue: '', endValue: '', enableLooping: false },
+    { name: 'field2', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
+    { name: 'field3', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
     { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
     { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false }
   ]);
