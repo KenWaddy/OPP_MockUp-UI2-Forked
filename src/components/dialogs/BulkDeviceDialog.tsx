@@ -254,20 +254,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
     return value;
   };
 
-  const generateDeviceNameForIndex = (template: string, fields: TemplateField[], index: number): string => {
-    let result = template;
-    fields.forEach(field => {
-      if (field.startValue) {
-        let currentValue = field.startValue;
-        for (let i = 0; i < index; i++) {
-          currentValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
-        }
-        const paddedValue = applyZeroPadding(currentValue, field.digits || 0, field.type);
-        result = result.replace(`{${field.name}}`, paddedValue);
-      }
-    });
-    return result;
-  };
+
   
   return (
     <BaseDialog
