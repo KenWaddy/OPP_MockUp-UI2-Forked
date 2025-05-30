@@ -215,6 +215,26 @@ export class DeviceService implements IDeviceService {
     
     return allDevices;
   }
+  
+  /**
+   * Get devices by their IDs
+   */
+  async getDevicesByIds(deviceIds: string[]): Promise<DeviceWithTenant[]> {
+    await delay();
+    
+    const devicesWithTenantInfo: DeviceWithTenant[] = devices
+      .filter((device: Device) => deviceIds.includes(device.id))
+      .map((device: Device) => {
+        const tenant = tenants.find((t: Tenant) => t.id === device.subscriptionId);
+        return {
+          ...device,
+          tenantId: device.subscriptionId,
+          tenantName: tenant ? tenant.name : 'Unknown Tenant'
+        };
+      });
+    
+    return devicesWithTenantInfo;
+  }
 
   /**
    * Add a new device
