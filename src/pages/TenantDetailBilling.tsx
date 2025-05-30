@@ -431,9 +431,11 @@ const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                           setDeviceListDialogOpen(true);
                         }}
                       >
-                        {Object.entries(billing.deviceIds).map(([type, deviceIdArray]) => 
-                          `${type} (${(deviceIdArray as string[]).length})`
-                        ).join(', ')}
+                        {Object.entries(billing.deviceIds)
+                          .sort(([typeA], [typeB]) => typeA.localeCompare(typeB))
+                          .map(([type, deviceIdArray]) => 
+                            `${type} (${(deviceIdArray as string[]).length})`
+                          ).join(', ')}
                       </span>
                     ) : 'No devices'}
                   </TableCell>

@@ -164,9 +164,11 @@ export const BillingPage: React.FC = () => {
       setDeviceListDialogOpen(true);
     };
 
-    const deviceCounts = Object.entries(billing.deviceIds).map(([type, deviceIdArray]) => 
-      `${type} (${deviceIdArray.length})`
-    ).join(', ');
+    const deviceCounts = Object.entries(billing.deviceIds)
+      .sort(([typeA], [typeB]) => typeA.localeCompare(typeB))
+      .map(([type, deviceIdArray]) => 
+        `${type} (${deviceIdArray.length})`
+      ).join(', ');
     
     return (
       <span 
