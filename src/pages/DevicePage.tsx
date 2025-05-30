@@ -363,7 +363,7 @@ export const DevicePage: React.FC = () => {
   const generateDeviceNameForIndex = (template: string, fields: any[], index: number): string => {
     let result = template;
     fields.forEach(field => {
-      if (field.startValue && field.name === 'field1') {
+      if (field.startValue) {
         let currentValue = field.startValue;
         for (let i = 0; i < index; i++) {
           currentValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
