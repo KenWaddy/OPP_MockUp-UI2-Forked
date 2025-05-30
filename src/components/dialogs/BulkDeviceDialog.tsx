@@ -41,7 +41,7 @@ interface BulkDeviceDialogProps {
   open: boolean;
   onClose: () => void;
   deviceTypes: string[];
-  onSave?: (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[]) => void;
+  onSave?: (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[], quantity: number) => void;
 }
 
 export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
@@ -662,7 +662,8 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                     generateSerialNoPreview(),
                     deviceType,
                     description,
-                    attributes
+                    attributes,
+                    quantity
                   )}
                 >
                   RUN DEVICE CREATION
