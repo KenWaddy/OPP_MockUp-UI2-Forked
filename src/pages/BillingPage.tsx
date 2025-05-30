@@ -147,24 +147,12 @@ export const BillingPage: React.FC = () => {
   const renderContractedDevices = (billing: BillingWithTenant) => {
     if (!billing.deviceContract || billing.deviceContract.length === 0) return 'No devices';
 
-    const handleDeviceCountClick = () => {
-      if (billing.deviceIds) {
-        const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
-        setSelectedDeviceIds(allDeviceIds);
-        setDeviceListDialogOpen(true);
-      }
-    };
-
-    const deviceSummary = billing.deviceContract.map(item => `${item.type} (${item.quantity})`).join(', ');
+    const deviceSummary = billing.deviceContract
+      .sort((a, b) => a.type.localeCompare(b.type))
+      .map(item => `${item.type} (${item.quantity})`)
+      .join(', ');
     
-    return (
-      <span 
-        style={{ cursor: 'pointer', color: 'blue' }}
-        onClick={handleDeviceCountClick}
-      >
-        {deviceSummary}
-      </span>
-    );
+    return deviceSummary;
   };
   
   const renderLinkedDevices = (billing: BillingWithTenant) => {
