@@ -34,7 +34,7 @@ interface TemplateField {
   startValue: string;
   endValue: string;
   digits?: number;
-  enableLooping: boolean;
+  incrementBy: string;
 }
 
 interface BulkDeviceDialogProps {
@@ -59,20 +59,20 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
   
   const [deviceNameTemplate, setDeviceNameTemplate] = useState<string>('管理番号-{field1}');
   const [deviceNameFields, setDeviceNameFields] = useState<TemplateField[]>([
-    { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 3, enableLooping: false },
-    { name: 'field2', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
-    { name: 'field3', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
-    { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
-    { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false }
+    { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 3, incrementBy: '' },
+    { name: 'field2', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' },
+    { name: 'field3', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' },
+    { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' },
+    { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' }
   ]);
   
   const [serialNoTemplate, setSerialNoTemplate] = useState<string>('SN-{field1}');
   const [serialNoFields, setSerialNoFields] = useState<TemplateField[]>([
-    { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 4, enableLooping: false },
-    { name: 'field2', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
-    { name: 'field3', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
-    { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
-    { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false }
+    { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 4, incrementBy: '' },
+    { name: 'field2', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' },
+    { name: 'field3', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' },
+    { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' },
+    { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, incrementBy: '' }
   ]);
   
   const [quantity, setQuantity] = useState<number>(1);
@@ -338,7 +338,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                         <TableCell sx={tableHeaderCellStyle}>Start Value</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>End Value</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Digits</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Enable Looping</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Increment by</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -386,11 +386,22 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                             />
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
-                            <Switch
-                              checked={field.enableLooping}
-                              onChange={(e) => handleDeviceNameFieldChange(index, 'enableLooping', e.target.checked)}
+                            <Select
+                              fullWidth
                               size="small"
-                            />
+                              value={field.incrementBy}
+                              onChange={(e) => handleDeviceNameFieldChange(index, 'incrementBy', e.target.value)}
+                              displayEmpty
+                            >
+                              <MenuItem value="">None</MenuItem>
+                              {deviceNameFields
+                                .filter((_, fieldIndex) => fieldIndex !== index)
+                                .map((otherField) => (
+                                  <MenuItem key={otherField.name} value={otherField.name}>
+                                    {otherField.name}
+                                  </MenuItem>
+                                ))}
+                            </Select>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -453,7 +464,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                         <TableCell sx={tableHeaderCellStyle}>Start Value</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>End Value</TableCell>
                         <TableCell sx={tableHeaderCellStyle}>Digits</TableCell>
-                        <TableCell sx={tableHeaderCellStyle}>Enable Looping</TableCell>
+                        <TableCell sx={tableHeaderCellStyle}>Increment by</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -501,11 +512,22 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                             />
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
-                            <Switch
-                              checked={field.enableLooping}
-                              onChange={(e) => handleSerialNoFieldChange(index, 'enableLooping', e.target.checked)}
+                            <Select
+                              fullWidth
                               size="small"
-                            />
+                              value={field.incrementBy}
+                              onChange={(e) => handleSerialNoFieldChange(index, 'incrementBy', e.target.value)}
+                              displayEmpty
+                            >
+                              <MenuItem value="">None</MenuItem>
+                              {serialNoFields
+                                .filter((_, fieldIndex) => fieldIndex !== index)
+                                .map((otherField) => (
+                                  <MenuItem key={otherField.name} value={otherField.name}>
+                                    {otherField.name}
+                                  </MenuItem>
+                                ))}
+                            </Select>
                           </TableCell>
                         </TableRow>
                       ))}
