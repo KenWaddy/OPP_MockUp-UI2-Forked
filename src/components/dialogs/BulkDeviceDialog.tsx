@@ -19,7 +19,8 @@ import {
   Switch,
   FormControlLabel,
   Box,
-  Divider
+  Divider,
+  CircularProgress
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../../commons/styles.js';
@@ -41,7 +42,7 @@ interface BulkDeviceDialogProps {
   open: boolean;
   onClose: () => void;
   deviceTypes: string[];
-  onSave?: () => void;
+  onSave?: (deviceData: any) => void;
 }
 
 export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
@@ -76,6 +77,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
   ]);
   
   const [quantity, setQuantity] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
   
   const generateDeviceNamePreview = () => {
     let preview = deviceNameTemplate;
@@ -155,7 +157,7 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
       actions={
         <CommonDialogActions
           onClose={onClose}
-          onSave={onSave}
+          onSave={() => {}}
           saveText="Create Devices"
         />
       }
@@ -568,9 +570,24 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                   color="primary" 
                   size="large" 
                   sx={{ mt: 0.5 }}
-                  onClick={onSave}
+                  onClick={() => {
+                    if (onSave) {
+                      setLoading(true);
+                      onSave({
+                        quantity,
+                        deviceType,
+                        description,
+                        attributes,
+                        deviceName: generateDeviceNamePreview(),
+                        serialNo: generateSerialNoPreview(),
+                        setLoading
+                      });
+                    }
+                  }}
+                  disabled={loading || !deviceType}
+                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : undefined}
                 >
-                  ADD DEVICE
+                  {loading ? "Creating device data..." : "ADD DEVICE"}
                 </Button>
               </Grid>
             </Grid>

@@ -332,6 +332,36 @@ export const DevicePage: React.FC = () => {
   const handleCloseBulkDeviceDialog = () => {
     setOpenBulkDeviceDialog(false);
   };
+
+  const handleSaveBulkDevices = async (deviceData: any) => {
+    const { quantity, deviceType, description, attributes, deviceName, serialNo, setLoading } = deviceData;
+    
+    try {
+      // Create the specified number of devices
+      for (let i = 0; i < quantity; i++) {
+        const newDevice = {
+          id: `device-${Date.now()}-${i}`,
+          name: deviceName,
+          type: deviceType,
+          serialNo: serialNo,
+          description: description,
+          status: "Registered",
+          attributes: [...attributes],
+          isUnregistered: true
+        };
+        
+        await deviceService.addDevice(newDevice);
+      }
+      
+      setOpenBulkDeviceDialog(false);
+      await loadDevices();
+      
+    } catch (err) {
+      setError(`Error creating devices: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleAddDeviceType = () => {
     if (newDeviceType.name.trim() !== '') {
@@ -678,6 +708,7 @@ export const DevicePage: React.FC = () => {
         open={openBulkDeviceDialog}
         onClose={handleCloseBulkDeviceDialog}
         deviceTypes={deviceTypes}
+        onSave={handleSaveBulkDevices}
       />
     </div>
   );
