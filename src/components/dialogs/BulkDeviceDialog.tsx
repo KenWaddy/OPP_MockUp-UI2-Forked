@@ -1,0 +1,484 @@
+import React, { useState } from "react";
+import {
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  Paper,
+  Typography,
+  Switch,
+  FormControlLabel
+} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { tableHeaderCellStyle, tableBodyCellStyle, tableContainerStyle } from '../../commons/styles.js';
+import { Attribute, DeviceWithTenant, UnregisteredDevice } from '../../commons/models.js';
+import { BaseDialog } from './BaseDialog';
+import { CommonDialogActions } from './CommonDialogActions';
+import { useTranslation } from "react-i18next";
+
+interface TemplateField {
+  name: string;
+  type: 'Decimal' | 'Hex' | 'Alphabet';
+  startValue: string;
+  endValue: string;
+  digits?: number;
+  enableLooping: boolean;
+}
+
+interface BulkDeviceDialogProps {
+  open: boolean;
+  onClose: () => void;
+  deviceTypes: string[];
+  onSave?: () => void;
+}
+
+export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
+  open,
+  onClose,
+  deviceTypes,
+  onSave
+}) => {
+  const { t } = useTranslation();
+  
+  const [deviceType, setDeviceType] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [attributes, setAttributes] = useState<Attribute[]>([]);
+  const [newAttribute, setNewAttribute] = useState<Attribute>({ key: '', value: '' });
+  
+  const [deviceNameTemplate, setDeviceNameTemplate] = useState<string>('管理番号-{field1}_{field2}-{field3}');
+  const [deviceNameFields, setDeviceNameFields] = useState<TemplateField[]>([
+    { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 3, enableLooping: false },
+    { name: 'field2', type: 'Hex', startValue: 'A', endValue: 'F', digits: 2, enableLooping: true },
+    { name: 'field3', type: 'Alphabet', startValue: 'A', endValue: 'Z', enableLooping: true },
+    { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
+    { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false }
+  ]);
+  
+  const [serialNoTemplate, setSerialNoTemplate] = useState<string>('SN-{field1}-{field2}');
+  const [serialNoFields, setSerialNoFields] = useState<TemplateField[]>([
+    { name: 'field1', type: 'Decimal', startValue: '1', endValue: '100', digits: 4, enableLooping: false },
+    { name: 'field2', type: 'Hex', startValue: '00', endValue: 'FF', digits: 2, enableLooping: true },
+    { name: 'field3', type: 'Alphabet', startValue: '', endValue: '', enableLooping: false },
+    { name: 'field4', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false },
+    { name: 'field5', type: 'Decimal', startValue: '', endValue: '', digits: 0, enableLooping: false }
+  ]);
+  
+  const [quantity, setQuantity] = useState<number>(1);
+  
+  const generateDeviceNamePreview = () => {
+    let preview = deviceNameTemplate;
+    deviceNameFields.forEach(field => {
+      if (field.startValue) {
+        preview = preview.replace(`{${field.name}}`, field.startValue);
+      }
+    });
+    return preview;
+  };
+  
+  const generateSerialNoPreview = () => {
+    let preview = serialNoTemplate;
+    serialNoFields.forEach(field => {
+      if (field.startValue) {
+        preview = preview.replace(`{${field.name}}`, field.startValue);
+      }
+    });
+    return preview;
+  };
+  
+  const handleDeviceTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setDeviceType(event.target.value as string);
+  };
+  
+  const handleAddAttribute = () => {
+    if (newAttribute.key.trim() !== '') {
+      setAttributes([...attributes, { ...newAttribute }]);
+      setNewAttribute({ key: '', value: '' });
+    }
+  };
+  
+  const handleRemoveAttribute = (index: number) => {
+    const newList = [...attributes];
+    newList.splice(index, 1);
+    setAttributes(newList);
+  };
+  
+  const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
+    const newAttributes = [...attributes];
+    newAttributes[index][field] = value;
+    setAttributes(newAttributes);
+  };
+  
+  const handleNewAttributeChange = (field: 'key' | 'value', value: string) => {
+    setNewAttribute({
+      ...newAttribute,
+      [field]: value
+    });
+  };
+  
+  const handleDeviceNameFieldChange = (index: number, field: keyof TemplateField, value: any) => {
+    const newFields = [...deviceNameFields];
+    newFields[index] = {
+      ...newFields[index],
+      [field]: value
+    };
+    setDeviceNameFields(newFields);
+  };
+  
+  const handleSerialNoFieldChange = (index: number, field: keyof TemplateField, value: any) => {
+    const newFields = [...serialNoFields];
+    newFields[index] = {
+      ...newFields[index],
+      [field]: value
+    };
+    setSerialNoFields(newFields);
+  };
+  
+  return (
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title="Bulk Device Creation"
+      contentProps={{ dividers: true }}
+      maxWidth="lg"
+      actions={
+        <CommonDialogActions
+          onClose={onClose}
+          onSave={onSave}
+          saveText="Create Devices"
+        />
+      }
+    >
+      <Grid container spacing={3}>
+        {/* Device Type and Description */}
+        <Grid item xs={12} sm={6}>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Device Type</InputLabel>
+            <Select
+              value={deviceType}
+              label="Device Type"
+              onChange={handleDeviceTypeChange as any}
+            >
+              {deviceTypes.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            margin="normal"
+            multiline
+            rows={2}
+          />
+        </Grid>
+        
+        {/* Attributes Table */}
+        <Grid item xs={12}>
+          <Typography variant="subtitle1" gutterBottom>
+            Attributes
+          </Typography>
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={tableHeaderCellStyle}>Key</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Value</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {attributes.map((attr, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={attr.key}
+                        onChange={(e) => handleAttributeChange(index, 'key', e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={attr.value}
+                        onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleRemoveAttribute(index)}
+                        aria-label="delete"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      placeholder="New Key"
+                      value={newAttribute.key}
+                      onChange={(e) => handleNewAttributeChange('key', e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      placeholder="New Value"
+                      value={newAttribute.value}
+                      onChange={(e) => handleNewAttributeChange('value', e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell sx={tableBodyCellStyle}>
+                    <Button 
+                      variant="outlined" 
+                      size="small" 
+                      onClick={handleAddAttribute}
+                      disabled={!newAttribute.key.trim()}
+                    >
+                      Add
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+        
+        {/* Device Name Template */}
+        <Grid item xs={12} sm={8}>
+          <TextField
+            fullWidth
+            label="Device Name Template"
+            value={deviceNameTemplate}
+            onChange={(e) => setDeviceNameTemplate(e.target.value)}
+            margin="normal"
+            helperText="Use {field1}, {field2}, etc. as placeholders"
+          />
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            label="Preview"
+            value={generateDeviceNamePreview()}
+            margin="normal"
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        </Grid>
+        
+        {/* Device Name Fields Table */}
+        <Grid item xs={12}>
+          <Typography variant="subtitle1" gutterBottom>
+            Device Name Fields
+          </Typography>
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={tableHeaderCellStyle}>Field Name</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Start Value</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>End Value</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Digits</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Enable Looping</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {deviceNameFields.map((field, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={tableBodyCellStyle}>
+                      {field.name}
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <Select
+                        fullWidth
+                        size="small"
+                        value={field.type}
+                        onChange={(e) => handleDeviceNameFieldChange(index, 'type', e.target.value)}
+                      >
+                        <MenuItem value="Decimal">Decimal</MenuItem>
+                        <MenuItem value="Hex">Hex</MenuItem>
+                        <MenuItem value="Alphabet">Alphabet</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={field.startValue}
+                        onChange={(e) => handleDeviceNameFieldChange(index, 'startValue', e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={field.endValue}
+                        onChange={(e) => handleDeviceNameFieldChange(index, 'endValue', e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        type="number"
+                        value={field.digits || ''}
+                        onChange={(e) => handleDeviceNameFieldChange(index, 'digits', parseInt(e.target.value) || 0)}
+                        disabled={field.type === 'Alphabet'}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <Switch
+                        checked={field.enableLooping}
+                        onChange={(e) => handleDeviceNameFieldChange(index, 'enableLooping', e.target.checked)}
+                        size="small"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+        
+        {/* Serial Number Template */}
+        <Grid item xs={12} sm={8}>
+          <TextField
+            fullWidth
+            label="Serial Number Template"
+            value={serialNoTemplate}
+            onChange={(e) => setSerialNoTemplate(e.target.value)}
+            margin="normal"
+            helperText="Use {field1}, {field2}, etc. as placeholders"
+          />
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            label="Preview"
+            value={generateSerialNoPreview()}
+            margin="normal"
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        </Grid>
+        
+        {/* Serial Number Fields Table */}
+        <Grid item xs={12}>
+          <Typography variant="subtitle1" gutterBottom>
+            Serial Number Fields
+          </Typography>
+          <TableContainer component={Paper} variant="outlined" sx={tableContainerStyle}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={tableHeaderCellStyle}>Field Name</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Type</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Start Value</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>End Value</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Digits</TableCell>
+                  <TableCell sx={tableHeaderCellStyle}>Enable Looping</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {serialNoFields.map((field, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={tableBodyCellStyle}>
+                      {field.name}
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <Select
+                        fullWidth
+                        size="small"
+                        value={field.type}
+                        onChange={(e) => handleSerialNoFieldChange(index, 'type', e.target.value)}
+                      >
+                        <MenuItem value="Decimal">Decimal</MenuItem>
+                        <MenuItem value="Hex">Hex</MenuItem>
+                        <MenuItem value="Alphabet">Alphabet</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={field.startValue}
+                        onChange={(e) => handleSerialNoFieldChange(index, 'startValue', e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        value={field.endValue}
+                        onChange={(e) => handleSerialNoFieldChange(index, 'endValue', e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        type="number"
+                        value={field.digits || ''}
+                        onChange={(e) => handleSerialNoFieldChange(index, 'digits', parseInt(e.target.value) || 0)}
+                        disabled={field.type === 'Alphabet'}
+                      />
+                    </TableCell>
+                    <TableCell sx={tableBodyCellStyle}>
+                      <Switch
+                        checked={field.enableLooping}
+                        onChange={(e) => handleSerialNoFieldChange(index, 'enableLooping', e.target.checked)}
+                        size="small"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+        
+        {/* Quantity Input */}
+        <Grid item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            label="Number of Devices to Create"
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 2000))}
+            margin="normal"
+            InputProps={{
+              inputProps: { min: 1, max: 2000 }
+            }}
+            helperText="Enter a value between 1 and 2000"
+          />
+        </Grid>
+      </Grid>
+    </BaseDialog>
+  );
+};

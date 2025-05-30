@@ -41,6 +41,7 @@ import { exportToCsv } from '../commons/export_CSV.js';
 import { AttributesDialog } from '../components/dialogs/AttributesDialog';
 import { DeviceDialog } from '../components/dialogs/DeviceDialog';
 import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';
+import { BulkDeviceDialog } from '../components/dialogs/BulkDeviceDialog';
 import { templates } from '../commons/templates';
 import { useTranslation } from "react-i18next";
 
@@ -59,6 +60,7 @@ export const DevicePage: React.FC = () => {
   const [openDeviceDialog, setOpenDeviceDialog] = useState(false);
   const [editableDevice, setEditableDevice] = useState<DeviceWithTenant | UnregisteredDevice | null>(null);
   const [openDeviceTypeDialog, setOpenDeviceTypeDialog] = useState(false);
+  const [openBulkDeviceDialog, setOpenBulkDeviceDialog] = useState(false);
   const [editableDeviceTypes, setEditableDeviceTypes] = useState<DeviceType[]>([]);
   const [newDeviceType, setNewDeviceType] = useState<DeviceType>({ name: '', option: '', description: '' });
   const [tenantOptions, setTenantOptions] = useState<{id: string, name: string}[]>([]);
@@ -323,6 +325,14 @@ export const DevicePage: React.FC = () => {
     setOpenDeviceTypeDialog(false);
   };
   
+  const handleOpenBulkDeviceDialog = () => {
+    setOpenBulkDeviceDialog(true);
+  };
+  
+  const handleCloseBulkDeviceDialog = () => {
+    setOpenBulkDeviceDialog(false);
+  };
+  
   const handleAddDeviceType = () => {
     if (newDeviceType.name.trim() !== '') {
       const updatedDeviceTypes = [...editableDeviceTypes, { ...newDeviceType }];
@@ -361,7 +371,7 @@ export const DevicePage: React.FC = () => {
           variant="outlined" 
           size="small" 
           startIcon={<AddIcon />}
-          onClick={() => handleOpenDeviceDialog()}
+          onClick={handleOpenBulkDeviceDialog}
           sx={{ fontWeight: 'bold' }}
         >
           {t('device.addDevice')}
@@ -661,6 +671,13 @@ export const DevicePage: React.FC = () => {
           ...newDeviceType,
           [field]: value
         })}
+      />
+      
+      {/* Bulk Device Dialog */}
+      <BulkDeviceDialog
+        open={openBulkDeviceDialog}
+        onClose={handleCloseBulkDeviceDialog}
+        deviceTypes={deviceTypes}
       />
     </div>
   );
