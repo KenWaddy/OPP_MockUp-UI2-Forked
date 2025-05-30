@@ -44,6 +44,7 @@ import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';
 import { BulkDeviceDialog } from '../components/dialogs/BulkDeviceDialog';
 import { templates } from '../commons/templates';
 import { useTranslation } from "react-i18next";
+import { faker } from '@faker-js/faker';
 
 // Create service instances
 const deviceService = new DeviceService();
@@ -331,6 +332,32 @@ export const DevicePage: React.FC = () => {
   
   const handleCloseBulkDeviceDialog = () => {
     setOpenBulkDeviceDialog(false);
+  };
+  
+  const handleSaveBulkDevice = async (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[]) => {
+    try {
+      setLoading(true);
+      
+      // Create device object using form state from BulkDeviceDialog
+      const newDevice: UnregisteredDevice = {
+        id: faker.string.uuid(), // Auto-generated deviceId
+        name: deviceName, // From preview
+        type: deviceType,
+        serialNo: serialNo, // From preview  
+        description: description,
+        status: "Registered" as const,
+        attributes: attributes,
+        isUnregistered: true
+      };
+      
+      await deviceService.addDevice(newDevice);
+      setOpenBulkDeviceDialog(false);
+      await loadDevices(); // Reload devices from the service
+    } catch (err) {
+      setError(`Error adding device: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleAddDeviceType = () => {
@@ -678,6 +705,7 @@ export const DevicePage: React.FC = () => {
         open={openBulkDeviceDialog}
         onClose={handleCloseBulkDeviceDialog}
         deviceTypes={deviceTypes}
+        onSave={handleSaveBulkDevice}
       />
     </div>
   );
