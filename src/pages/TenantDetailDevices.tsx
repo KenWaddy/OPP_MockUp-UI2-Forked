@@ -194,6 +194,20 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
     return sortedDevices.slice(startIndex, endIndex);
   }, [sortedDevices, devicePagination.page, devicePagination.limit]);
 
+  const deviceTypeCounts = useMemo(() => {
+    if (!tenantDevices || tenantDevices.length === 0) return '';
+    
+    const counts: Record<string, number> = {};
+    tenantDevices.forEach(device => {
+      counts[device.type] = (counts[device.type] || 0) + 1;
+    });
+    
+    return Object.entries(counts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([type, count]) => `${type}(${count})`)
+      .join(' ');
+  }, [tenantDevices]);
+
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -204,15 +218,22 @@ export const TenantDetailDevices: React.FC<TenantDetailDevicesProps> = ({
           pageSizeOptions={[100, 500, 2000]}
           sx={{ justifyContent: 'flex-start' }}
         />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={handleOpenDeviceAssignDialog}
-          sx={{ fontWeight: 'bold' }}
-        >
-          Assign Device
-        </Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {deviceTypeCounts && (
+            <Box sx={{ fontSize: '0.875rem', color: 'text.secondary', fontWeight: 'medium' }}>
+              {deviceTypeCounts}
+            </Box>
+          )}
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={handleOpenDeviceAssignDialog}
+            sx={{ fontWeight: 'bold' }}
+          >
+            Assign Device
+          </Button>
+        </Box>
       </Box>
       
       {loadingDevices ? (
