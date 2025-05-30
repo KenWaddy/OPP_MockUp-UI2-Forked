@@ -415,18 +415,10 @@ const TenantDetailBilling: React.FC<TenantDetailBillingProps> = ({
                   <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate, billing.endDate)}</TableCell>
                   <TableCell sx={tableBodyCellStyle}>
                     {billing.deviceContract && billing.deviceContract.length > 0 ? (
-                      <span
-                        style={{ cursor: 'pointer', color: 'blue' }}
-                        onClick={() => {
-                          if (billing.deviceIds) {
-                            const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
-                            setSelectedDeviceIds(allDeviceIds);
-                            setDeviceListDialogOpen(true);
-                          }
-                        }}
-                      >
-                        {billing.deviceContract.map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`).join(', ')}
-                      </span>
+                      billing.deviceContract
+                        .sort((a: {type: string, quantity: number}, b: {type: string, quantity: number}) => a.type.localeCompare(b.type))
+                        .map((contract: {type: string, quantity: number}) => `${contract.type} (${contract.quantity})`)
+                        .join(', ')
                     ) : 'No devices'}
                   </TableCell>
                   <TableCell sx={tableBodyCellStyle}>
