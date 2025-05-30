@@ -360,19 +360,48 @@ export const DevicePage: React.FC = () => {
     return value;
   };
 
-  const generateDeviceNameForIndex = (template: string, fields: any[], index: number): string => {
-    let result = template;
+  const generateDeviceNameWithIncrementBy = (template: string, fields: any[], quantity: number): string[] => {
+    // Initialize field values
+    const fieldValues: { [key: string]: string } = {};
     fields.forEach(field => {
       if (field.startValue) {
-        let currentValue = field.startValue;
-        for (let i = 0; i < index; i++) {
-          currentValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
-        }
-        const paddedValue = applyZeroPadding(currentValue, field.digits || 0, field.type);
-        result = result.replace(`{${field.name}}`, paddedValue);
+        fieldValues[field.name] = field.startValue;
       }
     });
-    return result;
+    
+    const deviceNames: string[] = [];
+    
+    for (let i = 0; i < quantity; i++) {
+      let result = template;
+      fields.forEach(field => {
+        if (field.startValue) {
+          const paddedValue = applyZeroPadding(fieldValues[field.name], field.digits || 0, field.type);
+          result = result.replace(`{${field.name}}`, paddedValue);
+        }
+      });
+      deviceNames.push(result);
+      
+      // Update field values for next iteration
+      fields.forEach(field => {
+        if (field.startValue) {
+          const currentValue = fieldValues[field.name];
+          const newValue = incrementValue(currentValue, field.type, field.startValue, field.endValue);
+          
+          const didWrapAround = (currentValue === field.endValue && newValue === field.startValue);
+          
+          fieldValues[field.name] = newValue;
+          
+          if (didWrapAround) {
+            const field1 = fields.find(f => f.name === 'field1');
+            if (field1 && field1.incrementBy === field.name) {
+              fieldValues['field1'] = incrementValue(fieldValues['field1'], field1.type, field1.startValue, field1.endValue);
+            }
+          }
+        }
+      });
+    }
+    
+    return deviceNames;
   };
 
   const handleSaveBulkDevice = async (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[], quantity: number, deviceNameFields?: any[], deviceNameTemplate?: string) => {
@@ -380,11 +409,16 @@ export const DevicePage: React.FC = () => {
       console.log(`Creating ${quantity} devices with name: ${deviceName}, type: ${deviceType}`);
       setLoading(true);
       
+      let deviceNames: string[] = [];
+      if (deviceNameFields && deviceNameTemplate) {
+        deviceNames = generateDeviceNameWithIncrementBy(deviceNameTemplate, deviceNameFields, quantity);
+      }
+      
       // Create multiple devices based on quantity
       for (let i = 0; i < quantity; i++) {
         let actualDeviceName = deviceName;
-        if (deviceNameFields && deviceNameTemplate) {
-          actualDeviceName = generateDeviceNameForIndex(deviceNameTemplate, deviceNameFields, i);
+        if (deviceNames.length > 0) {
+          actualDeviceName = deviceNames[i];
         }
         
         const newDevice: UnregisteredDevice = {
