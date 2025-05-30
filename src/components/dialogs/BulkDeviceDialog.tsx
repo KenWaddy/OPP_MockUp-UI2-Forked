@@ -81,7 +81,8 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
     let preview = deviceNameTemplate;
     deviceNameFields.forEach(field => {
       if (field.startValue) {
-        preview = preview.replace(`{${field.name}}`, field.startValue);
+        const paddedValue = applyZeroPadding(field.startValue, field.digits || 0, field.type);
+        preview = preview.replace(`{${field.name}}`, paddedValue);
       }
     });
     return preview;
@@ -91,7 +92,8 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
     let preview = serialNoTemplate;
     serialNoFields.forEach(field => {
       if (field.startValue) {
-        preview = preview.replace(`{${field.name}}`, field.startValue);
+        const paddedValue = applyZeroPadding(field.startValue, field.digits || 0, field.type);
+        preview = preview.replace(`{${field.name}}`, paddedValue);
       }
     });
     return preview;
@@ -129,20 +131,110 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
   
   const handleDeviceNameFieldChange = (index: number, field: keyof TemplateField, value: any) => {
     const newFields = [...deviceNameFields];
-    newFields[index] = {
-      ...newFields[index],
-      [field]: value
-    };
+    let processedValue = value;
+
+    if (field === 'startValue' || field === 'endValue') {
+      const currentType = newFields[index].type;
+      if (currentType === 'Decimal') {
+        processedValue = validateDecimalInput(value);
+      } else if (currentType === 'Hex') {
+        processedValue = validateHexInput(value);
+      } else if (currentType === 'Alphabet') {
+        processedValue = validateAlphabetInput(value);
+      }
+    }
+
+    if (field === 'digits') {
+      processedValue = Math.min(Math.max(parseInt(value) || 0, 0), 10);
+    }
+
+    if (field === 'type') {
+      if (value === 'Alphabet') {
+        newFields[index] = {
+          ...newFields[index],
+          [field]: processedValue,
+          digits: 1
+        };
+      } else {
+        newFields[index] = {
+          ...newFields[index],
+          [field]: processedValue
+        };
+      }
+    } else {
+      newFields[index] = {
+        ...newFields[index],
+        [field]: processedValue
+      };
+    }
+
     setDeviceNameFields(newFields);
   };
   
   const handleSerialNoFieldChange = (index: number, field: keyof TemplateField, value: any) => {
     const newFields = [...serialNoFields];
-    newFields[index] = {
-      ...newFields[index],
-      [field]: value
-    };
+    let processedValue = value;
+
+    if (field === 'startValue' || field === 'endValue') {
+      const currentType = newFields[index].type;
+      if (currentType === 'Decimal') {
+        processedValue = validateDecimalInput(value);
+      } else if (currentType === 'Hex') {
+        processedValue = validateHexInput(value);
+      } else if (currentType === 'Alphabet') {
+        processedValue = validateAlphabetInput(value);
+      }
+    }
+
+    if (field === 'digits') {
+      processedValue = Math.min(Math.max(parseInt(value) || 0, 0), 10);
+    }
+
+    if (field === 'type') {
+      if (value === 'Alphabet') {
+        newFields[index] = {
+          ...newFields[index],
+          [field]: processedValue,
+          digits: 1
+        };
+      } else {
+        newFields[index] = {
+          ...newFields[index],
+          [field]: processedValue
+        };
+      }
+    } else {
+      newFields[index] = {
+        ...newFields[index],
+        [field]: processedValue
+      };
+    }
+
     setSerialNoFields(newFields);
+  };
+
+  const validateDecimalInput = (value: string): string => {
+    return value.replace(/[^0-9]/g, '');
+  };
+
+  const validateHexInput = (value: string): string => {
+    return value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+  };
+
+  const validateAlphabetInput = (value: string): string => {
+    const cleaned = value.replace(/[^A-Za-z]/g, '').toUpperCase();
+    return cleaned.length > 1 ? cleaned.charAt(0) : cleaned;
+  };
+
+  const applyZeroPadding = (value: string, digits: number, type: string): string => {
+    if (digits === 0 || type === 'Alphabet') return value;
+    
+    if (type === 'Decimal') {
+      return value.padStart(digits, '0');
+    } else if (type === 'Hex') {
+      return value.padStart(digits, '0');
+    }
+    return value;
   };
   
   return (
@@ -376,6 +468,8 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                               value={field.digits || ''}
                               onChange={(e) => handleDeviceNameFieldChange(index, 'digits', parseInt(e.target.value) || 0)}
                               disabled={field.type === 'Alphabet'}
+                              inputProps={{ min: 0, max: 10 }}
+                              helperText={field.type === 'Alphabet' ? 'Fixed to 1' : 'Range: 0-10'}
                             />
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
@@ -502,6 +596,8 @@ export const BulkDeviceDialog: React.FC<BulkDeviceDialogProps> = ({
                               value={field.digits || ''}
                               onChange={(e) => handleSerialNoFieldChange(index, 'digits', parseInt(e.target.value) || 0)}
                               disabled={field.type === 'Alphabet'}
+                              inputProps={{ min: 0, max: 10 }}
+                              helperText={field.type === 'Alphabet' ? 'Fixed to 1' : 'Range: 0-10'}
                             />
                           </TableCell>
                           <TableCell sx={tableBodyCellStyle}>
