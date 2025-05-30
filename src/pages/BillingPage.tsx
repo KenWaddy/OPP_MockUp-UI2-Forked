@@ -144,7 +144,7 @@ export const BillingPage: React.FC = () => {
   };
 
 
-  const renderNumberOfDevices = (billing: BillingWithTenant) => {
+  const renderContractedDevices = (billing: BillingWithTenant) => {
     if (!billing.deviceContract || billing.deviceContract.length === 0) return 'No devices';
 
     const handleDeviceCountClick = () => {
@@ -163,6 +163,29 @@ export const BillingPage: React.FC = () => {
         onClick={handleDeviceCountClick}
       >
         {deviceSummary}
+      </span>
+    );
+  };
+  
+  const renderLinkedDevices = (billing: BillingWithTenant) => {
+    if (!billing.deviceIds || Object.keys(billing.deviceIds).length === 0) return 'No devices';
+
+    const handleDeviceCountClick = () => {
+      const allDeviceIds = Object.values(billing.deviceIds).flat() as string[];
+      setSelectedDeviceIds(allDeviceIds);
+      setDeviceListDialogOpen(true);
+    };
+
+    const deviceCounts = Object.entries(billing.deviceIds).map(([type, deviceIdArray]) => 
+      `${type} (${deviceIdArray.length})`
+    ).join(', ');
+    
+    return (
+      <span 
+        style={{ cursor: 'pointer', color: 'blue' }}
+        onClick={handleDeviceCountClick}
+      >
+        {deviceCounts}
       </span>
     );
   };
@@ -350,8 +373,11 @@ export const BillingPage: React.FC = () => {
                       onRequestSort={requestSort}
                       sx={tableHeaderCellStyle}
                     >
-                      {t('billing.numberOfDevices')}
+                      {t('billing.contractedDevices')}
                     </SortableTableCell>
+                    <TableCell sx={tableHeaderCellStyle}>
+                      {t('billing.linkedDevices')}
+                    </TableCell>
                     <SortableTableCell
                       sortKey="description"
                       sortConfig={sortConfig}
@@ -388,7 +414,8 @@ export const BillingPage: React.FC = () => {
                       <TableCell sx={tableBodyCellStyle}>{billing.startDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.endDate || 'N/A'}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{calculateContractPeriod(billing.startDate || 'N/A', billing.endDate)}</TableCell>
-                      <TableCell sx={tableBodyCellStyle}>{renderNumberOfDevices(billing)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{renderContractedDevices(billing)}</TableCell>
+                      <TableCell sx={tableBodyCellStyle}>{renderLinkedDevices(billing)}</TableCell>
                       <TableCell sx={tableBodyCellStyle}>{billing.description || '—'}</TableCell>
                     </TableRow>
                   ))}
