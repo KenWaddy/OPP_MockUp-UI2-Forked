@@ -41,6 +41,7 @@ import { exportToCsv } from '../commons/export_CSV.js';
 import { AttributesDialog } from '../components/dialogs/AttributesDialog';
 import { DeviceDialog } from '../components/dialogs/DeviceDialog';
 import { DeviceTypeDialog } from '../components/dialogs/DeviceTypeDialog';
+import { BulkDeviceDialog } from '../components/dialogs/BulkDeviceDialog';
 import { templates } from '../commons/templates';
 import { useTranslation } from "react-i18next";
 
@@ -62,6 +63,7 @@ export const DevicePage: React.FC = () => {
   const [editableDeviceTypes, setEditableDeviceTypes] = useState<DeviceType[]>([]);
   const [newDeviceType, setNewDeviceType] = useState<DeviceType>({ name: '', option: '', description: '' });
   const [tenantOptions, setTenantOptions] = useState<{id: string, name: string}[]>([]);
+  const [openBulkDeviceDialog, setOpenBulkDeviceDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
@@ -257,6 +259,23 @@ export const DevicePage: React.FC = () => {
       }
     }
   };
+
+  const handleSaveBulkDevices = async (devices: UnregisteredDevice[]) => {
+    try {
+      setLoading(true);
+      
+      for (const device of devices) {
+        await deviceService.addDevice(device);
+      }
+      
+      setOpenBulkDeviceDialog(false);
+      await loadDevices();
+    } catch (err) {
+      setError(`Error saving bulk devices: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleDeleteDevice = async (deviceId: string) => {
     try {
@@ -361,7 +380,7 @@ export const DevicePage: React.FC = () => {
           variant="outlined" 
           size="small" 
           startIcon={<AddIcon />}
-          onClick={() => handleOpenDeviceDialog()}
+          onClick={() => setOpenBulkDeviceDialog(true)}
           sx={{ fontWeight: 'bold' }}
         >
           {t('device.addDevice')}
@@ -661,6 +680,14 @@ export const DevicePage: React.FC = () => {
           ...newDeviceType,
           [field]: value
         })}
+      />
+
+      {/* Bulk Device Dialog */}
+      <BulkDeviceDialog
+        open={openBulkDeviceDialog}
+        onClose={() => setOpenBulkDeviceDialog(false)}
+        onSave={handleSaveBulkDevices}
+        deviceTypes={deviceTypes}
       />
     </div>
   );
