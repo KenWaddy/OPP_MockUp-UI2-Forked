@@ -334,27 +334,34 @@ export const DevicePage: React.FC = () => {
     setOpenBulkDeviceDialog(false);
   };
   
-  const handleSaveBulkDevice = async (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[]) => {
+  const handleSaveBulkDevice = async (deviceName: string, serialNo: string, deviceType: string, description: string, attributes: Attribute[], quantity: number) => {
     try {
+      console.log(`Creating ${quantity} devices with name: ${deviceName}, type: ${deviceType}`);
       setLoading(true);
       
-      // Create device object using form state from BulkDeviceDialog
-      const newDevice: UnregisteredDevice = {
-        id: faker.string.uuid(), // Auto-generated deviceId
-        name: deviceName, // From preview
-        type: deviceType,
-        serialNo: serialNo, // From preview  
-        description: description,
-        status: "Registered" as const,
-        attributes: attributes,
-        isUnregistered: true
-      };
+      // Create multiple devices based on quantity
+      for (let i = 0; i < quantity; i++) {
+        const newDevice: UnregisteredDevice = {
+          id: faker.string.uuid(), // Auto-generated unique deviceId for each device
+          name: deviceName, // From preview
+          type: deviceType,
+          serialNo: serialNo, // From preview  
+          description: description,
+          status: "Registered" as const,
+          attributes: attributes,
+          isUnregistered: true
+        };
+        
+        console.log(`Adding device ${i+1}/${quantity}: ${newDevice.id}`);
+        await deviceService.addDevice(newDevice);
+      }
       
-      await deviceService.addDevice(newDevice);
+      console.log('All devices created successfully, closing dialog');
       setOpenBulkDeviceDialog(false);
       await loadDevices(); // Reload devices from the service
     } catch (err) {
-      setError(`Error adding device: ${err instanceof Error ? err.message : String(err)}`);
+      console.error('Error creating devices:', err);
+      setError(`Error adding devices: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
